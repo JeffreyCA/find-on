@@ -2,8 +2,8 @@
 Chrome extension that searches for discussions of the current URL on Reddit and Hacker News.
 
 ## Download
-  - Google Webstore: 
-  - Microsoft Edge Webstore: 
+  - Google Webstore: https://chromewebstore.google.com/detail/dhbjhlhecoimpegffjpmagkhiflkbepe
+  - Microsoft Edge Webstore: https://microsoftedge.microsoft.com/addons/detail/find-on-reddit-hacker/pokgoanaapnbijafopjbgfbcjhhimknl
 
 ## Features
   - search for the URL of the current tab (automatically or when clicked)
