@@ -87,11 +87,12 @@ const SESSION_NAMES = new Set([
 ]);
 
 /**
- * Session ids, only when the value looks like one: `sid` is a story id on some sites (Slashdot's
- * `article.pl?sid=07/04/25/1953246`).
+ * Session ids. Only `sid` needs its value checked, since it is a story id on some sites (Slashdot's
+ * `article.pl?sid=07/04/25/1953246`); the other names are session ids whatever their format.
  */
 function isSessionId(name: string, value: string): boolean {
-  return SESSION_NAMES.has(name) && /^[0-9a-f]{26,40}$/i.test(value);
+  if (!SESSION_NAMES.has(name)) return false;
+  return name !== 'sid' || /^[0-9a-f]{26,40}$/i.test(value);
 }
 
 /**

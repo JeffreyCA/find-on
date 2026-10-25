@@ -519,6 +519,13 @@ const TABLE: Array<[number, string, string, string, string?]> = [
     'lobste.rs/s/abc123/some_title',
     'lobste.rs/s/abc123/some_title',
   ],
+  // A PHP session id in PHP's default (non-hex) format.
+  [
+    97,
+    'https://example.com/index.php?article=7&PHPSESSID=8u5v0tqbo3l2jr1gq7bcmh4o2k',
+    'example.com/index.php?article=7',
+    'example.com?article=7',
+  ],
 ];
 
 describe('computeKeys table', () => {
