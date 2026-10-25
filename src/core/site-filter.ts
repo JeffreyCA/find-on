@@ -7,7 +7,7 @@
 //   example.*          example.com, example.de, example.co.uk and so on (any public suffix)
 // For convenience a pasted URL is accepted too: the scheme, "www.", query and fragment are ignored.
 
-import { registrableLabels } from './url/common';
+import { pctNormalize, registrableLabels } from './url/common';
 
 export interface SiteFilter {
   mode: 'block' | 'allow';
@@ -48,7 +48,7 @@ function parsePattern(raw: string): ParsedPattern | null {
   }
   const host = url.hostname.replace(/\.$/, '').replace(/^www\./, '');
   if (!anySuffix && !host.includes('.')) return null;
-  const path = pathText ? url.pathname.toLowerCase().replace(/\/+$/, '') : '';
+  const path = pathText ? comparablePath(url.pathname).replace(/\/+$/, '') : '';
   return { raw, host, anySuffix, path };
 }
 
@@ -75,6 +75,14 @@ function matches(pattern: ParsedPattern, host: string, path: string): boolean {
   return hostMatches && path.startsWith(pattern.path);
 }
 
+/**
+ * A path as compared by patterns: escapes of unreserved characters decoded ("/%70rivate" is
+ * "/private", as the lookup sends it), reserved ones like %2F kept, and lowercased.
+ */
+function comparablePath(path: string): string {
+  return pctNormalize(path).toLowerCase();
+}
+
 /** The host without its public suffix, for `name.*` patterns: "www.google" for www.google.co.uk. */
 function withoutSuffix(host: string): string {
   return host
@@ -96,7 +104,7 @@ export function isAllowedByFilter(url: string, filter: SiteFilter): boolean {
     return false;
   }
   const host = parsed.hostname.toLowerCase().replace(/\.$/, '');
-  const path = parsed.pathname.toLowerCase();
+  const path = comparablePath(parsed.pathname);
   const allowMode = filter.mode === 'allow';
   const { patterns } = parsePatterns(allowMode ? filter.allow : filter.block);
   const listed = patterns.some((p) => matches(p, host, path));

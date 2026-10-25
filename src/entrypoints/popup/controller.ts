@@ -7,7 +7,7 @@ import { lookupKey } from '@/core/lookup';
 import { SOURCE_IDS, type LookupResult } from '@/core/types';
 import { isLookupResult, readResult, storageKey } from '@/platform/cache';
 import { send } from '@/platform/messaging';
-import { initialSource, inPrivateWindow, toTarget, typedSource, type Target } from './target';
+import { initialSource, popupWindow, toTarget, typedSource, type Target } from './target';
 
 export interface PopupController {
   /** Null until the target page is known. */
@@ -41,6 +41,7 @@ export function usePopup(): PopupController {
   // The storage.session key of the current lookup's snapshots; null when not following them.
   const watchRef = useRef<string | null>(null);
   const incognitoRef = useRef(false);
+  const windowIdRef = useRef<number | undefined>(undefined);
 
   const accept = useCallback((run: number, next: LookupResult) => {
     if (run !== runRef.current) return;
@@ -79,6 +80,7 @@ export function usePopup(): PopupController {
         depth: 'full',
         ...(force && { force: true }),
         ...(target.tabId !== undefined && { tabId: target.tabId }),
+        ...(windowIdRef.current !== undefined && { windowId: windowIdRef.current }),
       }).then(
         (result) => {
           if (run !== runRef.current) return;
@@ -107,11 +109,12 @@ export function usePopup(): PopupController {
     browser.storage.session.onChanged.addListener(onChanged);
 
     let live = true;
-    Promise.all([initialSource(location.search, Date.now()), inPrivateWindow()]).then(
-      ([source, incognito]) => {
+    Promise.all([initialSource(location.search, Date.now()), popupWindow()]).then(
+      ([source, win]) => {
         if (!live) return;
-        incognitoRef.current = incognito;
-        setState((s) => ({ ...s, incognito }));
+        incognitoRef.current = win.incognito;
+        windowIdRef.current = win.id;
+        setState((s) => ({ ...s, incognito: win.incognito }));
         start(toTarget(source), false);
       },
       (error: unknown) => console.error('Find On: finding the page failed', error),

@@ -57,7 +57,7 @@ async function handleRequest(
 
   const { key, result } = await runLookup(req.url, {
     depth: req.depth,
-    incognito: await isIncognito(req.tabId, sender),
+    incognito: await isIncognito(req.tabId, sender, req.windowId),
     force: req.force ?? false,
   });
   // The badge follows popup lookups too, for the tab they were made for.
@@ -69,17 +69,20 @@ async function handleRequest(
 }
 
 /**
- * Whether a lookup request comes from a private window. The popup is not a tab, so without a tab id
- * the last focused window (the one the popup belongs to) decides. Errs on the private side.
+ * Whether a request comes from a private window: the tab it is about, else the sending tab, else the
+ * window the popup (which is not a tab) says it belongs to. Never the focused window, which may have
+ * changed by now. Errs on the private side when none of these is known.
  */
 async function isIncognito(
   tabId: number | undefined,
   sender: Browser.runtime.MessageSender,
+  windowId?: number,
 ): Promise<boolean> {
   try {
     if (tabId !== undefined) return (await browser.tabs.get(tabId)).incognito;
     if (sender.tab !== undefined) return sender.tab.incognito;
-    return (await browser.windows.getLastFocused()).incognito;
+    if (windowId !== undefined) return (await browser.windows.get(windowId)).incognito;
+    return true;
   } catch {
     return true;
   }

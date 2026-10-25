@@ -11,7 +11,8 @@ export type SettingsChange = (current: Settings) => Settings;
  * The settings as the page shows them, and `update` to change them. A change applies to what the
  * page shows and is written at once, with no read first: the page may be closing (a write that
  * waits for a read never starts then), and storage applies writes in call order, so quick
- * successive changes never overwrite each other. While writes are pending, storage events are
+ * successive changes never overwrite each other. Only the settings a change touches are written,
+ * so changes made meanwhile on other pages to other settings are kept. While writes are pending, storage events are
  * ignored (they would briefly show an older value); afterwards the page shows what storage holds,
  * which also undoes a change whose write failed.
  */
@@ -40,7 +41,7 @@ export function useSettingsEditor(): {
       const next = change(current);
       show(next);
       pendingRef.current += 1;
-      return saveSettings(next).finally(() => {
+      return saveSettings(next, current).finally(() => {
         pendingRef.current -= 1;
         if (pendingRef.current > 0) return;
         getSettings().then(

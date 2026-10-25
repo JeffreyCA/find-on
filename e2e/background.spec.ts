@@ -96,7 +96,10 @@ async function prepare(
   network.requests.length = 0;
   network.unexpected.length = 0;
   await serviceWorker.evaluate(async (value) => {
-    await chrome.storage.sync.set({ settings: value });
+    // One sync storage key per setting ("settings.autoCheck", ...).
+    await chrome.storage.sync.set(
+      Object.fromEntries(Object.entries(value).map(([field, v]) => [`settings.${field}`, v])),
+    );
     await chrome.storage.local.set({ onboarded: true });
   }, settings);
 }
@@ -164,6 +167,6 @@ test('skips sites on the block list', async ({ context, serviceWorker }) => {
   expect(network.requests).toEqual([]);
 
   // Control: the same tab is checked once the site is no longer blocked.
-  await serviceWorker.evaluate(() => chrome.storage.sync.set({ settings: {} }));
+  await serviceWorker.evaluate(() => chrome.storage.sync.clear());
   await expect.poll(() => badgeOf(serviceWorker, ARTICLE)).toBe(BADGE);
 });

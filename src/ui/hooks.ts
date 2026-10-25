@@ -50,12 +50,13 @@ function useWatched<T>(read: () => Promise<T>, watch: (set: (value: T) => void) 
   return value;
 }
 
-/** Writes a change to the settings on top of the current value. */
+/** Applies a change to the current settings and writes the settings it changed. */
 export async function updateSettings(
   change: Partial<Settings> | ((current: Settings) => Settings),
 ): Promise<void> {
   const current = await getSettings();
-  await saveSettings(typeof change === 'function' ? change(current) : { ...current, ...change });
+  const next = typeof change === 'function' ? change(current) : { ...current, ...change };
+  await saveSettings(next, current);
 }
 
 /** `Date.now()`, refreshed every `intervalMs` while `active`. */

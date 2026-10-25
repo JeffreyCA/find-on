@@ -6,7 +6,16 @@ import { browser, type Browser } from '#imports';
 import { isRecord, type Depth, type LookupResult } from '@/core/types';
 
 export type Request =
-  | { type: 'lookup'; url: string; depth: Depth; force?: boolean; tabId?: number }
+  | {
+      type: 'lookup';
+      url: string;
+      depth: Depth;
+      force?: boolean;
+      /** The tab the result belongs to (its badge is updated). */
+      tabId?: number;
+      /** The window the popup belongs to: decides whether the lookup is private. */
+      windowId?: number;
+    }
   | { type: 'reddit-check' };
 
 export type ResponseFor<R extends Request> = R extends { type: 'lookup' }

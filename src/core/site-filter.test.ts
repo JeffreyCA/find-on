@@ -81,6 +81,8 @@ describe('isAllowedByFilter', () => {
     // "google.*/search" covers every Google domain, and nothing that only ends in "google".
     expect(isAllowedByFilter('https://www.google.co.uk/search?q=x', filter)).toBe(false);
     expect(isAllowedByFilter('https://google.de/search?q=x', filter)).toBe(false);
+    // Escaped letters are the same path ("%73" is "s"), as the lookup would send it.
+    expect(isAllowedByFilter('https://www.google.com/%73earch?q=x', filter)).toBe(false);
     expect(isAllowedByFilter('https://notgoogle.de/search?q=x', filter)).toBe(true);
     expect(isAllowedByFilter('https://google.evil.com/search?q=x', filter)).toBe(true);
     expect(isAllowedByFilter('https://discord.com/channels/1/2', filter)).toBe(false);

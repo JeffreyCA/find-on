@@ -106,13 +106,15 @@ export function typedSource(input: string): PageSource {
 }
 
 /**
- * Whether the popup belongs to a private window. The background makes the same call for requests
- * without a tab; when in doubt, both err on the private side.
+ * The window the popup belongs to, and whether it is private. Its id goes with each lookup, so the
+ * background judges the popup's own window rather than whichever one has focus by then. When in
+ * doubt, it errs on the private side.
  */
-export async function inPrivateWindow(): Promise<boolean> {
+export async function popupWindow(): Promise<{ id?: number; incognito: boolean }> {
   try {
-    return (await browser.windows.getCurrent()).incognito;
+    const { id, incognito } = await browser.windows.getCurrent();
+    return { ...(id !== undefined && { id }), incognito };
   } catch {
-    return true;
+    return { incognito: true };
   }
 }
