@@ -50,14 +50,14 @@
   --fs-meta: 12px; /* row meta, hints, status lines */
   --fs-ui: 13px; /* controls, URL field, buttons */
   --fs-body: 14px; /* options and welcome body */
-  --fs-title: 14px; /* popup row titles */
+  --fs-title: 13px; /* popup row titles */
   --fs-count: 15px; /* popup comment counts */
   --fs-lead: 16px; /* empty and not-checkable messages */
   --fs-h2: 16px; /* section heads */
   --fs-h1: 22px; /* page titles */
 
   --lh-tight: 1.25;
-  --lh-title: 1.3;
+  --lh-title: 1.35;
   --lh-meta: 1.4;
   --lh-body: 1.5;
 
