@@ -69,3 +69,5 @@ store/            Store screenshots
 Originally forked from [AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit); v2 is a complete rewrite.
 
 The tracking-parameter list in `src/core/url/tracking-params.generated.json` is generated from Brave's [adblock-lists](https://github.com/brave/adblock-lists) and Firefox's [StripOnShare list](https://github.com/mozilla-firefox/firefox/blob/main/toolkit/components/antitracking/StripOnShareLists/MPL2/StripOnShare.json), and is covered by the [Mozilla Public License 2.0](src/core/url/MPL-2.0.txt). The rest of the project is under the [MIT License](LICENSE).
+
+The Hacker News and Reddit names and favicons belong to their owners and are used only to label links to their sites.

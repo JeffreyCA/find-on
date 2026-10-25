@@ -30,11 +30,6 @@
   /* Invalid input and warnings: amber, so nothing reads as an error by colour alone */
   --attention: light-dark(#8f5200, #e6b05c);
 
-  /* Source marks (non-text, next to the source's name): HN orange and old-Reddit blue. Each is at
-     least 3:1 on --bg, --bg-2 and --bg-3 in both themes. */
-  --hn: light-dark(#c75f0c, #ee9a52);
-  --reddit: light-dark(#4b72c4, #8ba8e8);
-
   /* Primary buttons are ink, not accent */
   --primary-bg: var(--ink);
   --primary-bg-hover: light-dark(#3b3f45, #ffffff);

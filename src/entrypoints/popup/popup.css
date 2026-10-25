@@ -114,6 +114,8 @@
   color: var(--ink-3);
 }
 .band-source {
+  display: inline-flex;
+  align-items: baseline;
   color: var(--ink);
   font-weight: 600;
 }

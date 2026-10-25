@@ -243,21 +243,24 @@ code {
   stroke-linejoin: round;
 }
 
-/* Source marks: an HN square and a Reddit circle (SourceMark.tsx) */
+/* Source marks: each site's favicon (SourceMark.tsx), sized to the text beside it */
 .mark {
-  position: relative;
-  /* Every mark sits on the text baseline (flex or inline baseline alignment), which puts its
-     centre 5px up. Move it down so the centre lands halfway between the x-height and cap-height
-     centres (about 0.31em up), which reads as centred next to both "HN" and "r/sub". */
-  top: calc(5px - 0.31em);
+  --mark-size: 1.15em;
   flex: none;
-  fill: currentColor;
+  width: var(--mark-size);
+  height: var(--mark-size);
+  /* Always a flex item beside the text it labels (every container below is a baseline-aligned flex
+     row), centred on that text's line box. It is shorter than the line, so it never stretches the
+     line, pushes the label down or gets clipped, whatever the font. The line box centre sits a
+     little above the middle of the letters (fonts have more ascent than descent), so the nudge
+     lands it halfway between the x-height and cap-height centres. */
+  align-self: center;
+  translate: 0 0.04em;
+  user-select: none;
 }
-.mark-hn {
-  color: var(--hn);
-}
-.mark-reddit {
-  color: var(--reddit);
+.choice-label:has(> .mark) {
+  display: inline-flex;
+  align-items: baseline;
 }
 
 /* Choices (radio and checkbox rows) */
