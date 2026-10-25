@@ -148,14 +148,12 @@ export function buildModel(input: ModelInput): PopupModel {
   const totalSimilar = all.length - total;
   const answered = views.filter((s) => s.state.status === 'ok');
   let empty: string | null = null;
-  if (views.every((s) => s.state.status === 'off')) empty = 'Both sources are off in settings.';
+  if (views.every((s) => s.state.status === 'off')) empty = 'Both sources are off in settings';
   else if (!pending && total === 0 && answered.length > 0) {
-    const unanswered = views.find((s) => s.state.status !== 'ok' && s.state.status !== 'off');
-    if (page?.noLink) empty = 'Nothing else to look up.';
-    else if (totalSimilar > 0) empty = 'No discussions of this exact page.';
-    else if (unanswered !== undefined && answered.length === 1 && answered[0] !== undefined) {
-      empty = `No discussions on ${SOURCE_NAMES[answered[0].id]}.`;
-    } else empty = 'No discussions found.';
+    if (page?.noLink) empty = 'Nothing else to look up';
+    else if (totalSimilar > 0) empty = 'No discussions of this exact page';
+    // Names what was searched: the sources that answered.
+    else empty = `No discussions on ${answered.map((s) => SOURCE_NAMES[s.id]).join(' or ')}`;
   }
   const submit =
     empty !== null && totalSimilar === 0 && !page?.noLink

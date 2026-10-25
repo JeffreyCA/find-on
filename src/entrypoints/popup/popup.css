@@ -467,11 +467,16 @@
 
 /* Empty and not-checkable states */
 
+/* Empty and can't-be-checked states: a quiet centred line, then any actions */
 .empty {
-  padding: var(--s-6) var(--gutter) var(--s-5);
+  /* The page line above already ends in 8px of padding, and the text's line height adds a little
+     more, so 8px here balances the 20px below the actions. */
+  padding: 8px var(--gutter) 20px;
+  text-align: center;
 }
 .empty-lead {
-  font-size: var(--fs-lead);
+  color: var(--ink-2);
+  font-size: var(--fs-body);
 }
 .empty-address {
   margin-top: var(--s-2);
@@ -484,8 +489,13 @@
 .empty-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--s-4);
   margin-top: var(--s-5);
+}
+.empty-actions .btn {
+  height: 28px;
+  padding: 0 var(--s-4);
 }
 .empty + .others {
   margin-top: var(--s-2);

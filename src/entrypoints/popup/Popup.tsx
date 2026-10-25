@@ -164,7 +164,7 @@ export function Popup({
         {target.kind === 'unchecked' ? (
           <div class="empty">
             <p class="empty-lead">
-              {target.typed ? "This address can't be checked." : "This page can't be checked."}
+              {target.typed ? "This address can't be checked" : "This page can't be checked"}
             </p>
             {target.address !== '' && <p class="empty-address">{target.address}</p>}
           </div>
