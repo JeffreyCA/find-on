@@ -234,6 +234,7 @@ function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
         aria-describedby={`${id}-meta`}
         onClick={(event) => onLink(event, href)}
         onAuxClick={(event) => onLink(event, href)}
+        onMouseEnter={(event) => showFullTitle(event.currentTarget, d.title)}
       >
         <span class="row-title" id={`${id}-title`}>
           {d.title}
@@ -272,6 +273,16 @@ function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
       </a>
     </li>
   );
+}
+
+/**
+ * Gives a row the native tooltip with its full title, but only while the two-line clamp cuts the
+ * title off; a title that fits needs no tooltip. Checked on hover, so it follows the current layout.
+ */
+function showFullTitle(link: HTMLAnchorElement, title: string): void {
+  const text = link.querySelector('.row-title');
+  if (text !== null && text.scrollHeight > text.clientHeight + 1) link.title = title;
+  else link.removeAttribute('title');
 }
 
 /** The submitted URL, with the parts that differ from the looked-up page set darker. */
