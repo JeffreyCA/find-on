@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Find On: a page with a turned corner holding a pair of opening quotation marks. Edges sit on
+       the 16 px pixel grid (8 units per pixel) and the marks keep a gap of more than 1.5 px there. -->
+  <path d="M22 8H88L112 32V114A6 6 0 0 1 106 120H22A6 6 0 0 1 16 114V14A6 6 0 0 1 22 8Z" fill="#167c63"/>
+  <path d="M88 8V26A6 6 0 0 0 94 32H112Z" fill="#0c5545"/>
+  <g fill="#ffffff">
+    <path transform="translate(42 80.3) rotate(180) scale(1.12)" d="M14 0C14 18 4 31-12 37C-3 29 1 22 0 14A14 14 0 1 1 14 0Z"/>
+    <path transform="translate(86 80.3) rotate(180) scale(1.12)" d="M14 0C14 18 4 31-12 37C-3 29 1 22 0 14A14 14 0 1 1 14 0Z"/>
+  </g>
+</svg>

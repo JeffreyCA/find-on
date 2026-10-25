@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "jsx-a11y", "react"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "options": {
+    "typeAware": true,
+    "reportUnusedDisableDirectives": "warn"
+  },
+  "rules": {
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/await-thenable": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "import/no-cycle": "error",
+    "eqeqeq": ["error", "smart"],
+    "react/react-in-jsx-scope": "off"
+  },
+  "ignorePatterns": [".output/**", ".wxt/**"],
+  "overrides": [
+    {
+      "files": ["e2e/**"],
+      "rules": {
+        "no-empty-pattern": "off"
+      }
+    }
+  ]
+}

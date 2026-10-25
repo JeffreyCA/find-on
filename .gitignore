@@ -1,4 +1,11 @@
+node_modules
+.output
+.wxt
 *.zip
+test-results
+playwright-report
+coverage
+.DS_Store
 
-# ignore files created by "Local History" VS Code extension
+# Files created by the "Local History" VS Code extension
 .history/

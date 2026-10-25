@@ -1,0 +1,73 @@
+{
+  "exhaustive": { "nbHits": true },
+  "exhaustiveNbHits": true,
+  "hits": [
+    {
+      "author": "keyle",
+      "created_at_i": 1311159699,
+      "num_comments": 0,
+      "objectID": "2784984",
+      "points": 8,
+      "title": "Xkcd: Standards",
+      "url": "http://xkcd.com/927/"
+    },
+    {
+      "author": "qin",
+      "created_at_i": 1634592371,
+      "num_comments": 2,
+      "objectID": "28911975",
+      "points": 7,
+      "title": "Standards (Xkcd)",
+      "url": "https://xkcd.com/927/"
+    },
+    {
+      "author": "7777777phil",
+      "created_at_i": 1771694041,
+      "num_comments": 0,
+      "objectID": "47102641",
+      "points": 2,
+      "title": "How Standards Proliferate",
+      "url": "https://xkcd.com/927/"
+    },
+    {
+      "author": "franze",
+      "created_at_i": 1601961236,
+      "num_comments": 0,
+      "objectID": "24694908",
+      "points": 2,
+      "title": "Xkcd 927",
+      "url": "https://xkcd.com/927/"
+    },
+    {
+      "author": "prateekj",
+      "created_at_i": 1391454216,
+      "num_comments": 0,
+      "objectID": "7172732",
+      "points": 1,
+      "title": "How Standards Proliferate",
+      "url": "http://xkcd.com/927/"
+    },
+    {
+      "author": "mouse_",
+      "created_at_i": 1719755861,
+      "num_comments": 0,
+      "objectID": "40837188",
+      "points": 1,
+      "title": "Xkcd: Standards",
+      "url": "https://xkcd.com/927/"
+    }
+  ],
+  "hitsPerPage": 100,
+  "nbHits": 6,
+  "nbPages": 1,
+  "page": 0,
+  "params": "query=xkcd.com+927&restrictSearchableAttributes=url&tags=story&typoTolerance=false&advancedSyntax=false&analytics=false&attributesToRetrieve=title%2Curl%2Cpoints%2Cnum_comments%2Cauthor%2Ccreated_at_i&attributesToHighlight=none&hitsPerPage=100&analyticsTags=backend",
+  "processingTimeMS": 3,
+  "processingTimingsMS": {
+    "_request": { "queue": 14, "roundTrip": 17 },
+    "fetch": { "query": 1, "total": 2 },
+    "total": 3
+  },
+  "query": "xkcd.com 927",
+  "serverTimeMS": 17
+}

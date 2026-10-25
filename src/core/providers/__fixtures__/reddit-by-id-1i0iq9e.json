@@ -1,0 +1,52 @@
+{
+  "kind": "Listing",
+  "data": {
+    "after": null,
+    "dist": 1,
+    "modhash": "",
+    "geo_filter": "",
+    "children": [
+      {
+        "kind": "t3",
+        "data": {
+          "approved_at_utc": null,
+          "subreddit": "ultimate",
+          "selftext": "",
+          "title": "Regarding Club team communication platforms:",
+          "subreddit_name_prefixed": "r/ultimate",
+          "hidden": false,
+          "name": "t3_1i0iq9e",
+          "quarantine": false,
+          "upvote_ratio": 0.99,
+          "ups": 87,
+          "domain": "xkcd.com",
+          "is_original_content": false,
+          "author_fullname": "t2_4a8tp",
+          "score": 87,
+          "thumbnail": "https://external-preview.redd.it/OfV199N5t7kUx19QadMf9ZYTPy4oVKe9FMQnasB-dWA.png?width=140&height=79&auto=webp&s=83bfdad1e436d4f6b419fdaa7ec56f5f3cd9d8e2",
+          "edited": false,
+          "is_self": false,
+          "created": 1736787863.0,
+          "removed_by_category": null,
+          "url_overridden_by_dest": "https://xkcd.com/927/",
+          "archived": false,
+          "over_18": false,
+          "spoiler": false,
+          "locked": false,
+          "stickied": false,
+          "subreddit_id": "t5_2qnym",
+          "id": "1i0iq9e",
+          "author": "thesolmachine",
+          "num_comments": 13,
+          "permalink": "/r/ultimate/comments/1i0iq9e/regarding_club_team_communication_platforms/",
+          "url": "https://xkcd.com/927/",
+          "subreddit_subscribers": 76238,
+          "created_utc": 1736787863.0,
+          "num_crossposts": 0,
+          "is_video": false
+        }
+      }
+    ],
+    "before": null
+  }
+}
