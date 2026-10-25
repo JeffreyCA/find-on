@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reddit - Prove your humanity</title>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <link
+      href="https://www.redditstatic.com/shreddit/assets/favicon/64x64.png"
+      rel="icon shortcut"
+      sizes="64x64"
+    />
+    <script>
+      function submit() {
+        document.forms[0].submit();
+      }
+    </script>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <a href="https://www.reddit.com">
+        <img src="data:image/png;base64,iVBORw0KGgo=" />
+      </a>
+    </div>
+    <div class="main">
+      <h1>Prove your humanity</h1>
+      <p>
+        We’re committed to safety and security. But not for bots. Complete the challenge below and
+        let us know you’re a real person.
+      </p>
+      <form method="POST" action="/?captcha=1">
+        <div
+          class="g-recaptcha"
+          data-sitekey="6LeTlV4oAAAAAGioktuFt-KvUtwKRJRfc8A7UJws"
+          data-action="edge"
+          data-callback="submit"
+        ></div>
+      </form>
+    </div>
+    <div class="footer">
+      <a href="https://www.redditinc.com/" target="_blank"
+        >Reddit, Inc. © "2026". All rights reserved.</a
+      >
+      <div>
+        <a href="https://www.reddit.com/help/useragreement" target="_blank">User Agreement</a>
+        <a href="https://www.reddit.com/help/privacypolicy" target="_blank">Privacy Policy</a>
+        <a href="https://www.reddit.com/help/contentpolicy" target="_blank">Content Policy</a>
+        <a href="https://support.reddithelp.com/hc/en-us" target="_blank">Help</a>
+      </div>
+    </div>
+  </body>
+</html>

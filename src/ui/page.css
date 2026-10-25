@@ -1,0 +1,44 @@
+/* Text and controls on the full-page views (options and welcome), which read at a larger size than
+   the popup. Import after base.css; each page's layout lives next to its entrypoint. */
+
+.page {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+.page .choices {
+  gap: var(--s-4);
+}
+.page .choices.is-inline {
+  column-gap: var(--s-8);
+  row-gap: var(--s-4);
+}
+.page .choice-hint,
+.page .status-text,
+.page .reddit-sign-in {
+  font-size: var(--fs-ui);
+  line-height: 1.45;
+}
+
+.hint {
+  color: var(--ink-3);
+  font-size: var(--fs-ui);
+  line-height: 1.45;
+}
+.hint code {
+  color: var(--ink-2);
+}
+.hint .btn-text {
+  font-size: inherit;
+}
+
+.page .btn-text:disabled {
+  color: var(--ink-3);
+  text-decoration: none;
+  cursor: default;
+}
+
+/* The badge preview is near-black in both themes; on a dark page it gets an edge. */
+.page .badge-chip {
+  box-shadow: 0 0 0 1px light-dark(transparent, var(--rule-strong));
+}

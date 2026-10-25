@@ -1,0 +1,144 @@
+/* Options page: one centred column, a section name on the left of each group of controls. */
+
+.options {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--s-10) var(--s-9) 96px;
+}
+
+.page-head {
+  padding-bottom: var(--s-6);
+  border-bottom: 1px solid var(--ink);
+}
+.page-kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+  color: var(--ink-3);
+  font-size: var(--fs-ui);
+}
+.page-kicker img {
+  display: block;
+  margin-right: var(--s-1);
+}
+
+.section {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  column-gap: var(--s-9);
+  padding: 22px 0 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.section:last-child {
+  border-bottom: 0;
+}
+.section-head h2 {
+  font-size: 15px;
+  line-height: 21px;
+}
+.section-status {
+  display: block;
+  min-height: 20px;
+  margin-top: var(--s-2);
+}
+.section-body {
+  display: grid;
+  align-content: start;
+  gap: var(--s-5);
+  min-width: 0;
+}
+
+/* Sites */
+
+.patterns {
+  max-height: 32lh;
+}
+.flags {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: calc(-1 * var(--s-2));
+}
+.flags:empty {
+  display: none;
+}
+.flags code {
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+.list-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4) var(--s-8);
+}
+.list-head .btn-text {
+  flex: none;
+  font-size: var(--fs-ui);
+}
+
+/* Sources, links */
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-6);
+}
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-4) var(--s-8);
+}
+.field-label {
+  min-width: 160px;
+}
+
+.badge-preview {
+  margin-left: var(--s-4);
+}
+
+/* Shortcut */
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+}
+.keys {
+  display: inline-flex;
+  gap: var(--s-2);
+}
+.shortcut-none {
+  color: var(--ink-3);
+}
+.shortcut-change {
+  margin-left: auto;
+  font-size: var(--fs-ui);
+}
+
+@media (max-width: 640px) {
+  .options {
+    padding: var(--s-8) var(--gutter) var(--s-10);
+  }
+  .section {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--s-5);
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s-5);
+  }
+  .section-status {
+    margin-top: 0;
+  }
+}
+
+.choice-label .mark {
+  margin-right: 7px;
+}

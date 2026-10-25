@@ -1,0 +1,504 @@
+/* Popup layout. The page line, onboarding, status bands and filter bar stay put; only the results
+   scroll, so the popup never grows past Chrome's 600 px limit. */
+
+.popup {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  max-height: 600px;
+}
+
+.top {
+  flex: none;
+}
+
+.results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Page line */
+
+.pageline {
+  padding: var(--s-5) var(--gutter) var(--s-4);
+}
+.pageline-form {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.pageline-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 30px;
+  margin-right: var(--s-2);
+  padding: 0 var(--s-4);
+  font-size: var(--fs-ui);
+  text-overflow: ellipsis;
+}
+.pageline-field:hover {
+  border-color: var(--ink-3);
+}
+.pageline-field:focus-visible {
+  outline-offset: 0;
+  border-color: var(--accent);
+}
+.pageline-note {
+  margin-top: var(--s-2);
+  overflow: hidden;
+  color: var(--ink-3);
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pageline-from {
+  color: var(--ink-2);
+}
+
+.is-busy .icon {
+  animation: spin 900ms linear infinite;
+}
+@keyframes spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+/* First-use choice */
+
+.onboarding {
+  display: grid;
+  gap: var(--s-4);
+  padding: var(--s-5) var(--gutter);
+  border-top: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.onboarding-text {
+  color: var(--ink-2);
+  font-size: var(--fs-meta);
+  line-height: var(--lh-meta);
+}
+.onboarding-text .btn-text {
+  font-size: inherit;
+}
+.onboarding-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+}
+.onboarding-done {
+  padding: var(--s-3) var(--gutter);
+  border-top: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+
+/* Per-source status bands (above the results) and notes (below them) */
+
+.band,
+.note {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding: var(--s-3) var(--gutter);
+  font-size: var(--fs-meta);
+  color: var(--ink-2);
+}
+.band {
+  border-top: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.note {
+  color: var(--ink-3);
+}
+.band-source {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--ink);
+  font-weight: 600;
+}
+.band-source .mark {
+  margin-right: 5px;
+}
+.note .band-source {
+  color: var(--ink-2);
+}
+.band-action {
+  flex: none;
+  font-size: var(--fs-meta);
+}
+.band-action[aria-disabled='true'] {
+  color: var(--ink-3);
+  cursor: default;
+}
+
+/* Filter and sort */
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  min-height: 35px;
+  padding: 0 var(--s-4) 0 var(--gutter);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.bar .segment {
+  padding: var(--s-4) 0 7px;
+}
+.bar-summary {
+  color: var(--ink-2);
+}
+
+.pending-dots {
+  display: inline-flex;
+  gap: 2px;
+  align-self: center;
+}
+.pending-dots i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.pending-dots i:nth-child(2) {
+  animation-delay: 150ms;
+}
+.pending-dots i:nth-child(3) {
+  animation-delay: 300ms;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.sort {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink-2);
+}
+.sort select {
+  appearance: none;
+  /* As wide as the chosen order, so the chevron follows the text */
+  field-sizing: content;
+  height: 26px;
+  /* Room for the sort glyph (14px + 5px) on the left and the chevron on the right */
+  padding: 0 22px 0 calc(var(--s-3) + 19px);
+  border: 0;
+  border-radius: var(--r-1);
+  background: none;
+  color: inherit;
+  font-size: var(--fs-ui);
+  cursor: pointer;
+}
+.sort select:hover {
+  background: var(--bg-2);
+  color: var(--ink);
+}
+.sort select:focus-visible {
+  outline-offset: 0;
+}
+.sort .icon {
+  position: absolute;
+  pointer-events: none;
+}
+/* The sort glyph, then the chevron */
+.sort .icon:first-of-type {
+  left: var(--s-3);
+}
+.sort .icon:last-of-type {
+  right: var(--s-3);
+}
+
+/* Rows */
+
+.row {
+  position: relative;
+}
+.row + .row::before,
+.fold::before,
+.fold + .row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: var(--gutter);
+  left: var(--gutter);
+  height: 1px;
+  background: var(--rule);
+}
+
+.row-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--s-5);
+  padding: 5px var(--gutter);
+  color: inherit;
+  text-decoration: none;
+}
+.row-link:hover {
+  background: var(--bg-2);
+  color: inherit;
+}
+.row-link:active {
+  background: var(--bg-3);
+}
+.row-link:focus-visible {
+  outline-offset: calc(-1 * var(--focus-width));
+}
+
+.row-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  overflow-wrap: anywhere;
+}
+
+.row-count {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  /* Centred against the title and meta lines, however many lines the title takes */
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+.row-n {
+  font-size: var(--fs-count);
+  font-weight: 600;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.row-link:hover .row-n {
+  color: var(--accent);
+}
+.row-unit {
+  margin-top: 1px;
+  color: var(--ink-3);
+  font-size: var(--fs-micro);
+  line-height: 16px;
+}
+
+/* One line: an item that doesn't fit wraps onto a second line, which is hidden, so items drop off
+   whole from the end instead of being clipped mid-word. */
+.row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  height: 16px;
+  min-width: 0;
+  margin-top: 1px;
+  overflow: hidden;
+  color: var(--ink-3);
+  font-size: var(--fs-meta);
+  line-height: 16px;
+  white-space: nowrap;
+}
+.row-meta > * {
+  flex: none;
+}
+.row-meta > * + *::before {
+  content: '\00b7';
+  margin: 0 5px;
+  color: var(--ink-3);
+  font-weight: 400;
+}
+/* A long subreddit name is cut at a fixed width, and the flags and the author come after the age
+   (the author takes what is left, or drops off when that is too little), so the numbers and the
+   age always show. */
+.row-venue {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+.row-venue-name {
+  max-width: 12em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.row-venue .mark {
+  margin-right: 5px;
+}
+.row-flags {
+  display: inline-flex;
+  gap: 4px;
+  align-items: baseline;
+}
+.row-flags .tag {
+  margin-left: 0;
+}
+.row-author {
+  flex: 1 1 0;
+  min-width: 5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-url {
+  display: -webkit-box;
+  grid-column: 1;
+  margin-top: 1px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  color: var(--ink-3);
+  font-size: var(--fs-meta);
+  line-height: 16px;
+  overflow-wrap: anywhere;
+}
+.row-url b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--bg-3);
+  color: var(--ink-2);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  line-height: 15px;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+.tag-current {
+  /* Follows a space in the title */
+  margin-left: 2px;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Placeholder rows */
+
+.is-skeleton .row-link:hover,
+.is-skeleton .row-link:active {
+  background: none;
+}
+.sk {
+  display: inline-block;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--bg-3);
+  vertical-align: middle;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.is-skeleton .row-title {
+  display: flex;
+  align-items: center;
+  height: 18px;
+}
+.is-skeleton .row-title .sk {
+  height: 11px;
+}
+.is-skeleton .row-meta {
+  align-items: center;
+}
+.sk-count {
+  width: 22px;
+  margin-top: 4px;
+}
+.sk-meta {
+  width: 120px;
+  height: 8px;
+}
+.is-skeleton .row-meta > .sk::before {
+  content: none;
+}
+.is-skeleton .row-meta > .sk {
+  margin-left: var(--s-3);
+}
+
+/* Disclosures: "+N more with no comments" and "Other versions" */
+
+.fold {
+  position: relative;
+}
+.disclosure {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-3) var(--gutter);
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font-size: var(--fs-meta);
+  text-align: left;
+}
+.disclosure:hover {
+  background: var(--bg-2);
+  color: var(--ink);
+}
+.disclosure:active {
+  background: var(--bg-3);
+}
+.disclosure:focus-visible {
+  outline-offset: calc(-1 * var(--focus-width));
+}
+.disclosure .icon {
+  color: var(--ink-3);
+}
+.disclosure-count {
+  color: var(--ink-3);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.others {
+  border-top: 1px solid var(--rule);
+}
+.others-head {
+  padding-block: var(--s-4);
+  font-size: var(--fs-ui);
+  font-weight: 600;
+}
+
+/* Empty and not-checkable states */
+
+/* Empty and can't-be-checked states: a quiet centred line, then any actions */
+.empty {
+  /* The page line above already ends in 8px of padding, and the text's line height adds a little
+     more, so 8px here balances the 20px below the actions. */
+  padding: 8px var(--gutter) 20px;
+  text-align: center;
+}
+.empty-lead {
+  color: var(--ink-2);
+  font-size: var(--fs-body);
+}
+.empty-address {
+  margin-top: var(--s-2);
+  overflow: hidden;
+  color: var(--ink-3);
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-4);
+  margin-top: var(--s-5);
+}
+.empty-actions .btn {
+  height: 28px;
+  padding: 0 var(--s-4);
+}
+.empty + .others {
+  margin-top: var(--s-2);
+}

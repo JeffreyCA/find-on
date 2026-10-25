@@ -1,0 +1,96 @@
+/* Welcome page: one narrow centred column. */
+
+.welcome {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: max(var(--s-10), 9vh) var(--s-9) 96px;
+}
+
+.welcome-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.welcome-head img {
+  display: block;
+}
+.welcome-head h1 {
+  font-size: 28px;
+  letter-spacing: -0.015em;
+}
+
+.welcome-lede {
+  margin-top: var(--s-7);
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.welcome-section {
+  display: grid;
+  gap: var(--s-5);
+  margin-top: var(--s-8);
+  padding-top: var(--s-7);
+  border-top: 1px solid var(--rule);
+}
+.welcome-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-5);
+}
+
+/* The two ways to check pages, as side-by-side tiles. Nothing is checked until one is clicked. */
+.welcome .welcome-modes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-5);
+}
+.welcome-modes .choice {
+  align-content: start;
+  padding: 14px var(--s-6) var(--s-6);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-2);
+  transition:
+    background-color var(--dur),
+    border-color var(--dur),
+    box-shadow var(--dur);
+}
+.welcome-modes .choice:hover {
+  border-color: var(--rule-control);
+  background: var(--bg-2);
+}
+.welcome-modes .choice:active {
+  background: var(--bg-3);
+}
+.welcome-modes .choice:has(input:checked) {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.welcome-modes .choice:has(input:focus-visible) {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+.welcome-modes .choice > input:focus-visible {
+  outline: none;
+}
+.welcome-modes .choice-label {
+  font-weight: 600;
+}
+.welcome-modes .choice-hint {
+  margin-top: var(--s-2);
+}
+
+.welcome-foot {
+  margin-top: var(--s-9);
+  padding-top: var(--s-7);
+  border-top: 1px solid var(--rule);
+}
+
+@media (max-width: 640px) {
+  .welcome {
+    padding: var(--s-9) var(--gutter) var(--s-10);
+  }
+  .welcome .welcome-modes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

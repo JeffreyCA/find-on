@@ -1,0 +1,28 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Skip releases younger than a week.
+    cooldown:
+      default-days: 7
+    # Minor and patch updates come as one pull request; each major update gets its own.
+    groups:
+      npm:
+        update-types: [minor, patch]
+    ignore:
+      # Its major version follows the Node major in .nvmrc; bump the two together by hand.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ['*']

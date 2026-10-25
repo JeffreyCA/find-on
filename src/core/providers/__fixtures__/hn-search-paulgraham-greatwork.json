@@ -1,0 +1,118 @@
+{
+  "exhaustive": { "nbHits": true },
+  "exhaustiveNbHits": true,
+  "hits": [
+    {
+      "author": "razin",
+      "created_at_i": 1688222516,
+      "num_comments": 432,
+      "objectID": "36550615",
+      "points": 1008,
+      "title": "How to Do Great Work",
+      "url": "http://paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "tosh",
+      "created_at_i": 1785572384,
+      "num_comments": 69,
+      "objectID": "49132289",
+      "points": 94,
+      "title": "How to Do Great Work (2023)",
+      "url": "https://paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "wglb",
+      "created_at_i": 1688222756,
+      "num_comments": 1,
+      "objectID": "36550665",
+      "points": 5,
+      "title": "How to Do Great Work",
+      "url": "http://www.paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "9woc",
+      "created_at_i": 1690004783,
+      "num_comments": 1,
+      "objectID": "36823638",
+      "points": 3,
+      "title": "How to Do Great Work",
+      "url": "http://www.paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "navaneethpk",
+      "created_at_i": 1688369835,
+      "num_comments": 1,
+      "objectID": "36569962",
+      "points": 3,
+      "title": "How to do great work – Paul Graham",
+      "url": "http://www.paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "ananddtyagi",
+      "created_at_i": 1756751156,
+      "num_comments": 0,
+      "objectID": "45095262",
+      "points": 2,
+      "title": "How to Do Great Work",
+      "url": "https://paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "mfrw",
+      "created_at_i": 1689393019,
+      "num_comments": 0,
+      "objectID": "36733189",
+      "points": 2,
+      "title": "How to Do Great Work",
+      "url": "http://www.paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "cbracketdash",
+      "created_at_i": 1740123336,
+      "num_comments": 1,
+      "objectID": "43125047",
+      "points": 1,
+      "title": "How to Do Great Work",
+      "url": "https://paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "vinnyglennon",
+      "created_at_i": 1689609529,
+      "num_comments": 1,
+      "objectID": "36759822",
+      "points": 1,
+      "title": "How to Do Great Work",
+      "url": "http://www.paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "nubskr",
+      "created_at_i": 1769524190,
+      "num_comments": 0,
+      "objectID": "46780410",
+      "points": 1,
+      "title": "How to Do Great Work (2023)",
+      "url": "https://paulgraham.com/greatwork.html"
+    },
+    {
+      "author": "Anon84",
+      "created_at_i": 1767610662,
+      "num_comments": 0,
+      "objectID": "46497378",
+      "points": 1,
+      "title": "How to Do Great Work",
+      "url": "https://paulgraham.com/greatwork.html"
+    }
+  ],
+  "hitsPerPage": 100,
+  "nbHits": 11,
+  "nbPages": 1,
+  "page": 0,
+  "params": "query=paulgraham.com+greatwork.html&restrictSearchableAttributes=url&tags=story&typoTolerance=false&advancedSyntax=false&analytics=false&attributesToRetrieve=title%2Curl%2Cpoints%2Cnum_comments%2Cauthor%2Ccreated_at_i&attributesToHighlight=none&hitsPerPage=100&analyticsTags=backend",
+  "processingTimeMS": 3,
+  "processingTimingsMS": {
+    "_request": { "queue": 41, "roundTrip": 18 },
+    "fetch": { "scanning": 1, "total": 2 },
+    "total": 3
+  },
+  "query": "paulgraham.com greatwork.html",
+  "serverTimeMS": 45
+}

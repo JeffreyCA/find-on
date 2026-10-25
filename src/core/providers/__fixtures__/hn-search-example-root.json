@@ -1,0 +1,455 @@
+{
+  "exhaustive": { "nbHits": true },
+  "exhaustiveNbHits": true,
+  "hits": [
+    {
+      "author": "Foxboron",
+      "created_at_i": 1643115387,
+      "num_comments": 69,
+      "objectID": "30071240",
+      "points": 496,
+      "title": "Systemd by Example",
+      "url": "https://systemd-by-example.com/"
+    },
+    {
+      "author": "colinprince",
+      "created_at_i": 1731712380,
+      "num_comments": 61,
+      "objectID": "42152362",
+      "points": 240,
+      "title": "Consuming the Bluesky firehose for less than $2.50/mo",
+      "url": "https://bsky.bad-example.com/consuming-the-firehose-cheaply/"
+    },
+    {
+      "author": "Allezxandre",
+      "created_at_i": 1639999790,
+      "num_comments": 64,
+      "objectID": "29623646",
+      "points": 120,
+      "title": "Example Domain",
+      "url": "https://example.com"
+    },
+    {
+      "author": "synergy20",
+      "created_at_i": 1689963884,
+      "num_comments": 11,
+      "objectID": "36817510",
+      "points": 79,
+      "title": "Systemd by Example",
+      "url": "https://systemd-by-example.com/"
+    },
+    {
+      "author": "ced83fra",
+      "created_at_i": 1386163695,
+      "num_comments": 20,
+      "objectID": "6846685",
+      "points": 62,
+      "title": "Linux Command Examples",
+      "url": "http://linux-commands-examples.com/"
+    },
+    {
+      "author": "nkurz",
+      "created_at_i": 1412872994,
+      "num_comments": 3,
+      "objectID": "8433505",
+      "points": 30,
+      "title": "Basic Portable Executable File in Assembly",
+      "url": "http://snippets-samples-examples.com/programming/assembly/basic-portable-executable-assembly/"
+    },
+    {
+      "author": "michalhosna",
+      "created_at_i": 1543407813,
+      "num_comments": 1,
+      "objectID": "18550941",
+      "points": 17,
+      "title": "Https://example.com has expired certificate",
+      "url": "https://example.com/"
+    },
+    {
+      "author": "cp9",
+      "created_at_i": 1746374324,
+      "num_comments": 4,
+      "objectID": "43887476",
+      "points": 13,
+      "title": "100% Bluesky-Free Bluesky",
+      "url": "https://bsky.app/profile/bad-example.com/post/3loe7iy2gdc2c"
+    },
+    {
+      "author": "nreece",
+      "created_at_i": 1224983176,
+      "num_comments": 6,
+      "objectID": "343938",
+      "points": 12,
+      "title": "Javascript Calendars for Lazy Webmasters",
+      "url": "http://www.javascript-examples.com/javascript-calendars/"
+    },
+    {
+      "author": "kevinsimper",
+      "created_at_i": 1764319489,
+      "num_comments": 3,
+      "objectID": "46076817",
+      "points": 10,
+      "title": "Example.com has been updated after 11 years",
+      "url": "https://web.archive.org/web/20251001001217/https://example.com/"
+    },
+    {
+      "author": "icy",
+      "created_at_i": 1739705830,
+      "num_comments": 3,
+      "objectID": "43067297",
+      "points": 9,
+      "title": "Can atproto scale down?",
+      "url": "https://bsky.bad-example.com/can-atproto-scale-down/"
+    },
+    {
+      "author": "ced83fra",
+      "created_at_i": 1394973753,
+      "num_comments": 0,
+      "objectID": "7409231",
+      "points": 8,
+      "title": "Linux commands by categories",
+      "url": "http://www.linux-commands-examples.com/_category"
+    },
+    {
+      "author": "Tomte",
+      "created_at_i": 1783269332,
+      "num_comments": 0,
+      "objectID": "48795565",
+      "points": 5,
+      "title": "Systemd by Example – The Systemd Playground",
+      "url": "https://systemd-by-example.com/"
+    },
+    {
+      "author": "divbzero",
+      "created_at_i": 1760655641,
+      "num_comments": 2,
+      "objectID": "45611713",
+      "points": 4,
+      "title": "example.com was updated on 2025-10-09",
+      "url": "https://web.archive.org/web/20251009174438/http://www.example.com/"
+    },
+    {
+      "author": "kiosan",
+      "created_at_i": 1469698397,
+      "num_comments": 2,
+      "objectID": "12179265",
+      "points": 4,
+      "title": "256 Ruby on Rails Application Examples",
+      "url": "http://rails-examples.com/"
+    },
+    {
+      "author": "jancurn",
+      "created_at_i": 1543424028,
+      "num_comments": 1,
+      "objectID": "18553133",
+      "points": 4,
+      "title": "“www.example.org” SSL certificate is expired",
+      "url": "https://www.example.com/"
+    },
+    {
+      "author": "PaulHoule",
+      "created_at_i": 1740968701,
+      "num_comments": 0,
+      "objectID": "43237647",
+      "points": 3,
+      "title": "Can Atproto Scale Down?",
+      "url": "https://bsky.bad-example.com/can-atproto-scale-down/"
+    },
+    {
+      "author": "__rito__",
+      "created_at_i": 1718451610,
+      "num_comments": 4,
+      "objectID": "40689125",
+      "points": 2,
+      "title": "Example.com",
+      "url": "http://example.com"
+    },
+    {
+      "author": "fidz",
+      "created_at_i": 1362266843,
+      "num_comments": 3,
+      "objectID": "5311593",
+      "points": 2,
+      "title": "You Can't Register Example.com",
+      "url": "http://example.com"
+    },
+    {
+      "author": "hboon",
+      "created_at_i": 1783155035,
+      "num_comments": 3,
+      "objectID": "48783839",
+      "points": 2,
+      "title": "Show HN: WhosBuilt terminal lookup for who built a website",
+      "url": "https://whosbuilt.com/lookup/example.com.markdown"
+    },
+    {
+      "author": "todsacerdoti",
+      "created_at_i": 1739047669,
+      "num_comments": 2,
+      "objectID": "42986061",
+      "points": 2,
+      "title": "Consuming the jetstream atproto firehose correctly",
+      "url": "https://bsky.bad-example.com/consuming-the-firehose-correctly/"
+    },
+    {
+      "author": "adgasf",
+      "created_at_i": 1557490974,
+      "num_comments": 2,
+      "objectID": "19877029",
+      "points": 2,
+      "title": "Example.com Is Down",
+      "url": "http://example.com/"
+    },
+    {
+      "author": "oyster143",
+      "created_at_i": 1733386818,
+      "num_comments": 0,
+      "objectID": "42326101",
+      "points": 2,
+      "title": "Example.com",
+      "url": "https://en.wikipedia.org/wiki/Example.com"
+    },
+    {
+      "author": "thunderbong",
+      "created_at_i": 1706335109,
+      "num_comments": 0,
+      "objectID": "39153014",
+      "points": 2,
+      "title": "Example.com",
+      "url": "https://en.wikipedia.org/wiki/Example.com"
+    },
+    {
+      "author": "Snakeyez",
+      "created_at_i": 1695654601,
+      "num_comments": 0,
+      "objectID": "37645122",
+      "points": 2,
+      "title": "Example",
+      "url": "https://example.com/"
+    },
+    {
+      "author": "franze",
+      "created_at_i": 1484089948,
+      "num_comments": 0,
+      "objectID": "13370151",
+      "points": 2,
+      "title": "Example.com",
+      "url": "http://example.com/"
+    },
+    {
+      "author": "cperciva",
+      "created_at_i": 1415425999,
+      "num_comments": 2,
+      "objectID": "8576166",
+      "points": 1,
+      "title": "Test post please ignore",
+      "url": "http://www.example.com/nosuchurl.html "
+    },
+    {
+      "author": "jancurn",
+      "created_at_i": 1507723872,
+      "num_comments": 2,
+      "objectID": "15449083",
+      "points": 1,
+      "title": "Does anyone know what's on this page?",
+      "url": "https://www.example.com/another"
+    },
+    {
+      "author": "madethemcry",
+      "created_at_i": 1490797970,
+      "num_comments": 2,
+      "objectID": "13986553",
+      "points": 1,
+      "title": "What's this? (example.com/pension)",
+      "url": "http://www.example.com/pension"
+    },
+    {
+      "author": "ArtDev",
+      "created_at_i": 1414781930,
+      "num_comments": 1,
+      "objectID": "8540473",
+      "points": 1,
+      "title": "Example.com",
+      "url": "http://en.wikipedia.org/wiki/Example.com"
+    },
+    {
+      "author": "DitheringIdiot",
+      "created_at_i": 1700247052,
+      "num_comments": 1,
+      "objectID": "38308132",
+      "points": 1,
+      "title": "Example Domain",
+      "url": "http://example.com/"
+    },
+    {
+      "author": "willprice89",
+      "created_at_i": 1697168174,
+      "num_comments": 1,
+      "objectID": "37866295",
+      "points": 1,
+      "title": "Example.com is a second-level domain name reserved by IANA for documentation",
+      "url": "https://en.wikipedia.org/wiki/Example.com"
+    },
+    {
+      "author": "mutant_glofish",
+      "created_at_i": 1692076154,
+      "num_comments": 1,
+      "objectID": "37130420",
+      "points": 1,
+      "title": "Example.com",
+      "url": "https://web.archive.org/web/20190201000714/http://example.com/"
+    },
+    {
+      "author": "ehPReth",
+      "created_at_i": 1669777632,
+      "num_comments": 1,
+      "objectID": "33796527",
+      "points": 1,
+      "title": "Testing",
+      "url": "https://example.com%22%3E%3Cscript%3Ealert(1)%3C/script%3E"
+    },
+    {
+      "author": "Nassrat",
+      "created_at_i": 1256671934,
+      "num_comments": 0,
+      "objectID": "906184",
+      "points": 1,
+      "title": "Reserved TLD's",
+      "url": "http://example.com/"
+    },
+    {
+      "author": "cperciva",
+      "created_at_i": 1415425990,
+      "num_comments": 0,
+      "objectID": "8576165",
+      "points": 1,
+      "title": "Test post please ignore",
+      "url": "http://www.example.com/nosuchurl.html"
+    },
+    {
+      "author": "ced83fra",
+      "created_at_i": 1396004190,
+      "num_comments": 0,
+      "objectID": "7486384",
+      "points": 1,
+      "title": "Linux Commands Examples, a great place to find back a command + examples",
+      "url": "http://www.linux-commands-examples.com/#"
+    },
+    {
+      "author": "ced83fra",
+      "created_at_i": 1393888738,
+      "num_comments": 0,
+      "objectID": "7337299",
+      "points": 1,
+      "title": "Categorize Linux Commands and check which one you know?",
+      "url": "http://www.linux-commands-examples.com/_category/help-categorise"
+    },
+    {
+      "author": "aurelionakamura",
+      "created_at_i": 1788893647,
+      "num_comments": 0,
+      "objectID": "49614980",
+      "points": 1,
+      "title": "Show HN: Cmdxray now flags the scary parts of a shell command (curl – sudo bash)",
+      "url": "https://aurelio-nakamura.github.io/cmdxray/?cmd=curl%20-fsSL%20https%3A//get.example.com/install.sh%20%7C%20sudo%20bash"
+    },
+    {
+      "author": "shawndumas",
+      "created_at_i": 1354728489,
+      "num_comments": 0,
+      "objectID": "4877312",
+      "points": 1,
+      "title": "example.com",
+      "url": "http://en.wikipedia.org/wiki/Example.com"
+    },
+    {
+      "author": "KirkBanner",
+      "created_at_i": 1754988718,
+      "num_comments": 0,
+      "objectID": "44873938",
+      "points": 1,
+      "title": "#1 Fast and Free Cover Letter Creator",
+      "url": "https://cover-letter-examples.com/"
+    },
+    {
+      "author": "surprisetalk",
+      "created_at_i": 1708187670,
+      "num_comments": 0,
+      "objectID": "39410946",
+      "points": 1,
+      "title": "example.com",
+      "url": "https://en.wikipedia.org/wiki/Example.com"
+    },
+    {
+      "author": "susam",
+      "created_at_i": 1621628033,
+      "num_comments": 0,
+      "objectID": "27239311",
+      "points": 1,
+      "title": "Ztype – Typing Game – Type to Shoot",
+      "url": "https://zty.pe/?url=https://example.com"
+    },
+    {
+      "author": "mlejva",
+      "created_at_i": 1588160353,
+      "num_comments": 0,
+      "objectID": "23017977",
+      "points": 1,
+      "title": "Example.com",
+      "url": "http://example.com/"
+    },
+    {
+      "author": "Robdel12",
+      "created_at_i": 1543372261,
+      "num_comments": 0,
+      "objectID": "18548793",
+      "points": 1,
+      "title": "React Testing Examples: bigtest/interactor with Jest",
+      "url": "https://react-testing-examples.com/jest-interactor/"
+    },
+    {
+      "author": "skidding",
+      "created_at_i": 1525890378,
+      "num_comments": 0,
+      "objectID": "17032426",
+      "points": 1,
+      "title": "Show HN: React Testing Examples",
+      "url": "https://react-testing-examples.com/"
+    },
+    {
+      "author": "mendelk",
+      "created_at_i": 1477061971,
+      "num_comments": 0,
+      "objectID": "12760970",
+      "points": 1,
+      "title": "Google Amp Redirects",
+      "url": "https://www.google.com/amp/example.com"
+    },
+    {
+      "author": "howaboutit",
+      "created_at_i": 1439930109,
+      "num_comments": 0,
+      "objectID": "10081984",
+      "points": 1,
+      "title": "IP History – Find historical IP addresses for any domain name",
+      "url": "http://viewdns.info/iphistory/?domain=example.com"
+    }
+  ],
+  "hitsPerPage": 100,
+  "nbHits": 48,
+  "nbPages": 1,
+  "page": 0,
+  "params": "query=example.com&restrictSearchableAttributes=url&tags=story&typoTolerance=false&advancedSyntax=false&analytics=false&attributesToRetrieve=title%2Curl%2Cpoints%2Cnum_comments%2Cauthor%2Ccreated_at_i&attributesToHighlight=none&hitsPerPage=100&analyticsTags=backend",
+  "processingTimeMS": 14,
+  "processingTimingsMS": {
+    "_request": { "queue": 57, "roundTrip": 16 },
+    "afterFetch": {
+      "merge": { "mergeLoop": { "prepareNextHit": 2, "total": 2 }, "total": 2 },
+      "total": 3
+    },
+    "fetch": { "scanning": 10, "total": 11 },
+    "total": 15
+  },
+  "query": "example.com",
+  "serverTimeMS": 72
+}

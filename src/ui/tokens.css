@@ -1,0 +1,90 @@
+/* Find On design tokens, shared by the popup, options and welcome pages.
+   Colours resolve per element through light-dark() and follow prefers-color-scheme; a subtree can
+   be pinned with data-theme="light" or "dark". Neutral greys plus one deep green accent, used
+   sparingly: the icon, the active filter, the focus ring, link hover and selected controls.
+   Every text colour is at least 4.5:1 on --bg, --bg-2 and --field in both themes; control borders
+   are at least 3:1 on --bg and --bg-2. */
+
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces */
+  --bg: light-dark(#ffffff, #1d1e21);
+  --bg-2: light-dark(#f3f4f5, #26282b); /* hover, bands, onboarding */
+  --bg-3: light-dark(#e7e9eb, #313439); /* skeletons, tags, pressed */
+  --field: light-dark(#ffffff, #151619); /* inputs, text areas */
+
+  /* Rules (non-text) */
+  --rule: light-dark(#e3e5e8, #303338);
+  --rule-strong: light-dark(#cdd1d6, #44484e);
+  --rule-control: light-dark(#80868e, #757b83); /* input borders */
+
+  /* Text */
+  --ink: light-dark(#1b1d20, #e8eaed); /* titles, primary text */
+  --ink-2: light-dark(#42474d, #c2c6cb); /* venue, labels, secondary text */
+  --ink-3: light-dark(#5c626a, #9ba1a8); /* meta, units, hints */
+
+  /* The one accent */
+  --accent: light-dark(#0d6b55, #6cc5aa);
+  --accent-wash: light-dark(#dcefe8, #1e3b33); /* text selection */
+  /* Invalid input and warnings: amber, so nothing reads as an error by colour alone */
+  --attention: light-dark(#8f5200, #e6b05c);
+
+  /* Primary buttons are ink, not accent */
+  --primary-bg: var(--ink);
+  --primary-bg-hover: light-dark(#3b3f45, #ffffff);
+  --primary-fg: var(--bg);
+
+  /* Type: the system sans everywhere */
+  --font-ui:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI Variable',
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, Menlo, monospace;
+
+  --fs-micro: 11px; /* "comments" unit, tags */
+  --fs-meta: 12px; /* row meta, hints, status lines */
+  --fs-ui: 13px; /* controls, URL field, buttons */
+  --fs-body: 14px; /* options and welcome body */
+  --fs-title: 13px; /* popup row titles */
+  --fs-count: 15px; /* popup comment counts */
+  --fs-lead: 16px; /* empty and not-checkable messages */
+  --fs-h2: 16px; /* section heads */
+  --fs-h1: 22px; /* page titles */
+
+  --lh-tight: 1.25;
+  --lh-title: 1.35;
+  --lh-meta: 1.4;
+  --lh-body: 1.5;
+
+  /* Space: 4 px base, with 2 and 6 for fine tuning */
+  --s-1: 2px;
+  --s-2: 4px;
+  --s-3: 6px;
+  --s-4: 8px;
+  --s-5: 12px;
+  --s-6: 16px;
+  --s-7: 20px;
+  --s-8: 24px;
+  --s-9: 32px;
+  --s-10: 48px;
+
+  --gutter: 16px;
+
+  /* Radii: small, never pill */
+  --r-1: 4px;
+  --r-2: 6px;
+
+  /* Focus */
+  --focus-width: 2px;
+  --focus-offset: 2px;
+  --focus-color: var(--accent);
+
+  --dur: 120ms;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+}

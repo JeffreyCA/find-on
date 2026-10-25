@@ -1,0 +1,60 @@
+# Regenerates src/core/url/tracking-params.generated.json from the upstream MPL-2.0 lists and opens
+# (or updates) a draft pull request when it changed. The generator's output has no timestamp, so an
+# unchanged upstream produces no diff and no pull request.
+#
+# Needs "Allow GitHub Actions to create and approve pull requests" in the repository settings
+# (Actions > General > Workflow permissions).
+
+name: Tracking list
+
+on:
+  schedule:
+    - cron: '23 6 * * 1' # Mondays, 06:23 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: tracking-list
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      # The generator only uses Node built-ins, so no npm install is needed.
+      - name: Regenerate the tracking-parameter list
+        run: npm run update-tracking-list
+
+      # Pull requests opened with GITHUB_TOKEN don't start other workflows, so the pull request is a
+      # draft (kept a draft on every update); marking it ready for review runs CI.
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: automation/tracking-list
+          delete-branch: true
+          add-paths: src/core/url/tracking-params.generated.json
+          commit-message: Update tracking-parameter list
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          title: Update tracking-parameter list
+          body: |
+            This PR updates `src/core/url/tracking-params.generated.json`, regenerated with `npm run update-tracking-list` from the upstream Brave and Firefox lists.
+
+            It is a draft because GitHub doesn't run workflows for pull requests opened by the workflow token. Mark it ready for review to run CI.
+          draft: always-true
