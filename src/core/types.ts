@@ -42,7 +42,11 @@ export type SourceState =
   | { status: 'rate-limited'; retryAt: number }
   /** Reddit circuit breaker open (auto only). */
   | { status: 'paused'; retryAt: number }
-  | { status: 'skipped'; reason: 'incognito' }
+  /**
+   * Not asked: Reddit in a private window, or (automatic lookups only) a thread whose linked page is
+   * on the blocklist.
+   */
+  | { status: 'skipped'; reason: 'incognito' | 'filtered' }
   | { status: 'error'; kind: 'network' | 'http' | 'format'; detail: string };
 
 export interface PageInfo {

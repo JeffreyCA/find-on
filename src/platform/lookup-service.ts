@@ -44,6 +44,8 @@ export interface RunOptions {
    * once no caller is waiting for it.
    */
   signal?: AbortSignal;
+  /** Automatic lookups: the site filter's blocklist, applied to the page a thread links to. */
+  isBlocked?: (url: string) => boolean;
 }
 
 interface Flight {
@@ -150,6 +152,7 @@ function startFlight(
           force,
           signal: controller.signal,
           ...(previous !== undefined && { previous }),
+          ...(opts.isBlocked && { isBlocked: opts.isBlocked }),
           ...(!incognito && {
             onProgress: (snapshot: LookupResult) => {
               if (!done) void writeResult(key, snapshot);

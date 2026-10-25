@@ -18,7 +18,7 @@ Find On reads the URL and title of your browser tabs. It does not read page cont
 
 ## When lookups happen
 
-- **Automatic lookups** (the default lookup mode): when a page finishes loading in the active tab, when you switch to a tab that has not been looked up yet, and for the active tab when the browser starts. They start only after you choose a lookup mode on the welcome page or in the popup, or change a setting. They respect the site filter: sites on the blocklist are skipped, or, in allowlist mode, only listed sites are looked up.
+- **Automatic lookups** (the default lookup mode): when a page finishes loading in the active tab, when you switch to a tab that has not been looked up yet, and for the active tab when the browser starts. They start only after you choose a lookup mode on the welcome page or in the popup, or change a setting. They respect the site filter: sites on the blocklist are skipped (also when a Hacker News or Reddit thread links to one), or, in allowlist mode, only listed sites are looked up.
 - **Manual lookups**: when you open the popup (toolbar button or keyboard shortcut), choose "Find discussions for this link" or "Find discussions for this page" from the context menu, or enter a URL in the popup.
 
 Find On never looks up URLs that are not public web pages: anything other than `http` and `https`, URLs that contain a user name or password, `localhost`, IP addresses, single-label host names, and private domains such as `.local`, `.internal`, `.lan`, `.home.arpa` or `.onion`.
@@ -48,7 +48,7 @@ Reddit only answers signed-in users, so these requests carry your reddit.com coo
 
 ### Other requests
 
-- The welcome and settings pages can show whether you are signed in to Reddit. Each check sends one Reddit search for a fixed URL (`xkcd.com/927`), never one of your pages.
+- The welcome and settings pages can show whether you are signed in to Reddit, while the Reddit source is enabled and never from a private window. Each check sends one Reddit search for a fixed URL (`xkcd.com/927`), never one of your pages.
 - Both services see your IP address and browser details, as with any website you visit.
 
 ## Private windows
@@ -64,6 +64,8 @@ Find On runs in private windows (Incognito in Chrome, InPrivate in Edge) only if
 | Lookup results (URLs looked up and discussions found), Reddit rate-limit state, the URL you right-clicked until the popup opens | Extension session storage, in memory only                                                    | Cleared when the browser closes or Find On is updated or disabled. Results are reused for up to 10 minutes (5 minutes when nothing was found), and at most 300 are kept. |
 
 All of this stays in your browser and, for settings, your browser's sync service. The developer has no copy to access or delete.
+
+Updating from Find On 1.x deletes the result cache 1.x kept in local storage (keyed by the URLs it looked up) and its old settings.
 
 ## Your controls
 

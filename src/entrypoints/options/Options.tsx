@@ -408,10 +408,10 @@ function withList(s: Settings, mode: SiteFilter['mode'], list: string[]): Settin
 }
 
 function Sources({ settings, save }: { settings: Settings; save: Save }) {
-  // "Sign in on reddit.com" opens another tab; look again when the user comes back from it.
-  const { status, check } = useRedditSignIn({ onFocus: true });
-
   const { hn, reddit } = settings.sources;
+  // "Sign in on reddit.com" opens another tab; look again when the user comes back from it, but only
+  // while Reddit is on.
+  const { status, check } = useRedditSignIn({ onFocus: reddit });
   const set = (source: keyof Settings['sources'], on: boolean) =>
     save('sources', (s) => ({
       ...s,

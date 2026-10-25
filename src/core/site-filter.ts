@@ -75,7 +75,7 @@ function matches(pattern: ParsedPattern, host: string, path: string): boolean {
   return hostMatches && path.startsWith(pattern.path);
 }
 
-/** The host without its public suffix: "www.google" for www.google.co.uk. */
+/** The host without its public suffix, for `name.*` patterns: "www.google" for www.google.co.uk. */
 function withoutSuffix(host: string): string {
   return host
     .split('.')

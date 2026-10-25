@@ -100,7 +100,8 @@ export function toTarget(source: PageSource): Target {
 /** An address typed into the URL field, with "https://" added when it has no scheme. */
 export function typedSource(input: string): PageSource {
   const text = input.trim();
-  const url = text === '' || text.includes('://') ? text : `https://${text}`;
+  // A scheme only counts at the start: "example.com/?u=https://other.com" still gets one.
+  const url = text === '' || /^[a-z][a-z\d+.-]*:\/\//i.test(text) ? text : `https://${text}`;
   return { url, title: '', typed: true };
 }
 

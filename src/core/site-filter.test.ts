@@ -88,6 +88,13 @@ describe('isAllowedByFilter', () => {
     expect(isAllowedByFilter('https://xkcd.com/927/', filter)).toBe(true);
   });
 
+  it('matches short names under any suffix, subdomains included', () => {
+    const filter = block(['taz.*']);
+    expect(isAllowedByFilter('https://taz.de/x', filter)).toBe(false);
+    expect(isAllowedByFilter('https://www.taz.de/x', filter)).toBe(false);
+    expect(isAllowedByFilter('https://taz.example.de/x', filter)).toBe(true);
+  });
+
   it('never allows URLs it cannot parse', () => {
     expect(isAllowedByFilter('not a url', block([]))).toBe(false);
   });

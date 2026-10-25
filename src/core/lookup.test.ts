@@ -68,4 +68,23 @@ describe('lookup', () => {
     expect(ok(result, 'reddit').map((d) => d.id)).toContain('1i0iq9e');
     expect(ok(result, 'hn')).toHaveLength(6);
   });
+
+  it('does not send a blocked page a thread links to (automatic lookups)', async () => {
+    const { fetch, calls } = fakeFetch(live);
+    const result = await lookup(
+      'https://www.reddit.com/r/ultimate/comments/1i0iq9e/regarding_club_team/',
+      {
+        depth: 'auto',
+        sources: { hn: true, reddit: true },
+        incognito: false,
+        signal: new AbortController().signal,
+        isBlocked: (url) => new URL(url).hostname === 'xkcd.com',
+      },
+      testEnv(fetch),
+    );
+    const skipped = { status: 'skipped', reason: 'filtered' };
+    expect(result.sources).toEqual({ hn: skipped, reddit: skipped });
+    // Only the thread itself was fetched.
+    expect(calls.map((c) => c.url.pathname)).toEqual(['/by_id/t3_1i0iq9e.json']);
+  });
 });

@@ -30,12 +30,47 @@ export function stripWww(host: string): string {
     : host;
 }
 
+/**
+ * Generic second-level labels that form a public suffix with a two-letter country TLD ("co.uk",
+ * "com.au", "ne.jp"). A short name under a country TLD is usually a site ("taz.de", "orf.at"), so
+ * label length alone can't tell them apart.
+ */
+const SECOND_LEVEL_SUFFIXES = new Set([
+  'ac',
+  'biz',
+  'co',
+  'com',
+  'edu',
+  'firm',
+  'gen',
+  'go',
+  'gob',
+  'gouv',
+  'gov',
+  'ind',
+  'info',
+  'int',
+  'ltd',
+  'mil',
+  'ne',
+  'net',
+  'nhs',
+  'nic',
+  'nom',
+  'or',
+  'org',
+  'plc',
+  'res',
+  'sch',
+  'web',
+]);
+
 /** Number of labels in the registrable domain: 3 for "co.uk"-style suffixes, else 2 (heuristic). */
 export function registrableLabels(host: string): number {
   const labels = host.split('.');
   const tld = labels.at(-1) ?? '';
   const sld = labels.at(-2) ?? '';
-  return labels.length >= 3 && tld.length === 2 && sld.length <= 3 ? 3 : 2;
+  return labels.length >= 3 && tld.length === 2 && SECOND_LEVEL_SUFFIXES.has(sld) ? 3 : 2;
 }
 
 export interface QueryParam {

@@ -12,7 +12,13 @@ import {
 import { createMenus, registerContextMenu } from '@/platform/context-menu';
 import { checkRedditSignIn, runLookup } from '@/platform/lookup-service';
 import { onRequest, type Request } from '@/platform/messaging';
-import { getSettings, onboardedItem, watchSettings, type Settings } from '@/platform/settings';
+import {
+  getSettings,
+  onboardedItem,
+  removeV1Leftovers,
+  watchSettings,
+  type Settings,
+} from '@/platform/settings';
 
 export default defineBackground(() => {
   onRequest(handleRequest);
@@ -42,7 +48,12 @@ async function handleRequest(
   req: Request,
   sender: Browser.runtime.MessageSender,
 ): Promise<unknown> {
-  if (req.type === 'reddit-check') return { signedIn: await checkRedditSignIn() };
+  if (req.type === 'reddit-check') {
+    // Same rules as lookups: nothing goes to Reddit while it is off, or from a private window.
+    const { sources } = await getSettings();
+    if (!sources.reddit || (await isIncognito(undefined, sender))) return { signedIn: null };
+    return { signedIn: await checkRedditSignIn() };
+  }
 
   const { key, result } = await runLookup(req.url, {
     depth: req.depth,
@@ -74,15 +85,26 @@ async function isIncognito(
   }
 }
 
-async function onInstalled({ reason }: Browser.runtime.InstalledDetails): Promise<void> {
+async function onInstalled({
+  reason,
+  previousVersion,
+}: Browser.runtime.InstalledDetails): Promise<void> {
   await createMenus().catch((error: unknown) => {
     console.error('Find On: creating context menus failed', error);
   });
-  if (reason === 'install') {
+  // An update from 1.x leaves its storage behind and, like an install, starts with the welcome page,
+  // where automatic lookups are turned on.
+  const fromV1 = reason === 'update' && previousVersion.startsWith('1.');
+  if (fromV1) {
+    await removeV1Leftovers().catch((error: unknown) => {
+      console.error('Find On: removing 1.x data failed', error);
+    });
+  }
+  if (reason === 'install' || fromV1) {
     await browser.tabs.create({ url: browser.runtime.getURL('/welcome.html') });
     return;
   }
-  // Updates change nothing visible; just pick up the current tab again.
+  // Other updates change nothing visible; just pick up the current tab again.
   await checkFocusedTab();
 }
 
@@ -94,16 +116,15 @@ async function onSettingsChanged(next: Settings, previous: Settings): Promise<vo
   }
   // Badges from manual checks are re-rendered too, so this runs whether or not auto-check is on.
   if (next.badge !== previous.badge) await refreshBadges(next.badge);
-  const recheck =
-    next.autoCheck &&
-    (!previous.autoCheck ||
-      JSON.stringify(next.sources) !== JSON.stringify(previous.sources) ||
-      JSON.stringify(next.siteFilter) !== JSON.stringify(previous.siteFilter));
-  // Any tab may now count a source that is off, or show a badge on a newly skipped site. Inactive tabs
-  // get theirs back (from the cache, or a new check) when they are activated.
-  if (recheck) {
+  const sourcesChanged = JSON.stringify(next.sources) !== JSON.stringify(previous.sources);
+  const filterChanged = JSON.stringify(next.siteFilter) !== JSON.stringify(previous.siteFilter);
+  const recheck = next.autoCheck && (!previous.autoCheck || sourcesChanged || filterChanged);
+  // Any badge, from a manual lookup too, may count a source that is now off; with automatic lookups
+  // a tab may also be on a newly skipped site. Inactive tabs get theirs back (from the cache, or a
+  // new check) when they are activated.
+  if (recheck || sourcesChanged) {
     cancelAll();
     await clearAllBadges();
-    await checkActiveTabs();
   }
+  if (recheck) await checkActiveTabs();
 }

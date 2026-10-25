@@ -29,7 +29,7 @@ Versions up to 1.6.1 were released as Find on Reddit by Adeel Hassan ([AdeelH/fi
 ### Removed
 
 - Options for exact or fuzzy search, query-string handling, YouTube handling, retries and cache period; matching now handles these automatically.
-- Settings from 1.x are not carried over; 2.0.0 starts from the defaults.
+- Settings from 1.x are not carried over; 2.0.0 starts from the defaults. Updating from 1.x deletes the settings and the on-disk result cache 1.x stored, and opens the welcome page.
 
 ### Fixed
 

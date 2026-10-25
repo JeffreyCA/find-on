@@ -57,6 +57,11 @@ export interface LookupOptions {
   signal: AbortSignal;
   /** Called whenever a source state changes. */
   onProgress?: (r: LookupResult) => void;
+  /**
+   * For automatic lookups: true for URLs the site filter blocks. A discussion page that links to one
+   * is not looked up any further, so the blocked URL is never sent.
+   */
+  isBlocked?: (url: string) => boolean;
 }
 
 /** `${RULES_VERSION}:${exactKey}`, or null when the URL is not eligible. */
@@ -179,6 +184,16 @@ export async function lookup(
       display: displayUrl(resolution.keys),
       resolvedFrom: { ...resolution.from, url: tab.url },
     };
+    // Not a settled answer (the cache never serves `skipped` in a normal window), so a manual lookup
+    // of the same thread still asks both sources.
+    if (opts.isBlocked?.(resolution.url) === true) {
+      for (const id of SOURCE_IDS) {
+        if (sources[id].status === 'loading')
+          sources[id] = { status: 'skipped', reason: 'filtered' };
+      }
+      emit();
+      return snapshot();
+    }
     emit();
   }
 

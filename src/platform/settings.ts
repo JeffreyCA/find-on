@@ -1,6 +1,6 @@
 // User settings and local UI preferences, stored through WXT's storage wrapper.
 
-import { storage } from '#imports';
+import { browser, storage } from '#imports';
 import type { RedditHost } from '@/core/links';
 import { DEFAULT_BLOCK_LIST, type SiteFilter } from '@/core/site-filter';
 
@@ -50,6 +50,17 @@ export const onboardedItem = storage.defineItem<boolean>('local:onboarded', {
  * number set large on each row (`rowStat`), so that column reads from largest to smallest.
  */
 export const sortItem = storage.defineItem<SortOrder>('local:ui.sort');
+
+/**
+ * Removes what 1.x left behind: its result cache in local storage (keyed by the URLs it looked up,
+ * and on disk) and its options in sync storage. Every local key except this version's own goes.
+ */
+export async function removeV1Leftovers(): Promise<void> {
+  const keep = new Set([onboardedItem.key, sortItem.key].map((key) => key.replace(/^local:/, '')));
+  const stale = Object.keys(await browser.storage.local.get(null)).filter((key) => !keep.has(key));
+  await browser.storage.local.remove(stale);
+  await browser.storage.sync.remove('options');
+}
 
 export async function getSettings(): Promise<Settings> {
   return withDefaults(await settingsItem.getValue());

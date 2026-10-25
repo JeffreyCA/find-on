@@ -200,7 +200,13 @@ function initialState(id: SourceId, input: ModelInput): SourceState {
 
 /** States that the popup's own (full) lookup is about to replace. */
 function isWaiting(state: SourceState): boolean {
-  return state.status === 'loading' || state.status === 'deferred' || state.status === 'paused';
+  return (
+    state.status === 'loading' ||
+    state.status === 'deferred' ||
+    state.status === 'paused' ||
+    // An automatic lookup's blocklist skip; the popup's lookup always asks.
+    (state.status === 'skipped' && state.reason === 'filtered')
+  );
 }
 
 /**
@@ -281,7 +287,7 @@ function statusLine(
         retryAt: state.retryAt,
       };
     case 'skipped':
-      return band('not checked in private windows');
+      return state.reason === 'incognito' ? band('not checked in private windows') : null;
     case 'error':
       return band(ERROR_TEXT[state.kind], { kind: 'retry', label: 'Retry', force: false });
     default:

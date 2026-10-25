@@ -120,10 +120,16 @@ export async function checkTab(tabId: number): Promise<void> {
     const decision = decide(tab, settings, onboarded);
     if (!decision.check || controller.signal.aborted) return;
 
+    const { siteFilter } = settings;
     const { key, result } = await runLookup(decision.url, {
       depth: 'auto',
       incognito: false,
       signal: controller.signal,
+      // The page a thread links to is checked against the blocklist too. In allowlist mode the
+      // thread page itself was allowed, which is enough.
+      ...(siteFilter.mode === 'block' && {
+        isBlocked: (url: string) => !isAllowedByFilter(url, siteFilter),
+      }),
     });
     if (!controller.signal.aborted) await showResult(tabId, key, result, settings.badge);
   } catch (error) {
