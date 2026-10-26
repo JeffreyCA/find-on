@@ -67,11 +67,16 @@ export const sourceOrderItem = storage.defineItem<SourceId[]>('local:ui.sourceOr
   fallback: [...SOURCE_IDS],
 });
 
-/** `order` with each source exactly once: a stored value may be stale or malformed. */
-export function normalizeOrder(order: readonly SourceId[] | null | undefined): SourceId[] {
-  const known = (order ?? []).filter(
-    (id, i, all) => SOURCE_IDS.includes(id) && all.indexOf(id) === i,
-  );
+/**
+ * `order` with each source exactly once. It takes any value: storage does not check what it holds,
+ * so a stale or malformed one (not an array, unknown ids, repeats) falls back to the default order.
+ */
+export function normalizeOrder(order: unknown): SourceId[] {
+  const known: SourceId[] = [];
+  for (const id of Array.isArray(order) ? order : []) {
+    const source = SOURCE_IDS.find((s) => s === id);
+    if (source !== undefined && !known.includes(source)) known.push(source);
+  }
   return [...known, ...SOURCE_IDS.filter((id) => !known.includes(id))];
 }
 
