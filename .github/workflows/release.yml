@@ -29,6 +29,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      # The notes go to the runner's temp folder: inside the checkout, the format check would see them.
       - name: Check version and changelog
         run: |
           version="${GITHUB_REF_NAME#v}"
@@ -44,7 +45,7 @@ jobs:
             index($0, heading) == 1 { found = 1; next }
             found && /^## \[/ { exit }
             found { print }
-          ' CHANGELOG.md > release-notes.md
+          ' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
 
       - name: Install dependencies
         run: npm ci
@@ -67,4 +68,4 @@ jobs:
         run: >-
           gh release create "$GITHUB_REF_NAME" .output/find-on-*-chrome.zip
           --repo "$GITHUB_REPOSITORY" --verify-tag --title "$GITHUB_REF_NAME"
-          --notes-file release-notes.md
+          --notes-file "$RUNNER_TEMP/release-notes.md"
