@@ -51,6 +51,8 @@ npm run dev
 | `npm run update-tracking-list` | Regenerates the tracking-parameter list from the upstream Brave and Firefox lists. A weekly workflow runs it and opens a pull request.               |
 | `npm run smoke:hn`             | Runs real Hacker News lookups for a few known pages against `hn.algolia.com`.                                                                        |
 
+To release, push a `v<version>` tag on main: the Release workflow checks it, builds the zip and publishes a GitHub release with that version's changelog section. The steps are in `.agents/skills/release/SKILL.md`.
+
 ## Project layout
 
 ```text

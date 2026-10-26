@@ -1,0 +1,70 @@
+name: Release
+
+# Pushing a v<version> tag builds the extension from that commit and publishes a GitHub release with
+# the store zip attached and the version's CHANGELOG.md section as the notes.
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Check version and changelog
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [ "$(node -p "require('./package.json').version")" != "$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match the version in package.json"
+            exit 1
+          fi
+          if ! grep -qE "^## \[${version//./\\.}\] - [0-9]{4}-[0-9]{2}-[0-9]{2}$" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no dated section for $version"
+            exit 1
+          fi
+          awk -v heading="## [$version]" '
+            index($0, heading) == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check
+        run: npm run check
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - name: Package
+        run: npm run zip
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME" .output/find-on-*-chrome.zip
+          --repo "$GITHUB_REPOSITORY" --verify-tag --title "$GITHUB_REF_NAME"
+          --notes-file release-notes.md
