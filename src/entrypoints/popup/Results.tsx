@@ -32,12 +32,15 @@ export function Toolbar({
   onFilter,
   sort,
   onSort,
+  onOrder,
 }: {
   model: PopupModel;
   filter: Filter;
   onFilter: (filter: Filter) => void;
   sort: SortOrder;
   onSort: (sort: SortOrder) => void;
+  /** The sources reordered by dragging their tabs. */
+  onOrder: (order: SourceId[]) => void;
 }) {
   const count = (id: SourceId) =>
     model.sources[id].pending ? <Pending /> : String(model.sources[id].count);
@@ -48,13 +51,25 @@ export function Toolbar({
       label: 'All',
       count: model.pending && model.total === 0 ? <Pending /> : String(model.total),
     },
-    { value: 'hn', label: <SourceLabel source="hn" />, count: count('hn') },
-    { value: 'reddit', label: <SourceLabel source="reddit" />, count: count('reddit') },
+    ...model.order.map((id) => ({
+      value: id,
+      label: <SourceLabel source={id} />,
+      count: count(id),
+      movable: true,
+    })),
   ];
   return (
     <div class="bar">
       {model.showFilter ? (
-        <Segmented legend="Show" options={options} value={filter} onChange={onFilter} />
+        <Segmented
+          legend="Show"
+          options={options}
+          value={filter}
+          onChange={onFilter}
+          onReorder={(moved, target) => {
+            if (moved !== 'all' && target !== 'all') onOrder(reorder(model.order, moved, target));
+          }}
+        />
       ) : (
         <p class="bar-summary">{model.summary}</p>
       )}
@@ -78,6 +93,13 @@ export function Toolbar({
       </label>
     </div>
   );
+}
+
+/** `order` with `moved` taken out and put back where `target` was. */
+function reorder(order: readonly SourceId[], moved: SourceId, target: SourceId): SourceId[] {
+  const next = order.filter((id) => id !== moved);
+  next.splice(order.indexOf(target), 0, moved);
+  return next;
 }
 
 /** A filter label: the source's mark and short name. */
@@ -234,7 +256,7 @@ function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
         aria-describedby={`${id}-meta`}
         onClick={(event) => onLink(event, href)}
         onAuxClick={(event) => onLink(event, href)}
-        onMouseEnter={(event) => showFullTitle(event.currentTarget, d.title)}
+        title={d.title}
       >
         <span class="row-title" id={`${id}-title`}>
           {d.title}
@@ -273,16 +295,6 @@ function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
       </a>
     </li>
   );
-}
-
-/**
- * Gives a row the native tooltip with its full title, but only while the two-line clamp cuts the
- * title off; a title that fits needs no tooltip. Checked on hover, so it follows the current layout.
- */
-function showFullTitle(link: HTMLAnchorElement, title: string): void {
-  const text = link.querySelector('.row-title');
-  if (text !== null && text.scrollHeight > text.clientHeight + 1) link.title = title;
-  else link.removeAttribute('title');
 }
 
 /** The submitted URL, with the parts that differ from the looked-up page set darker. */

@@ -15,6 +15,8 @@
 .results {
   flex: 1 1 auto;
   min-height: 0;
+  /* Room below the last row, so a short list ends instead of running into the popup's edge */
+  padding-bottom: var(--s-4);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -251,6 +253,15 @@
 .row-link:focus-visible {
   outline-offset: calc(-1 * var(--focus-width));
 }
+/* The pointer only ever hovers the link itself, never the lines, words or gaps inside it, so the
+   link's tooltip (the full title) stays up as the pointer moves around the row.
+   The age keeps its own tooltip with the exact date. */
+.row-link > * {
+  pointer-events: none;
+}
+.row-link time {
+  pointer-events: auto;
+}
 
 .row-title {
   display: -webkit-box;
@@ -472,8 +483,8 @@
 /* Empty and can't-be-checked states: a quiet centred line, then any actions */
 .empty {
   /* The page line above already ends in 8px of padding, and the text's line height adds a little
-     more, so 8px here balances the 20px below the actions. */
-  padding: 8px var(--gutter) 20px;
+     more, so 8px here balances the 20px below the actions (12px here plus the 8px .results adds). */
+  padding: 8px var(--gutter) 12px;
   text-align: center;
 }
 .empty-lead {

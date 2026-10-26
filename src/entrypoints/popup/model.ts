@@ -3,13 +3,7 @@
 // tested without a DOM.
 
 import { hnSiteUrl, redditLoginUrl, redditOrigin, type RedditHost } from '@/core/links';
-import {
-  SOURCE_IDS,
-  type Discussion,
-  type LookupResult,
-  type SourceId,
-  type SourceState,
-} from '@/core/types';
+import type { Discussion, LookupResult, SourceId, SourceState } from '@/core/types';
 import type { SortOrder } from '@/platform/settings';
 
 export const SOURCE_NAMES: Record<SourceId, string> = { hn: 'Hacker News', reddit: 'Reddit' };
@@ -28,6 +22,8 @@ export interface ModelInput {
   filter: Filter;
   sort: SortOrder;
   redditHost: RedditHost;
+  /** The order of the sources (tabs, status lines, placeholders, submit buttons). */
+  order: readonly SourceId[];
 }
 
 export interface SourceView {
@@ -60,6 +56,8 @@ export type PageNote = { kind: 'linked-from'; url: string } | { kind: 'text-post
 
 export interface PopupModel {
   sources: Record<SourceId, SourceView>;
+  /** The sources in the user's order. */
+  order: readonly SourceId[];
   /** Some source is still being checked. */
   pending: boolean;
   /** Show the All / HN / Reddit filter (both sources have results, or may still). */
@@ -112,10 +110,10 @@ export function buildModel(input: ModelInput): PopupModel {
     return { id, state, pending, participates: pending || count > 0, count };
   };
   const sources: Record<SourceId, SourceView> = { hn: view('hn'), reddit: view('reddit') };
-  const views = SOURCE_IDS.map((id) => sources[id]);
+  const views = input.order.map((id) => sources[id]);
   const pending = views.some((s) => s.pending);
   const participating = views.filter((s) => s.participates);
-  const showFilter = participating.length === SOURCE_IDS.length;
+  const showFilter = participating.length === views.length;
 
   const chosen = input.filter === 'all' ? undefined : sources[input.filter];
   const filter: Filter =
@@ -169,6 +167,7 @@ export function buildModel(input: ModelInput): PopupModel {
 
   return {
     sources,
+    order: input.order,
     pending,
     showFilter,
     filter,

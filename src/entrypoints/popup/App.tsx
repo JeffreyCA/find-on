@@ -3,7 +3,7 @@
 
 import { browser, type Browser } from '#imports';
 import { useMemo, useRef } from 'preact/hooks';
-import { onboardedItem, sortItem } from '@/platform/settings';
+import { normalizeOrder, onboardedItem, sortItem, sourceOrderItem } from '@/platform/settings';
 import { updateSettings, useSettings, useStorageItem } from '@/ui/hooks';
 import { anchorTab, openExtensionPage, openModeFor, openTab } from '@/ui/links';
 import { usePopup } from './controller';
@@ -14,6 +14,7 @@ export function App() {
   const settings = useSettings();
   const onboarded = useStorageItem(onboardedItem);
   const sort = useStorageItem(sortItem);
+  const order = useStorageItem(sourceOrderItem);
 
   // Background tabs opened from this popup line up after the current tab in click order.
   const openedRef = useRef(0);
@@ -28,6 +29,7 @@ export function App() {
       recheck,
       close,
       setSort: (next) => void sortItem.setValue(next),
+      setOrder: (next) => void sourceOrderItem.setValue(next),
       openLink: (event, url) => {
         const mode = openModeFor(event, openInBackground);
         if (mode === 'browser-default') return;
@@ -71,6 +73,7 @@ export function App() {
       settings={settings}
       onboarded={onboarded ?? true}
       sort={sort ?? settings.rowStat}
+      order={normalizeOrder(order)}
       actions={actions}
     />
   );

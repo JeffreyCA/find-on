@@ -3,6 +3,7 @@
 import { browser, storage, type Browser } from '#imports';
 import type { RedditHost } from '@/core/links';
 import { DEFAULT_BLOCK_LIST, type SiteFilter } from '@/core/site-filter';
+import { SOURCE_IDS, type SourceId } from '@/core/types';
 
 export interface Settings {
   autoCheck: boolean;
@@ -61,12 +62,32 @@ export const onboardedItem = storage.defineItem<boolean>('local:onboarded', {
  */
 export const sortItem = storage.defineItem<SortOrder>('local:ui.sort');
 
+/** The order of the sources in the popup (its tabs, status lines and buttons); set by dragging a tab. */
+export const sourceOrderItem = storage.defineItem<SourceId[]>('local:ui.sourceOrder', {
+  fallback: [...SOURCE_IDS],
+});
+
+/**
+ * `order` with each source exactly once. It takes any value: storage does not check what it holds,
+ * so a stale or malformed one (not an array, unknown ids, repeats) falls back to the default order.
+ */
+export function normalizeOrder(order: unknown): SourceId[] {
+  const known: SourceId[] = [];
+  for (const id of Array.isArray(order) ? order : []) {
+    const source = SOURCE_IDS.find((s) => s === id);
+    if (source !== undefined && !known.includes(source)) known.push(source);
+  }
+  return [...known, ...SOURCE_IDS.filter((id) => !known.includes(id))];
+}
+
 /**
  * Removes what 1.x left behind: its result cache in local storage (keyed by the URLs it looked up,
  * and on disk) and its options in sync storage. Every local key except this version's own goes.
  */
 export async function removeV1Leftovers(): Promise<void> {
-  const keep = new Set([onboardedItem.key, sortItem.key].map((key) => key.replace(/^local:/, '')));
+  const keep = new Set(
+    [onboardedItem.key, sortItem.key, sourceOrderItem.key].map((key) => key.replace(/^local:/, '')),
+  );
   const stale = Object.keys(await browser.storage.local.get(null)).filter((key) => !keep.has(key));
   await browser.storage.local.remove(stale);
   await browser.storage.sync.remove('options');

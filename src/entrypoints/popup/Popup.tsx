@@ -24,6 +24,7 @@ export interface PopupActions {
   /** Looks the page up again; `force` bypasses the cache and the Reddit rate guard. */
   recheck: (force: boolean) => void;
   setSort: (sort: SortOrder) => void;
+  setOrder: (order: SourceId[]) => void;
   openLink: LinkHandler;
   openSettings: () => void;
   /** Opens the page that explains what is sent where. */
@@ -41,6 +42,8 @@ export interface PopupProps {
   settings: Settings;
   onboarded: boolean;
   sort: SortOrder;
+  /** The sources in the user's order. */
+  order: SourceId[];
   actions: PopupActions;
 }
 
@@ -52,6 +55,7 @@ export function Popup({
   settings,
   onboarded,
   sort,
+  order,
   actions,
 }: PopupProps) {
   const [filter, setFilter] = useState<Filter>('all');
@@ -71,6 +75,7 @@ export function Popup({
     filter,
     sort,
     redditHost: settings.redditHost,
+    order,
   });
   // Rate-limit lines count down to their retry time.
   const ticking = model.statuses.some((s) => s.retryAt !== undefined);
@@ -157,6 +162,7 @@ export function Popup({
             onFilter={setFilter}
             sort={sort}
             onSort={actions.setSort}
+            onOrder={actions.setOrder}
           />
         )}
       </header>
