@@ -341,6 +341,14 @@ code {
   outline-offset: 0;
   border-radius: var(--r-1);
 }
+/* Reordering by drag: the dragged option fades, the one under it is highlighted */
+.segment.is-dragged {
+  opacity: 0.4;
+}
+.segment.is-drop-target {
+  border-radius: var(--r-1);
+  background: var(--bg-2);
+}
 .segment-count {
   color: var(--ink-3);
   font-weight: 400;
