@@ -4,7 +4,7 @@ All notable changes to Find On are documented here. The format is based on [Keep
 
 Versions up to 1.6.1 were released as Find on Reddit by Adeel Hassan ([AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit)). Dates before 2.0.0 are when each version appeared in the repository.
 
-## [2.0.1] - Unreleased
+## [2.0.1] - 2026-10-26
 
 ### Added
 
