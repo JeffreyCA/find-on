@@ -4,7 +4,18 @@ All notable changes to Find On are documented here. The format is based on [Keep
 
 Versions up to 1.6.1 were released as Find on Reddit by Adeel Hassan ([AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit)). Dates before 2.0.0 are when each version appeared in the repository.
 
-## [2.0.0] - Unreleased
+## [2.0.1] - Unreleased
+
+### Added
+
+- Drag the Hacker News and Reddit tabs in the popup to reorder them.
+
+### Changed
+
+- Every result shows its full title in a tooltip, which no longer flickers when the pointer moves between the title's lines.
+- More space below the last result in short lists.
+
+## [2.0.0] - 2026-10-25
 
 ### Added
 
