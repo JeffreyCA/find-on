@@ -65,7 +65,7 @@ async function mockNetwork(
       },
     );
   await answer('https://hn.algolia.com', null, 'hn-search-xkcd-927.json');
-  await answer('https://www.reddit.com', '/search.json', 'reddit-search-xkcd-927.json');
+  await answer('https://old.reddit.com', '/search.json', 'reddit-search-xkcd-927.json');
   await answer('https://old.reddit.com', '/api/info.json', 'reddit-info-xkcd-927.json');
   return { requests, unexpected };
 }
@@ -125,10 +125,11 @@ test('shows the number of discussions on the badge', async ({ context, serviceWo
 
   await expect.poll(() => badgeOf(serviceWorker, ARTICLE)).toBe(BADGE);
   // An automatic check sends HN one search, and Reddit one search plus one exact-URL lookup.
-  expect(network.requests.map((u) => new URL(u).host).toSorted()).toEqual([
-    'hn.algolia.com',
-    'old.reddit.com',
-    'www.reddit.com',
+  const sent = network.requests.map((u) => new URL(u)).map((u) => u.host + u.pathname);
+  expect(sent.toSorted()).toEqual([
+    'hn.algolia.com/api/v1/search',
+    'old.reddit.com/api/info.json',
+    'old.reddit.com/search.json',
   ]);
   expect(network.unexpected).toEqual([]);
 });

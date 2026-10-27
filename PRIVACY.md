@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated:** 2026-10-25 · **Applies to:** Find On 2.0 and later, for Google Chrome and Microsoft Edge
+**Last updated:** 2026-10-26 · **Applies to:** Find On 2.0 and later, for Google Chrome and Microsoft Edge
 
 Find On looks up the page you're on in Hacker News and Reddit. It has no server of its own: every request goes directly from your browser to the services listed below. There is no analytics, advertising or sale of data.
 
@@ -9,7 +9,7 @@ Find On looks up the page you're on in Hacker News and Reddit. It has no server 
 | Data                                               | Sent to                                               | When                                                                     |
 | -------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------ |
 | Search terms derived from the cleaned page URL     | Hacker News search (`hn.algolia.com`, run by Algolia) | Each lookup, if the Hacker News source is enabled                        |
-| The cleaned page URL, with your reddit.com cookies | Reddit (`www.reddit.com`, `old.reddit.com`)           | Each lookup, if the Reddit source is enabled; never from private windows |
+| The cleaned page URL, with your reddit.com cookies | Reddit (`old.reddit.com`)                             | Each lookup, if the Reddit source is enabled; never from private windows |
 | The cleaned page URL and the page title            | The Hacker News or Reddit submit page                 | Only when you click "Submit to Hacker News" or "Submit to Reddit"        |
 
 ## Data Find On reads

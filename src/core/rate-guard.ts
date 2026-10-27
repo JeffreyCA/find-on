@@ -1,8 +1,8 @@
 // Reddit rate guard: a token bucket for automatic lookups, a pause when Reddit's own
-// rate-limit headers run low, a circuit breaker after sign-in or human-verification failures, and a
-// memory of old.reddit.com walls. Pure logic over an injected KV store and clock; in the extension
-// the KV is storage.session, so the state survives service worker restarts. Use one guard per store:
-// it serializes its own reads and writes.
+// rate-limit headers run low, and a circuit breaker after sign-in or human-verification failures.
+// Pure logic over an injected KV store and clock; in the extension the KV is storage.session, so the
+// state survives service worker restarts. Use one guard per store: it serializes its own reads and
+// writes.
 
 import type { HttpOutcome } from './http';
 import { isRecord, type Depth, type SourceState } from './types';
@@ -19,8 +19,6 @@ const REFILL_PER_MS = 8 / 60_000;
 /** Below this many requests left in Reddit's window, automatic lookups wait for the reset. */
 export const LOW_REMAINING = 10;
 export const BREAKER_MS = 5 * 60_000;
-/** How long old.reddit.com is skipped after it showed a login wall while www.reddit.com worked. */
-export const OLD_WALL_MS = 30 * 60_000;
 
 const STATE_KEY = 'reddit-guard';
 
@@ -34,8 +32,6 @@ export interface GuardState {
   limitedUntil: number;
   /** Signed out or challenged: automatic requests stop until then. */
   breakerUntil: number;
-  /** old.reddit.com asks this user to log in although www.reddit.com works. */
-  oldWalledUntil: number;
 }
 
 export type Admission =
@@ -111,16 +107,6 @@ export class RedditGuard {
     });
   }
 
-  oldRedditWalled(): Promise<boolean> {
-    return this.#update((s, now) => s.oldWalledUntil > now);
-  }
-
-  markOldRedditWalled(): Promise<void> {
-    return this.#update((s, now) => {
-      s.oldWalledUntil = now + OLD_WALL_MS;
-    });
-  }
-
   /** Read-modify-write of the stored state, one at a time. */
   #update<T>(mutate: (state: GuardState, now: number) => T): Promise<T> {
     const run = this.#chain.then(async () => {
@@ -156,7 +142,6 @@ function initialState(now: number): GuardState {
     pausedUntil: 0,
     limitedUntil: 0,
     breakerUntil: 0,
-    oldWalledUntil: 0,
   };
 }
 
@@ -167,14 +152,7 @@ function parseState(value: unknown, now: number): GuardState {
 function isGuardState(value: unknown): value is GuardState {
   if (!isRecord(value)) return false;
   const v = value;
-  return (
-    [
-      'tokens',
-      'refilledAt',
-      'pausedUntil',
-      'limitedUntil',
-      'breakerUntil',
-      'oldWalledUntil',
-    ] as const
-  ).every((k) => typeof v[k] === 'number' && Number.isFinite(v[k]));
+  return (['tokens', 'refilledAt', 'pausedUntil', 'limitedUntil', 'breakerUntil'] as const).every(
+    (k) => typeof v[k] === 'number' && Number.isFinite(v[k]),
+  );
 }

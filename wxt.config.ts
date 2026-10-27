@@ -27,11 +27,7 @@ export default defineConfig({
     description: "Find Hacker News and Reddit discussions of the page you're on.",
     minimum_chrome_version: '127',
     permissions: ['storage', 'tabs', 'contextMenus'],
-    host_permissions: [
-      'https://hn.algolia.com/*',
-      'https://www.reddit.com/*',
-      'https://old.reddit.com/*',
-    ],
+    host_permissions: ['https://hn.algolia.com/*', 'https://old.reddit.com/*'],
     commands: {
       _execute_action: { suggested_key: { default: 'Alt+Shift+D' } },
     },

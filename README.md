@@ -21,7 +21,7 @@ Reddit results need you to be signed in to reddit.com in the same browser profil
 ## Privacy
 
 - There is no Find On server and no analytics.
-- To look up a page, Find On sends its cleaned URL to Hacker News search (`hn.algolia.com`, run by Algolia) and to Reddit (`www.reddit.com` and `old.reddit.com`). Hacker News requests carry no cookies.
+- To look up a page, Find On sends its cleaned URL to Hacker News search (`hn.algolia.com`, run by Algolia) and to Reddit (`old.reddit.com`). Hacker News requests carry no cookies.
 - Reddit requests carry your reddit.com cookies, which the browser attaches, so Reddit can associate the lookups with your account.
 - Automatic lookups are on by default and send the URL of every page you load, except sites on the blocklist (webmail, search and chat sites by default, editable in settings). Manual lookup mode sends a URL only when you click the toolbar button.
 - Find On never sends URLs that aren't public web pages: anything other than http and https, localhost, IP addresses, single-label hosts and private names such as `.local` or `.internal`.

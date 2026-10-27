@@ -42,7 +42,7 @@ export function oldRedditLoginWall(): Response {
   );
 }
 
-/** www.reddit.com's answer to a signed-out request: the 403 "blocked by network security" page. */
+/** Reddit's 403 "blocked by network security" page (www.reddit.com serves it to JSON requests). */
 export function wwwRedditBlocked(): Response {
   return html(fixtureText('reddit-blocked-403.html'), 403, { 'retry-after': '0' });
 }

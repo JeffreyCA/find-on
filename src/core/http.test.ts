@@ -30,8 +30,8 @@ describe('classifyResponse', () => {
     expect(kind(await classifyResponse(oldRedditLoginWall(), NOW))).toBe('login');
   });
 
-  it('maps the 403 block page to blocked', async () => {
-    expect(kind(await classifyResponse(wwwRedditBlocked(), NOW))).toBe('blocked');
+  it('maps the 403 block page to an HTTP error, not a sign-in wall', async () => {
+    expect(kind(await classifyResponse(wwwRedditBlocked(), NOW))).toBe('http');
   });
 
   it('recognizes the human-verification page, whatever its status', async () => {

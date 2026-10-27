@@ -25,12 +25,13 @@ export type HttpOutcome =
   | { kind: 'ok'; data: unknown; meta: ResponseMeta }
   /** Redirected to a /login page (old.reddit.com when signed out). */
   | { kind: 'login'; meta: ResponseMeta }
-  /** 403 HTML, e.g. Reddit's "You've been blocked by network security." */
-  | { kind: 'blocked'; meta: ResponseMeta }
   /** An HTML human-verification page ("Prove your humanity"). */
   | { kind: 'challenge'; meta: ResponseMeta }
   | { kind: 'rate-limited'; retryAt: number; meta: ResponseMeta }
-  /** Any other non-2xx status. */
+  /**
+   * Any other non-2xx status, including Reddit's 403 "blocked by network security" page, which
+   * Reddit serves to signed-in users too.
+   */
   | { kind: 'http'; meta: ResponseMeta }
   /** 2xx that is not JSON, or JSON that does not parse. */
   | { kind: 'format'; detail: string; meta: ResponseMeta }
@@ -97,7 +98,6 @@ export function isTransient(outcome: HttpOutcome, policy: FetchPolicy): boolean 
       return policy.retryRateLimited;
     case 'ok':
     case 'login':
-    case 'blocked':
     case 'challenge':
     case 'format':
       break;
@@ -156,7 +156,6 @@ export async function classifyResponse(res: Response, now: number): Promise<Http
   if (/\bhtml\b/i.test(contentType)) {
     const body = await res.text();
     if (CHALLENGE_MARKERS.test(body)) return { kind: 'challenge', meta };
-    if (res.status === 403) return { kind: 'blocked', meta };
   } else {
     discard(res);
   }
@@ -165,13 +164,12 @@ export async function classifyResponse(res: Response, now: number): Promise<Http
 }
 
 /**
- * The source state for a failed request. Sign-in, challenge and block states only exist for
- * Reddit; for HN they are plain HTTP errors.
+ * The source state for a failed request. Sign-in and challenge states only exist for Reddit; for
+ * HN they are plain HTTP errors.
  */
 export function failureState(outcome: Failure, source: SourceId): SourceState {
   switch (outcome.kind) {
     case 'login':
-    case 'blocked':
       return source === 'reddit' ? { status: 'signed-out' } : httpError(outcome.meta);
     case 'challenge':
       return source === 'reddit' ? { status: 'challenge' } : httpError(outcome.meta);

@@ -5,7 +5,6 @@ import {
   json,
   oldRedditLoginWall,
   testEnv,
-  wwwRedditBlocked,
   type Route,
 } from '../test-utils';
 import type { Depth, SourceState } from '../types';
@@ -24,10 +23,10 @@ const tooMany = () =>
 const odd = () => json({ kind: 'Listing', data: { posts: [] } });
 const searchFixture = () => json(fixtureJson('reddit-search-xkcd-927.json'));
 
-/** Answers www.reddit.com search and old.reddit.com info; anything else fails the test. */
+/** Answers old.reddit.com search and info; any other request fails as a network error. */
 function reddit(search: () => Response, info: () => Response): Route {
   return (url) => {
-    if (url.hostname === 'www.reddit.com' && url.pathname === '/search.json') return search();
+    if (url.hostname === 'old.reddit.com' && url.pathname === '/search.json') return search();
     if (url.hostname === 'old.reddit.com' && url.pathname === '/api/info.json') return info();
     throw new Error(`unexpected request ${url.href}`);
   };
@@ -85,17 +84,18 @@ describe('lookupReddit', () => {
     expect(byId['zzxpost']?.crosspostOf).toBe('73b660');
   });
 
-  it('is ok when old.reddit.com walls but www.reddit.com answers, and skips old.reddit after', async () => {
-    const { run, endpoints } = setup(reddit(searchFixture, oldRedditLoginWall));
+  it('is ok, but incomplete, when one request fails and another answers', async () => {
+    const { run, endpoints } = setup(
+      reddit(searchFixture, () => new Response('', { status: 502 })),
+    );
     const state = await run('auto');
     expect(state).toMatchObject({ status: 'ok', complete: false });
     expect(items(state).length).toBeGreaterThan(0);
-    await run('auto');
-    expect(endpoints()).toEqual(['www /search', 'old /api/info', 'www /search']);
+    expect(endpoints()).toEqual(['old /search', 'old /api/info']);
   });
 
   it('is signed out when every request hits a sign-in wall, and pauses automatic lookups', async () => {
-    const { run, calls } = setup(reddit(wwwRedditBlocked, oldRedditLoginWall));
+    const { run, calls } = setup(reddit(oldRedditLoginWall, oldRedditLoginWall));
     expect(await run('auto')).toEqual({ status: 'signed-out' });
     expect(await run('auto')).toMatchObject({ status: 'paused' });
     expect(calls).toHaveLength(2);

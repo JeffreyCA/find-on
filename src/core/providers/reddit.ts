@@ -1,8 +1,9 @@
 // Reddit through the user's signed-in reddit.com session. Pure TS.
 //
-// The browser attaches the user's reddit.com cookies to these requests (`credentials: 'include'`);
-// signed out, Reddit answers with a login redirect (old.reddit.com) or a 403 block page
-// (www.reddit.com). Search results are candidates only: every post is classified locally on
+// The browser attaches the user's reddit.com cookies to these requests (`credentials: 'include'`).
+// Every request goes to old.reddit.com: www.reddit.com answers JSON requests with a 403 "blocked by
+// network security" page even for signed-in users. Signed out, old.reddit.com redirects to its login
+// page. Search results are candidates only: every post is classified locally on
 // `url_overridden_by_dest ?? url`, and posts in no tier are dropped.
 
 import {
@@ -13,6 +14,7 @@ import {
   type FetchPolicy,
   type HttpEnv,
 } from '../http';
+import { redditOrigin } from '../links';
 import type { RedditGuard } from '../rate-guard';
 import {
   isRecord,
@@ -25,8 +27,7 @@ import {
 import { classifyHits, computeKeys, redditVariants, splitIdentity, type UrlKeys } from '../url';
 import { hasStrongMatch, numberOr0, stringOr, type OkState } from './common';
 
-export const OLD_REDDIT = 'https://old.reddit.com';
-export const WWW_REDDIT = 'https://www.reddit.com';
+export const OLD_REDDIT = redditOrigin('old');
 
 /** Reddit search rejects longer queries; such pages rely on the exact-URL lookups instead. */
 const MAX_SEARCH_QUERY = 512;
@@ -43,24 +44,24 @@ export function redditPolicy(depth: Depth): FetchPolicy {
   };
 }
 
-/** E: Reddit's exact-URL index. Only old.reddit.com answers it, even signed in. */
+/** E: Reddit's exact-URL index. */
 export function infoUrl(variant: string): string {
   return `${OLD_REDDIT}/api/info.json?url=${encodeURIComponent(variant)}&limit=100&raw_json=1`;
 }
 
 /** S: fuzzy `url:` search. */
 export function searchUrl(query: string, limit = 100): string {
-  return `${WWW_REDDIT}/search.json?q=${encodeURIComponent(`url:${query}`)}&sort=top&t=all&type=link&limit=${limit}&raw_json=1`;
+  return `${OLD_REDDIT}/search.json?q=${encodeURIComponent(`url:${query}`)}&sort=top&t=all&type=link&limit=${limit}&raw_json=1`;
 }
 
 /** D: the post, then the other submissions of the same link. */
 export function duplicatesUrl(id: string): string {
-  return `${WWW_REDDIT}/duplicates/${id}.json?limit=100&raw_json=1`;
+  return `${OLD_REDDIT}/duplicates/${id}.json?limit=100&raw_json=1`;
 }
 
 /** T: one post by id (resolves a thread page to the URL it links to). */
 export function postUrl(id: string): string {
-  return `${WWW_REDDIT}/by_id/t3_${id}.json?raw_json=1`;
+  return `${OLD_REDDIT}/by_id/t3_${id}.json?raw_json=1`;
 }
 
 /**
@@ -163,7 +164,7 @@ function parsePost(d: unknown): RedditPost | null {
 function absoluteUrl(raw: string): string | null {
   if (!raw) return null;
   try {
-    return new URL(raw, WWW_REDDIT).href;
+    return new URL(raw, redditOrigin('www')).href;
   } catch {
     return null;
   }
@@ -230,12 +231,7 @@ export interface RedditLookupOptions extends RedditContext {
   threadId?: string;
 }
 
-type Host = 'www' | 'old';
-
-interface Attempt {
-  host: Host;
-  outcome: Failure | { kind: 'ok' };
-}
+type Attempt = Failure | { kind: 'ok' };
 
 export interface RedditLookup {
   state: SourceState;
@@ -254,9 +250,9 @@ export interface RedditLookup {
  *   answered), then E(#2) and E(#3) one at a time while nothing SAME/EXACT is found, then D on the
  *   best SAME/EXACT post.
  *
- * A failed request stops further requests to its host; a challenge, a 429 or a sign-in wall on
- * www.reddit.com stops all of them. If any request succeeded the source is `ok` with what was
- * found, otherwise it takes the most specific failure.
+ * A failed request (after its retry) stops the lookup: every request goes to the same host, and a
+ * challenge, a 429 or a sign-in wall concerns the account. If any request succeeded the source is
+ * `ok` with what was found, otherwise it takes the most specific failure.
  */
 export async function lookupReddit(
   page: UrlKeys,
@@ -265,85 +261,69 @@ export async function lookupReddit(
 ): Promise<RedditLookup> {
   const { depth, force, guard, previous } = opts;
   const policy = redditPolicy(depth);
-  const oldWalled = await guard.oldRedditWalled();
-  const variants = oldWalled ? [] : redditVariants(pageUrl, INFO_VARIANTS);
+  const variants = redditVariants(pageUrl, INFO_VARIANTS);
   const query = searchQuery(page);
   const search = `url:${query}`.length <= MAX_SEARCH_QUERY ? searchUrl(query) : undefined;
 
   const attempts: Attempt[] = [];
   const posts: RedditPost[] = [...(opts.seed ?? [])];
-  const stopped = { www: false, old: false };
+  let stopped = false;
 
-  const run = async (url: string, host: Host): Promise<void> => {
-    if (stopped[host]) return;
+  const run = async (url: string): Promise<void> => {
+    if (stopped) return;
     const outcome = await getJson(url, policy, opts.env, opts.signal);
     await guard.observe(outcome);
     if (outcome.kind === 'ok') {
       const parsed = parseListings(outcome.data);
       if (parsed) {
         posts.push(...parsed);
-        attempts.push({ host, outcome: { kind: 'ok' } });
+        attempts.push({ kind: 'ok' });
         return;
       }
       attempts.push({
-        host,
-        outcome: { kind: 'format', detail: 'response without data.children', meta: outcome.meta },
+        kind: 'format',
+        detail: 'response without data.children',
+        meta: outcome.meta,
       });
-      stopped[host] = true;
+      stopped = true;
       return;
     }
-    attempts.push({ host, outcome });
-    // A host that failed (after its retry) gets no more requests in this lookup. A challenge or a
-    // 429 concerns the account, and signed out on www means signed out on old.reddit too.
-    stopped[host] = true;
-    const signedOut = outcome.kind === 'login' || outcome.kind === 'blocked';
-    if (
-      outcome.kind === 'challenge' ||
-      outcome.kind === 'rate-limited' ||
-      (signedOut && host === 'www')
-    ) {
-      stopped.www = stopped.old = true;
-    }
+    attempts.push(outcome);
+    stopped = true;
   };
 
   // S and E(#1), unless an earlier result has both answers already (a failed request has none).
-  const first: Array<[string, Host]> = [];
+  const first: string[] = [];
   if (!previous?.complete) {
-    if (search) first.push([search, 'www']);
-    if (variants[0]) first.push([infoUrl(variants[0]), 'old']);
+    if (search) first.push(search);
+    if (variants[0]) first.push(infoUrl(variants[0]));
   }
   const admission = await guard.admit({ depth, force, cost: first.length });
   if (!admission.ok) return previous ? { state: previous, held: true } : { state: admission.state };
-  await Promise.all(first.map(([url, host]) => run(url, host)));
+  await Promise.all(first.map((url) => run(url)));
 
   let items = mergeItems(previous?.items ?? [], matchPosts(posts, page));
   if (depth === 'full') {
     for (const variant of variants.slice(1)) {
-      if (hasStrongMatch(items) || stopped.old) break;
+      if (hasStrongMatch(items) || stopped) break;
       // oxlint-disable-next-line no-await-in-loop -- each variant is only tried if the last missed
-      await run(infoUrl(variant), 'old');
+      await run(infoUrl(variant));
       items = mergeItems(previous?.items ?? [], matchPosts(posts, page));
     }
     const target = opts.threadId ?? bestStrongMatch(items)?.id;
     if (target) {
-      await run(duplicatesUrl(target), 'www');
+      await run(duplicatesUrl(target));
       items = mergeItems(previous?.items ?? [], matchPosts(posts, page));
     }
   }
 
-  const failures = attempts.flatMap((a) => (a.outcome.kind === 'ok' ? [] : [a.outcome]));
-  const succeeded = attempts.filter((a) => a.outcome.kind === 'ok');
-  const anyOk = succeeded.length > 0;
-  const signedOut = failures.some((f) => f.kind === 'login' || f.kind === 'blocked');
+  const failures = attempts.filter((a): a is Failure => a.kind !== 'ok');
+  const anyOk = attempts.some((a) => a.kind === 'ok');
   await guard.conclude({
     anyOk,
-    signedOut,
+    signedOut: failures.some((f) => f.kind === 'login'),
     challenged: failures.some((f) => f.kind === 'challenge'),
   });
-  const oldWall = attempts.some(
-    (a) => a.host === 'old' && (a.outcome.kind === 'login' || a.outcome.kind === 'blocked'),
-  );
-  if (oldWall && succeeded.some((a) => a.host === 'www')) await guard.markOldRedditWalled();
 
   if (anyOk || previous || attempts.length === 0) {
     // With nothing sent (no usable query or variant), the result is only what was seeded.
@@ -362,7 +342,7 @@ function mostSpecific(failures: readonly Failure[]): SourceState {
 }
 
 function failureRank(f: Failure): number {
-  if (f.kind === 'login' || f.kind === 'blocked') return 0;
+  if (f.kind === 'login') return 0;
   if (f.kind === 'challenge') return 1;
   return f.kind === 'rate-limited' ? 2 : 3;
 }
@@ -401,7 +381,7 @@ export async function resolveRedditThread(id: string, ctx: RedditContext): Promi
   const posts = outcome.kind === 'ok' ? parseListings(outcome.data) : null;
   await guard.conclude({
     anyOk: posts !== null,
-    signedOut: outcome.kind === 'login' || outcome.kind === 'blocked',
+    signedOut: outcome.kind === 'login',
     challenged: outcome.kind === 'challenge',
   });
   if (outcome.kind !== 'ok') return { kind: 'failed', state: failureState(outcome, 'reddit') };
@@ -433,7 +413,7 @@ export async function checkSignedIn(
   );
   await ctx.guard.observe(outcome);
   const ok = outcome.kind === 'ok' && parseListings(outcome.data) !== null;
-  const signedOut = outcome.kind === 'login' || outcome.kind === 'blocked';
+  const signedOut = outcome.kind === 'login';
   await ctx.guard.conclude({ anyOk: ok, signedOut, challenged: outcome.kind === 'challenge' });
   if (ok) return true;
   return signedOut ? false : null;
