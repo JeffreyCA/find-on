@@ -4,6 +4,16 @@ All notable changes to Find On are documented here. The format is based on [Keep
 
 Versions up to 1.6.1 were released as Find on Reddit by Adeel Hassan ([AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit)). Dates before 2.0.0 are when each version appeared in the repository.
 
+## [2.0.2] - 2026-10-26
+
+### Fixed
+
+- Reddit search, other submissions of a link and Reddit thread pages work again, and the settings and welcome pages no longer report "Not signed in" for signed-in users. www.reddit.com started blocking these requests even with a session, so every Reddit request now goes to old.reddit.com.
+
+### Changed
+
+- Host permissions reduced to `hn.algolia.com` and `old.reddit.com`.
+
 ## [2.0.1] - 2026-10-26
 
 ### Added

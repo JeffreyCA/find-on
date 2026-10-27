@@ -65,7 +65,7 @@ async function mockNetwork(
       },
     );
   await answer('https://hn.algolia.com', null, 'hn-search-xkcd-927.json');
-  await answer('https://www.reddit.com', '/search.json', 'reddit-search-xkcd-927.json');
+  await answer('https://old.reddit.com', '/search.json', 'reddit-search-xkcd-927.json');
   await answer('https://old.reddit.com', '/api/info.json', 'reddit-info-xkcd-927.json');
   return { requests, unexpected };
 }
@@ -128,7 +128,7 @@ test('shows the number of discussions on the badge', async ({ context, serviceWo
   expect(network.requests.map((u) => new URL(u).host).toSorted()).toEqual([
     'hn.algolia.com',
     'old.reddit.com',
-    'www.reddit.com',
+    'old.reddit.com',
   ]);
   expect(network.unexpected).toEqual([]);
 });

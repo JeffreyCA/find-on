@@ -24,8 +24,8 @@ function fulfillJson(route: Route, body: string): Promise<void> {
 
 /**
  * Answers HN and Reddit for xkcd.com/927 and aborts everything else. Signed out, old.reddit.com
- * redirects to its login page (served by the `loginServer` fixture) and www.reddit.com answers with
- * its 403 block page, as they do for a browser without a Reddit session.
+ * redirects every request to its login page (served by the `loginServer` fixture), as it does for a
+ * browser without a Reddit session.
  */
 async function mockNetwork(
   context: BrowserContext,
@@ -41,31 +41,22 @@ async function mockNetwork(
     (route) => fulfillJson(route, fixture('hn-search-xkcd-927.json')),
   );
   await context.route(
-    (url) => url.origin === 'https://www.reddit.com',
+    (url) => url.origin === 'https://old.reddit.com' && !url.pathname.startsWith('/login'),
     (route) => {
       if (reddit === 'signed-out') {
+        const dest = encodeURIComponent(route.request().url());
         return route.fulfill({
-          status: 403,
-          contentType: 'text/html; charset=utf-8',
-          body: fixture('reddit-blocked-403.html'),
+          status: 302,
+          headers: { location: `https://old.reddit.com/login/?reason=lor2&dest=${dest}` },
         });
       }
       const { pathname } = new URL(route.request().url());
       if (pathname === '/search.json')
         return fulfillJson(route, fixture('reddit-search-xkcd-927.json'));
+      if (pathname === '/api/info.json')
+        return fulfillJson(route, fixture('reddit-info-xkcd-927.json'));
       // Other submissions of the best match: none beyond what search found.
       return fulfillJson(route, JSON.stringify([EMPTY_LISTING, EMPTY_LISTING]));
-    },
-  );
-  await context.route(
-    (url) => url.origin === 'https://old.reddit.com' && url.pathname === '/api/info.json',
-    (route) => {
-      if (reddit === 'signed-in') return fulfillJson(route, fixture('reddit-info-xkcd-927.json'));
-      const dest = encodeURIComponent(route.request().url());
-      return route.fulfill({
-        status: 302,
-        headers: { location: `https://old.reddit.com/login/?reason=lor2&dest=${dest}` },
-      });
     },
   );
 }
