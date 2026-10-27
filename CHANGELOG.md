@@ -9,6 +9,7 @@ Versions up to 1.6.1 were released as Find on Reddit by Adeel Hassan ([AdeelH/fi
 ### Fixed
 
 - Reddit search, other submissions of a link and Reddit thread pages work again, and the settings and welcome pages no longer report "Not signed in" for signed-in users. www.reddit.com started blocking these requests even with a session, so every Reddit request now goes to old.reddit.com.
+- When Reddit blocks a request ("blocked by network security"), the popup and settings show an error instead of "not signed in".
 
 ### Changed
 

@@ -14,6 +14,7 @@ import {
   type FetchPolicy,
   type HttpEnv,
 } from '../http';
+import { redditOrigin } from '../links';
 import type { RedditGuard } from '../rate-guard';
 import {
   isRecord,
@@ -26,7 +27,7 @@ import {
 import { classifyHits, computeKeys, redditVariants, splitIdentity, type UrlKeys } from '../url';
 import { hasStrongMatch, numberOr0, stringOr, type OkState } from './common';
 
-export const OLD_REDDIT = 'https://old.reddit.com';
+export const OLD_REDDIT = redditOrigin('old');
 
 /** Reddit search rejects longer queries; such pages rely on the exact-URL lookups instead. */
 const MAX_SEARCH_QUERY = 512;
@@ -163,7 +164,7 @@ function parsePost(d: unknown): RedditPost | null {
 function absoluteUrl(raw: string): string | null {
   if (!raw) return null;
   try {
-    return new URL(raw, 'https://www.reddit.com').href;
+    return new URL(raw, redditOrigin('www')).href;
   } catch {
     return null;
   }
@@ -320,7 +321,7 @@ export async function lookupReddit(
   const anyOk = attempts.some((a) => a.kind === 'ok');
   await guard.conclude({
     anyOk,
-    signedOut: failures.some((f) => f.kind === 'login' || f.kind === 'blocked'),
+    signedOut: failures.some((f) => f.kind === 'login'),
     challenged: failures.some((f) => f.kind === 'challenge'),
   });
 
@@ -341,7 +342,7 @@ function mostSpecific(failures: readonly Failure[]): SourceState {
 }
 
 function failureRank(f: Failure): number {
-  if (f.kind === 'login' || f.kind === 'blocked') return 0;
+  if (f.kind === 'login') return 0;
   if (f.kind === 'challenge') return 1;
   return f.kind === 'rate-limited' ? 2 : 3;
 }
@@ -380,7 +381,7 @@ export async function resolveRedditThread(id: string, ctx: RedditContext): Promi
   const posts = outcome.kind === 'ok' ? parseListings(outcome.data) : null;
   await guard.conclude({
     anyOk: posts !== null,
-    signedOut: outcome.kind === 'login' || outcome.kind === 'blocked',
+    signedOut: outcome.kind === 'login',
     challenged: outcome.kind === 'challenge',
   });
   if (outcome.kind !== 'ok') return { kind: 'failed', state: failureState(outcome, 'reddit') };
@@ -412,7 +413,7 @@ export async function checkSignedIn(
   );
   await ctx.guard.observe(outcome);
   const ok = outcome.kind === 'ok' && parseListings(outcome.data) !== null;
-  const signedOut = outcome.kind === 'login' || outcome.kind === 'blocked';
+  const signedOut = outcome.kind === 'login';
   await ctx.guard.conclude({ anyOk: ok, signedOut, challenged: outcome.kind === 'challenge' });
   if (ok) return true;
   return signedOut ? false : null;

@@ -125,10 +125,11 @@ test('shows the number of discussions on the badge', async ({ context, serviceWo
 
   await expect.poll(() => badgeOf(serviceWorker, ARTICLE)).toBe(BADGE);
   // An automatic check sends HN one search, and Reddit one search plus one exact-URL lookup.
-  expect(network.requests.map((u) => new URL(u).host).toSorted()).toEqual([
-    'hn.algolia.com',
-    'old.reddit.com',
-    'old.reddit.com',
+  const sent = network.requests.map((u) => new URL(u)).map((u) => u.host + u.pathname);
+  expect(sent.toSorted()).toEqual([
+    'hn.algolia.com/api/v1/search',
+    'old.reddit.com/api/info.json',
+    'old.reddit.com/search.json',
   ]);
   expect(network.unexpected).toEqual([]);
 });

@@ -23,12 +23,11 @@ const tooMany = () =>
 const odd = () => json({ kind: 'Listing', data: { posts: [] } });
 const searchFixture = () => json(fixtureJson('reddit-search-xkcd-927.json'));
 
-/** Answers old.reddit.com search and info; anything else fails the test. */
+/** Answers old.reddit.com search and info; any other request fails as a network error. */
 function reddit(search: () => Response, info: () => Response): Route {
   return (url) => {
-    if (url.hostname !== 'old.reddit.com') throw new Error(`unexpected host ${url.href}`);
-    if (url.pathname === '/search.json') return search();
-    if (url.pathname === '/api/info.json') return info();
+    if (url.hostname === 'old.reddit.com' && url.pathname === '/search.json') return search();
+    if (url.hostname === 'old.reddit.com' && url.pathname === '/api/info.json') return info();
     throw new Error(`unexpected request ${url.href}`);
   };
 }
