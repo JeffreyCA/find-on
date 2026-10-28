@@ -8,8 +8,10 @@ import { onboardedItem, type Settings } from '@/platform/settings';
 import { Logo } from '@/ui/Badge';
 import { Button } from '@/ui/Button';
 import { RadioGroup } from '@/ui/Choice';
+import { disclosure } from '@/ui/disclosure';
 import { updateSettings, useRedditSignIn, useSettings, useStorageItem } from '@/ui/hooks';
 import { RedditSignInStatus } from '@/ui/RedditSignIn';
+import { RepoLink } from '@/ui/RepoLink';
 import { StatusText } from '@/ui/StatusText';
 
 type Mode = 'auto' | 'manual';
@@ -53,8 +55,11 @@ function WelcomePage({ settings, onboarded }: { settings: Settings; onboarded: b
       <header class="welcome-head">
         <Logo size={40} />
         <h1>Find On</h1>
+        <RepoLink class="welcome-repo" />
       </header>
-      <p class="welcome-lede">{lede(settings.sources)}</p>
+      <p class="welcome-lede">
+        {disclosure(settings.sources) ?? 'No sources are enabled in settings, so nothing is sent.'}
+      </p>
 
       <section class="welcome-section" aria-labelledby="check-heading">
         <div class="welcome-section-head">
@@ -74,7 +79,7 @@ function WelcomePage({ settings, onboarded }: { settings: Settings; onboarded: b
             {
               value: 'auto',
               label: 'Automatic',
-              hint: `Looks up each page when it loads, subject to the site filter. The toolbar badge shows the ${counts} count.`,
+              hint: `Looks up page as it loads, subject to the site filter. The toolbar badge shows the ${counts} count.`,
             },
             {
               value: 'manual',
@@ -101,22 +106,6 @@ function WelcomePage({ settings, onboarded }: { settings: Settings; onboarded: b
       </footer>
     </main>
   );
-}
-
-/** What is sent where, for the sources that are on. */
-function lede({ hn, reddit }: Settings['sources']): string {
-  const session =
-    ' Reddit requests use your reddit.com session, so Reddit associates them with your account.';
-  if (hn && reddit) {
-    return `Find On sends the URL of each page it looks up to Hacker News search (hn.algolia.com) and to Reddit, and collects nothing else.${session}`;
-  }
-  if (hn) {
-    return 'Find On sends the URL of each page it looks up to Hacker News search (hn.algolia.com), and collects nothing else.';
-  }
-  if (reddit) {
-    return `Find On sends the URL of each page it looks up to Reddit, and collects nothing else.${session}`;
-  }
-  return 'No sources are enabled in settings, so Find On sends nothing.';
 }
 
 /** Checked on open and again whenever the user comes back to this tab (e.g. after signing in). */

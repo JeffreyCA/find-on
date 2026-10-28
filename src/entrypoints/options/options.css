@@ -7,6 +7,10 @@
 }
 
 .page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-6);
   padding-bottom: var(--s-6);
   border-bottom: 1px solid var(--ink);
 }
@@ -16,6 +20,16 @@
   gap: var(--s-3);
   margin-bottom: var(--s-3);
   color: var(--ink-3);
+  font-size: var(--fs-ui);
+}
+/* Centred on the kicker line, with the GitHub mark flush with the column's right edge. */
+.page-links {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  margin: -5px -7px 0 0;
+}
+.page-links .btn-text {
   font-size: var(--fs-ui);
 }
 .page-kicker img {

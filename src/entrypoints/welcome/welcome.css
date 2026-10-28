@@ -1,7 +1,7 @@
-/* Welcome page: one narrow centred column. */
+/* Welcome page: one centred column, as wide as the options page. */
 
 .welcome {
-  max-width: 640px;
+  max-width: 800px;
   margin: 0 auto;
   padding: max(var(--s-10), 9vh) var(--s-9) 96px;
 }
@@ -17,6 +17,10 @@
 .welcome-head h1 {
   font-size: 28px;
   letter-spacing: -0.015em;
+}
+/* The GitHub mark flush with the column's right edge. */
+.welcome-repo {
+  margin: 0 -7px 0 auto;
 }
 
 .welcome-lede {
