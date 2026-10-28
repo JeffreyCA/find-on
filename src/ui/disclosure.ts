@@ -1,5 +1,5 @@
 // The one-line privacy disclosure shown wherever the user decides how pages are checked (popup
-// first-use choice, options page). The welcome page states it in full.
+// first-use choice, options and welcome pages).
 
 import type { Settings } from '@/platform/settings';
 

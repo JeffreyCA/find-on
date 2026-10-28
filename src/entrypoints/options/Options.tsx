@@ -11,10 +11,12 @@ import { Checkbox, RadioGroup } from '@/ui/Choice';
 import { disclosure } from '@/ui/disclosure';
 import { useRedditSignIn, useStorageItem } from '@/ui/hooks';
 import { RedditSignInStatus } from '@/ui/RedditSignIn';
+import { RepoLink } from '@/ui/RepoLink';
 import { SourceMark } from '@/ui/SourceMark';
 import { StatusText } from '@/ui/StatusText';
 import { TextArea } from '@/ui/TextArea';
 import { useSaveState, useSettingsEditor, type SaveState, type SettingsChange } from './editor';
+import { reportUrl } from './report';
 import { shortcutKeys, SHORTCUTS_PAGE, useShortcut } from './shortcut';
 import { hasPatterns, invalidLines, listToText, sameList, textToList } from './sites';
 
@@ -68,12 +70,25 @@ export function Options({ saveDelay = 600 }: OptionsProps) {
   return (
     <div class="page options">
       <header class="page-head">
-        <p class="page-kicker">
-          <Logo size={16} />
-          <span>Find On</span>
-          {version !== '' && <span class="num">{version}</span>}
-        </p>
-        <h1>Settings</h1>
+        <div>
+          <p class="page-kicker">
+            <Logo size={16} />
+            <span>Find On</span>
+            {version !== '' && <span class="num">{version}</span>}
+          </p>
+          <h1>Settings</h1>
+        </div>
+        <div class="page-links">
+          <a
+            class="btn-text"
+            href={reportUrl(version, navigator.userAgent)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Report a problem
+          </a>
+          <RepoLink />
+        </div>
       </header>
 
       <Section id="lookup" title="Lookup" status={statusOf('lookup')}>
