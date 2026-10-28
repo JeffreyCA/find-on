@@ -64,7 +64,7 @@ export const sortItem = storage.defineItem<SortOrder>('local:ui.sort');
 
 /**
  * Whether the popup lists text posts (posts that link to the page in their text or title) with the
- * discussions, or in the group of threads that link to the page; set with its "Text posts" toggle.
+ * discussions, or hides them; set with its "Text posts" toggle.
  */
 export const textPostsItem = storage.defineItem<boolean>('local:ui.textPosts', {
   fallback: true,

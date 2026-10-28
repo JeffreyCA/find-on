@@ -18,16 +18,8 @@ import {
 } from '@/ui/icons';
 import { Segmented, type Segment } from '@/ui/Segmented';
 import { SourceMark } from '@/ui/SourceMark';
-import { fullDate, grouped, plural, shortAge, urlDifference } from './format';
-import {
-  hasPost,
-  postRow,
-  SOURCE_SHORT,
-  type Filter,
-  type ListRow,
-  type PopupModel,
-  type RowKind,
-} from './model';
+import { fullDate, grouped, shortAge, urlDifference } from './format';
+import { SOURCE_SHORT, type Filter, type ListRow, type PopupModel, type RowKind } from './model';
 
 /** Handles click and auxclick on a link (see links.ts for the rules). */
 export type LinkHandler = (event: MouseEvent, url: string) => void;
@@ -99,6 +91,7 @@ export function Toolbar({
         title="Posts that link to the page in their text or title"
         onClick={() => onTextPosts(!textPosts)}
       >
+        <TextPostIcon />
         Text posts
       </button>
       <label class="sort">
@@ -242,7 +235,7 @@ export function ResultList({
         </section>
       )}
       {model.mentions.length > 0 && (
-        <section class="others mentions" aria-label={model.mentionsLabel}>
+        <section class="others mentions" aria-label="Mentioned in comments">
           <button
             type="button"
             class="disclosure others-head"
@@ -251,7 +244,7 @@ export function ResultList({
             onClick={onMentions}
           >
             <ChevronIcon open={mentionsOpen} />
-            {model.mentionsLabel}{' '}
+            Mentioned in comments{' '}
             <span class="disclosure-count">
               {model.mentions.length}
               {model.moreMentions && '+'}
@@ -259,20 +252,15 @@ export function ResultList({
           </button>
           {mentionsOpen && (
             <ul class="list">
-              {/* A text post looks the same here as in the list above. */}
-              {model.mentions.map((m) =>
-                hasPost(m) ? (
-                  row(postRow(m))
-                ) : (
-                  <MentionRow
-                    key={`${m.source}:${m.id}`}
-                    m={m}
-                    host={host}
-                    now={now}
-                    onLink={onLink}
-                  />
-                ),
-              )}
+              {model.mentions.map((m) => (
+                <MentionRow
+                  key={`${m.source}:${m.id}`}
+                  m={m}
+                  host={host}
+                  now={now}
+                  onLink={onLink}
+                />
+              ))}
             </ul>
           )}
         </section>
@@ -381,8 +369,9 @@ export function CommentSearch({ url, onLink }: { url: string; onLink: LinkHandle
 
 /**
  * A thread found through comments that link to the page: its title, then where it is, how many of
- * its comments link to the page, and when the newest one was written. HN's comment search returns
- * no numbers for the thread itself, so there is no count on the right.
+ * its comments link to the page (only when several do; the heading already says one does), and when
+ * the newest one was written. HN's comment search returns no numbers for the thread itself, so there
+ * is no count on the right.
  */
 function MentionRow({
   m,
@@ -415,7 +404,7 @@ function MentionRow({
         </span>
         <span class="row-meta" id={`${id}-meta`}>
           <RowVenue of={m} />
-          <span>in {plural(m.inComments, 'comment', 'comments')}</span>
+          {m.inComments > 1 && <span>in {m.inComments} comments</span>}
           <RowAge at={m.linkedAt} now={now} />
           <RowFlags flags={m.flags} />
         </span>
@@ -427,7 +416,7 @@ function MentionRow({
 /**
  * What the thread is, as an icon before its title, with its meaning as a tooltip. It stays out of
  * the row's name: screen readers get the meaning from KindText in the discussion rows, and from the
- * place ("in 2 comments") in the rows of threads found through comments.
+ * group's name ("Mentioned in comments") in the rows of threads found through comments.
  */
 function KindIcon({ kind }: { kind: RowKind }) {
   return (

@@ -39,10 +39,6 @@ export function grouped(n: number): string {
   return GROUPED.format(n);
 }
 
-export function plural(n: number, one: string, many: string): string {
-  return `${grouped(n)} ${n === 1 ? one : many}`;
-}
-
 /** A URL without its scheme, a leading "www." or a lone trailing slash, for reading. */
 export function readableUrl(url: string): string {
   return url

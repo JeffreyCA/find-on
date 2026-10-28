@@ -174,7 +174,10 @@
 /* "Text posts": whether posts that link to the page in their text or title join the list. On, it
    takes the accent; off, it fades to the rule colours. */
 .chip {
+  display: inline-flex;
   flex: none;
+  align-items: center;
+  gap: var(--s-2);
   height: 22px;
   margin-left: auto;
   padding: 0 var(--s-3);
