@@ -1,0 +1,125 @@
+{
+  "kind": "Listing",
+  "data": {
+    "after": null,
+    "dist": 5,
+    "before": null,
+    "children": [
+      {
+        "kind": "t3",
+        "data": {
+          "id": "zzm1",
+          "name": "t3_zzm1",
+          "title": "[Programming] The Indentation Wars",
+          "subreddit": "HobbyDrama",
+          "author": "someone",
+          "score": 10,
+          "num_comments": 3,
+          "created_utc": 1785000000.0,
+          "permalink": "/r/HobbyDrama/comments/zzm1/slug/",
+          "url": "https://www.reddit.com/r/HobbyDrama/comments/zzm1/slug/",
+          "is_self": true,
+          "over_18": false,
+          "spoiler": false,
+          "locked": false,
+          "archived": false,
+          "removed_by_category": null,
+          "selftext": "",
+          "selftext_html": "<!-- SC_OFF --><div class=\"md\"><p>As <a href=\"https://xkcd.com/927/\">xkcd</a> says, there are now 15 competing standards.</p>\n</div><!-- SC_ON -->"
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "zzm2",
+          "name": "t3_zzm2",
+          "title": "based off \"xkcd: Standards\" (https://xkcd.com/927/)",
+          "subreddit": "DoctorWhumour",
+          "author": "someone",
+          "score": 10,
+          "num_comments": 3,
+          "created_utc": 1784000000.0,
+          "permalink": "/r/DoctorWhumour/comments/zzm2/slug/",
+          "url": "https://i.redd.it/zzm2.png",
+          "is_self": false,
+          "over_18": false,
+          "spoiler": false,
+          "locked": false,
+          "archived": false,
+          "removed_by_category": null,
+          "selftext": "",
+          "selftext_html": null
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "zzm3",
+          "name": "t3_zzm3",
+          "title": "Every new format",
+          "subreddit": "programming",
+          "author": "someone",
+          "score": 10,
+          "num_comments": 3,
+          "created_utc": 1783000000.0,
+          "permalink": "/r/programming/comments/zzm3/slug/",
+          "url": "https://www.reddit.com/r/programming/comments/zzm3/slug/",
+          "is_self": true,
+          "over_18": false,
+          "spoiler": false,
+          "locked": false,
+          "archived": false,
+          "removed_by_category": null,
+          "selftext": "",
+          "selftext_html": "<!-- SC_OFF --><div class=\"md\"><p>Relevant: <a href=\"https://xkcd.com/1927/\">https://xkcd.com/1927/</a></p>\n</div><!-- SC_ON -->"
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "zzm4",
+          "name": "t3_zzm4",
+          "title": "Standards again",
+          "subreddit": "comics",
+          "author": "someone",
+          "score": 10,
+          "num_comments": 3,
+          "created_utc": 1782000000.0,
+          "permalink": "/r/comics/comments/zzm4/slug/",
+          "url": "https://www.reddit.com/r/comics/comments/zzm4/slug/",
+          "is_self": true,
+          "over_18": false,
+          "spoiler": false,
+          "locked": false,
+          "archived": false,
+          "removed_by_category": "moderator",
+          "selftext": "",
+          "selftext_html": "<!-- SC_OFF --><div class=\"md\"><p><a href=\"https://xkcd.com/927/\">https://xkcd.com/927/</a></p>\n</div><!-- SC_ON -->"
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "iuhzn",
+          "name": "t3_iuhzn",
+          "title": "xkcd: Standards",
+          "subreddit": "comics",
+          "author": "ani625",
+          "score": 1042,
+          "num_comments": 168,
+          "created_utc": 1311134508.0,
+          "permalink": "/r/comics/comments/iuhzn/slug/",
+          "url": "http://xkcd.com/927/",
+          "is_self": false,
+          "over_18": false,
+          "spoiler": false,
+          "locked": false,
+          "archived": false,
+          "removed_by_category": null,
+          "selftext": "",
+          "selftext_html": "<!-- SC_OFF --><div class=\"md\"><p>Source: <a href=\"https://xkcd.com/927/\">https://xkcd.com/927/</a></p>\n</div><!-- SC_ON -->"
+        }
+      }
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fakeFetch, fixtureJson, html, json, testEnv, type Route } from '../test-utils';
 import { computeKeys, type UrlKeys } from '../url';
-import { hnQuery, lookupHn, type HnContext } from './hn';
+import { hnQuery, lookupHn, lookupHnMentions, type HnContext } from './hn';
 
 function keys(url: string): UrlKeys {
   const k = computeKeys(url);
@@ -57,6 +57,28 @@ describe('hnQuery', () => {
         'https://stackoverflow.com/questions/11227809/why-is-processing-a-sorted-array-faster',
       ),
     ).toBe('stackoverflow.com questions 11227809');
+  });
+
+  it('splits mention queries at brackets and escapes, which comments write either way', () => {
+    const page = keys('https://en.wikipedia.org/wiki/Go_(programming_language)');
+    expect(hnQuery(page, { mention: true }).query).toBe(
+      'wikipedia.org en wiki go programming language',
+    );
+    const mentionQuery = (url: string) => hnQuery(keys(url), { mention: true }).query;
+    // A word glued to an escape or an apostrophe is indexed with it ("27s"), so it goes.
+    expect(mentionQuery('https://en.wikipedia.org/wiki/Goodhart%27s_law')).toBe(
+      'wikipedia.org en wiki goodhart law',
+    );
+    expect(mentionQuery("https://en.wikipedia.org/wiki/Goodhart's_law")).toBe(
+      'wikipedia.org en wiki goodhart law',
+    );
+    // A one-letter word never ends the query, which Algolia would match as a prefix.
+    expect(mentionQuery('https://en.wikipedia.org/wiki/Star_Wars:_Episode_I')).toBe(
+      'wikipedia.org en wiki star wars i episode',
+    );
+    expect(mentionQuery('https://en.wikipedia.org/wiki/C%2B%2B')).toBe(
+      'wikipedia.org en wiki c%2b%2b',
+    );
   });
 
   it('keeps identifier values for escalation, never tracking or secrets', () => {
@@ -138,5 +160,66 @@ describe('lookupHn failures', () => {
       status: 'error',
       kind: 'format',
     });
+  });
+});
+
+/** A linking comment hit, as the mention search returns it. */
+function linkingComment(id: number, story: number, at: number) {
+  return {
+    _tags: ['comment', `story_${story}`],
+    story_id: story,
+    story_title: `Thread ${story}`,
+    comment_text: '<p>https:&#x2F;&#x2F;xkcd.com&#x2F;927</p>',
+    created_at_i: at,
+    objectID: String(id),
+  };
+}
+
+describe('lookupHnMentions', () => {
+  it('finds comments and text posts that link to the page, by thread', async () => {
+    const { opts, calls } = ctx(() => json(fixtureJson('hn-mentions-xkcd-927.json')));
+    const state = await lookupHnMentions(keys('https://xkcd.com/927/'), opts);
+    expect(calls).toHaveLength(1);
+    if (state.status !== 'ok') throw new Error(state.status);
+    expect(state.complete).toBe(true);
+    // Thread B links to xkcd.com/1927. 2784984 is a discussion too; the popup leaves it out.
+    expect(state.items.map((m) => m.id)).toEqual(['90000001', '90000002', '2784984']);
+    expect(state.items[0]).toEqual({
+      source: 'hn',
+      id: '90000001',
+      title: 'Thread A',
+      venue: '',
+      permalink: '/item?id=90000001',
+      inComments: 2,
+      commentId: '90000004',
+      linkedAt: 1_759_900_000_000,
+      flags: [],
+    });
+    // A text post carries its own details, and opens at the post even with a linking comment too.
+    expect(state.items[1]).toMatchObject({
+      post: {
+        link: 'text',
+        author: 'carol',
+        points: 53,
+        comments: 12,
+        createdAt: 1_759_700_000_000,
+      },
+      inComments: 1,
+      linkedAt: 1_759_750_000_000,
+    });
+    expect(state.items[1]?.commentId).toBeUndefined();
+  });
+
+  it('widens a first page with few threads', async () => {
+    const { opts, calls } = ctx((url) =>
+      url.searchParams.get('hitsPerPage') === '100'
+        ? json({ nbHits: 2, hits: [linkingComment(1, 10, 2000)] })
+        : json({ nbHits: 2, hits: [linkingComment(1, 10, 2000), linkingComment(2, 20, 1000)] }),
+    );
+    const state = await lookupHnMentions(keys('https://xkcd.com/927/'), opts);
+    expect(calls.map((c) => c.url.searchParams.get('hitsPerPage'))).toEqual(['100', '1000']);
+    expect(state).toMatchObject({ status: 'ok', complete: true });
+    if (state.status !== 'ok') throw new Error(state.status);
+    expect(state.items.map((m) => m.id)).toEqual(['10', '20']);
   });
 });

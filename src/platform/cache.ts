@@ -62,12 +62,25 @@ function settledStatus(id: SourceId, want: Want): SourceState['status'] {
   return id === 'reddit' && want.incognito ? 'skipped' : 'ok';
 }
 
-/** Whether a cached result can be returned as is, without running a lookup. */
+/**
+ * Whether a cached result can be returned as is, without running a lookup. A popup (`full`) lookup
+ * also needs the mentions of every source that answered; when they failed, the lookup runs again and
+ * only they are asked again (the discussions are reused).
+ */
 export function canServe(r: LookupResult, want: Want, now: number): boolean {
   return (
     isFresh(r, now) &&
     (r.depth === 'full' || want.depth === 'auto') &&
-    SOURCE_IDS.every((id) => r.sources[id].status === settledStatus(id, want))
+    SOURCE_IDS.every((id) => {
+      const status = settledStatus(id, want);
+      if (r.sources[id].status !== status) return false;
+      return (
+        want.depth === 'auto' ||
+        status !== 'ok' ||
+        r.page.noLink !== undefined ||
+        r.mentions?.[id]?.status === 'ok'
+      );
+    })
   );
 }
 
@@ -176,6 +189,7 @@ export function isLookupResult(value: unknown): value is LookupResult {
     (value['depth'] === 'auto' || value['depth'] === 'full') &&
     isRecord(value['page']) &&
     isRecord(sources) &&
-    SOURCE_IDS.every((id) => isRecord(sources[id]))
+    SOURCE_IDS.every((id) => isRecord(sources[id])) &&
+    (value['mentions'] === undefined || isRecord(value['mentions']))
   );
 }

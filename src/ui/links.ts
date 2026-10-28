@@ -58,6 +58,8 @@ export async function anchorTab(): Promise<Browser.tabs.Tab | undefined> {
 }
 
 /** Opens an extension page (e.g. '/welcome.html') in a new foreground tab. */
-export async function openExtensionPage(path: '/welcome.html' | '/options.html') {
+export async function openExtensionPage(
+  path: '/welcome.html' | '/options.html' | '/options.html#whats-new',
+) {
   await browser.tabs.create({ url: browser.runtime.getURL(path) });
 }

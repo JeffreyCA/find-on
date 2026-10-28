@@ -62,6 +62,27 @@ export const onboardedItem = storage.defineItem<boolean>('local:onboarded', {
  */
 export const sortItem = storage.defineItem<SortOrder>('local:ui.sort');
 
+/**
+ * Whether the popup lists text posts (posts that link to the page in their text or title) with the
+ * discussions, or in the group of threads that link to the page; set with its "Text posts" toggle.
+ */
+export const textPostsItem = storage.defineItem<boolean>('local:ui.textPosts', {
+  fallback: true,
+});
+
+/**
+ * Whether the popup's group of threads that link to the page ("Mentioned in comments") starts open:
+ * as the user last left it; null until they first open or close it.
+ */
+export const mentionsOpenItem = storage.defineItem<boolean>('local:ui.mentionsOpen');
+
+/**
+ * The version whose notes ("What's new" in settings) the user has seen: set on install and when the
+ * settings page opens. After an update it differs from the running version, and the popup's
+ * settings button carries a dot.
+ */
+export const seenVersionItem = storage.defineItem<string>('local:ui.seenVersion');
+
 /** The order of the sources in the popup (its tabs, status lines and buttons); set by dragging a tab. */
 export const sourceOrderItem = storage.defineItem<SourceId[]>('local:ui.sourceOrder', {
   fallback: [...SOURCE_IDS],
@@ -86,7 +107,14 @@ export function normalizeOrder(order: unknown): SourceId[] {
  */
 export async function removeV1Leftovers(): Promise<void> {
   const keep = new Set(
-    [onboardedItem.key, sortItem.key, sourceOrderItem.key].map((key) => key.replace(/^local:/, '')),
+    [
+      onboardedItem.key,
+      sortItem.key,
+      textPostsItem.key,
+      mentionsOpenItem.key,
+      seenVersionItem.key,
+      sourceOrderItem.key,
+    ].map((key) => key.replace(/^local:/, '')),
   );
   const stale = Object.keys(await browser.storage.local.get(null)).filter((key) => !keep.has(key));
   await browser.storage.local.remove(stale);

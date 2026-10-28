@@ -15,8 +15,11 @@ import { SourceMark } from '@/ui/SourceMark';
 import { StatusText } from '@/ui/StatusText';
 import { countdown, readableUrl, submitUrls } from './format';
 import { buildModel, SOURCE_NAMES, type Filter, type PopupModel, type StatusLine } from './model';
-import { ResultList, Toolbar, type LinkHandler } from './Results';
+import { CommentSearch, ResultList, Toolbar, type LinkHandler } from './Results';
 import type { Target } from './target';
+
+/** How many rows of a group opening it brings into view. */
+const REVEAL_ROWS = 2;
 
 export interface PopupActions {
   /** Looks up what was typed into the URL field. */
@@ -25,6 +28,9 @@ export interface PopupActions {
   recheck: (force: boolean) => void;
   setSort: (sort: SortOrder) => void;
   setOrder: (order: SourceId[]) => void;
+  setTextPosts: (on: boolean) => void;
+  /** Remembers whether the mentions group was left open, for the next popup. */
+  setMentionsOpen: (open: boolean) => void;
   openLink: LinkHandler;
   openSettings: () => void;
   /** Opens the page that explains what is sent where. */
@@ -44,6 +50,12 @@ export interface PopupProps {
   sort: SortOrder;
   /** The sources in the user's order. */
   order: SourceId[];
+  /** Text posts are listed with the discussions ("Text posts" toggle). */
+  textPosts: boolean;
+  /** Whether the mentions group was left open last time; null until it was first toggled. */
+  mentionsOpen: boolean | null;
+  /** Updated since settings was last opened: the settings button carries a dot. */
+  whatsNew: boolean;
   actions: PopupActions;
 }
 
@@ -56,11 +68,15 @@ export function Popup({
   onboarded,
   sort,
   order,
+  textPosts,
+  mentionsOpen: mentionsLeftOpen,
+  whatsNew,
   actions,
 }: PopupProps) {
   const [filter, setFilter] = useState<Filter>('all');
   const [foldOpen, setFoldOpen] = useState(false);
   const [othersOpen, setOthersOpen] = useState<boolean | null>(null);
+  const [mentionsOpen, setMentionsOpen] = useState<boolean | null>(null);
   // The first-use choice made in this popup, confirmed in place of the question until it closes.
   const [chosen, setChosen] = useState<boolean | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -76,6 +92,7 @@ export function Popup({
     sort,
     redditHost: settings.redditHost,
     order,
+    textPosts,
   });
   // Rate-limit lines count down to their retry time.
   const ticking = model.statuses.some((s) => s.retryAt !== undefined);
@@ -87,6 +104,7 @@ export function Popup({
     setFilter('all');
     setFoldOpen(false);
     setOthersOpen(null);
+    setMentionsOpen(null);
   }, [pageKey]);
 
   useKeyboard(rootRef, fieldRef, actions.close);
@@ -107,8 +125,27 @@ export function Popup({
     recheckRef.current?.focus();
     actions.recheck(force);
   };
-  // "Other versions" opens by itself when it is all there is.
-  const othersShown = othersOpen ?? (model.empty !== null && model.similar.length > 0);
+  // A group opens by itself when the list above it is empty (no discussions, or none for the chosen
+  // source), so what was found is never hidden behind a closed heading. Otherwise "Other versions"
+  // starts closed, and "Mentioned in comments" as the user last left it.
+  const listEmpty = !model.showResults;
+  const othersShown = othersOpen ?? (listEmpty && model.similar.length > 0);
+  const mentionsShown =
+    mentionsOpen ?? ((listEmpty && model.mentions.length > 0) || (mentionsLeftOpen ?? false));
+  // Opening a group at the end of the list brings its first rows into view, scrolling no further
+  // than that and never past the group's heading, so the rows above it stay in sight.
+  const reveal = (selector: string) =>
+    requestAnimationFrame(() => {
+      const scroller = rootRef.current?.querySelector<HTMLElement>('.results');
+      const group = scroller?.querySelector<HTMLElement>(selector);
+      if (!scroller || !group) return;
+      const rows = group.querySelectorAll<HTMLElement>('.row');
+      const last = rows[Math.min(rows.length, REVEAL_ROWS) - 1] ?? group;
+      const view = scroller.getBoundingClientRect();
+      const below = last.getBoundingClientRect().bottom - view.bottom;
+      const room = group.getBoundingClientRect().top - view.top;
+      if (below > 0) scroller.scrollBy({ top: Math.min(below, room) });
+    });
 
   return (
     <div class="popup" ref={rootRef}>
@@ -121,6 +158,7 @@ export function Popup({
           model={model}
           fieldRef={fieldRef}
           recheckRef={recheckRef}
+          whatsNew={whatsNew}
           actions={actions}
         />
         {chosen !== null ? (
@@ -147,7 +185,7 @@ export function Popup({
             .filter((s) => s.tone === 'band')
             .map((s) => (
               <Status
-                key={s.source}
+                key={`${s.source}:${s.text}`}
                 line={s}
                 now={now}
                 busy={busy}
@@ -163,6 +201,8 @@ export function Popup({
             sort={sort}
             onSort={actions.setSort}
             onOrder={actions.setOrder}
+            textPosts={textPosts}
+            onTextPosts={actions.setTextPosts}
           />
         )}
       </header>
@@ -197,12 +237,13 @@ export function Popup({
               othersOpen={othersShown}
               onOthers={() => {
                 setOthersOpen(!othersShown);
-                // The group sits at the end of the list; bring what was opened into view.
-                if (!othersShown) {
-                  requestAnimationFrame(() =>
-                    rootRef.current?.querySelector('.others')?.scrollIntoView({ block: 'nearest' }),
-                  );
-                }
+                if (!othersShown) reveal('.versions');
+              }}
+              mentionsOpen={mentionsShown}
+              onMentions={() => {
+                setMentionsOpen(!mentionsShown);
+                actions.setMentionsOpen(!mentionsShown);
+                if (!mentionsShown) reveal('.mentions');
               }}
               pageUrl={pageUrl}
             />
@@ -210,7 +251,7 @@ export function Popup({
               .filter((s) => s.tone === 'note')
               .map((s) => (
                 <Status
-                  key={s.source}
+                  key={`${s.source}:${s.text}`}
                   line={s}
                   now={now}
                   busy={busy}
@@ -218,6 +259,9 @@ export function Popup({
                   onRetry={retry}
                 />
               ))}
+            {model.commentSearch !== null && (
+              <CommentSearch url={model.commentSearch} onLink={actions.openLink} />
+            )}
           </>
         )}
       </main>
@@ -235,6 +279,7 @@ function PageLine({
   model,
   fieldRef,
   recheckRef,
+  whatsNew,
   actions,
 }: {
   target: Target;
@@ -243,6 +288,7 @@ function PageLine({
   model: PopupModel;
   fieldRef: RefObject<HTMLInputElement | null>;
   recheckRef: RefObject<HTMLButtonElement | null>;
+  whatsNew: boolean;
   actions: PopupActions;
 }) {
   const shown =
@@ -312,9 +358,9 @@ function PageLine({
         </button>
         <button
           type="button"
-          class="icon-btn"
-          aria-label="Settings"
-          title="Settings"
+          class={cx('icon-btn', whatsNew && 'has-dot')}
+          aria-label={whatsNew ? "Settings, what's new" : 'Settings'}
+          title={whatsNew ? "Settings: what's new" : 'Settings'}
           onClick={actions.openSettings}
         >
           <SettingsIcon />
@@ -380,7 +426,9 @@ function Status({
   onRetry: (force: boolean) => void;
 }) {
   const waiting = line.retryAt !== undefined && line.retryAt > now;
-  const text = waiting ? `try again in ${countdown(line.retryAt ?? now, now)}` : line.text;
+  const left = `try again in ${countdown(line.retryAt ?? now, now)}`;
+  // A band is about the whole source; a note keeps saying what it is about.
+  const text = waiting ? (line.tone === 'band' ? left : `${line.text}, ${left}`) : line.text;
   const { action } = line;
   return (
     <p class={line.tone === 'band' ? 'band' : 'note'}>

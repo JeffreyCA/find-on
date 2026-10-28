@@ -123,10 +123,6 @@ code {
   background: var(--accent-wash);
 }
 
-.num {
-  font-variant-numeric: tabular-nums;
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;

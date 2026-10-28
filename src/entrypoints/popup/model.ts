@@ -1,9 +1,20 @@
 // What the popup shows for a lookup result, as plain data: per-source state, the filtered and sorted
-// rows, the zero-comment fold, "Other versions", status lines and the empty state. Pure, so it can be
-// tested without a DOM.
+// rows (text posts included when the user lists them), the zero-comment fold, "Other versions",
+// the threads that link to the page ("Mentioned in comments"), status lines and the empty state. Pure,
+// so it can be tested without a DOM.
 
 import { hnSiteUrl, redditLoginUrl, redditOrigin, type RedditHost } from '@/core/links';
-import type { Discussion, LookupResult, SourceId, SourceState } from '@/core/types';
+import { commentSearchUrl } from '@/core/providers/reddit';
+import type {
+  Discussion,
+  LookupResult,
+  Mention,
+  MentionPost,
+  MentionState,
+  SourceId,
+  SourceState,
+} from '@/core/types';
+import { computeKeys } from '@/core/url';
 import type { SortOrder } from '@/platform/settings';
 
 export const SOURCE_NAMES: Record<SourceId, string> = { hn: 'Hacker News', reddit: 'Reddit' };
@@ -24,17 +35,38 @@ export interface ModelInput {
   redditHost: RedditHost;
   /** The order of the sources (tabs, status lines, placeholders, submit buttons). */
   order: readonly SourceId[];
+  /**
+   * List posts that link to the page in their text or title with the discussions ("Text posts"),
+   * rather than in the group of threads that link to the page.
+   */
+  textPosts: boolean;
 }
+
+/** What a row's thread is, shown by the icon before its title. */
+export type RowKind =
+  /** A post submitted with the page's URL. */
+  | 'link'
+  /** A text post: one that links to the page in its text, or the text post the user is on. */
+  | 'text'
+  /** A post that links to the page in its title. */
+  | 'title'
+  /** A thread found through comments that link to the page ("Mentioned in comments"). */
+  | 'comments';
+
+/** A row of the main list: a discussion, or a text post listed with them. */
+export type ListRow = Discussion & { kind: RowKind };
 
 export interface SourceView {
   id: SourceId;
   state: SourceState;
   /** Waiting for this source's answer. */
   pending: boolean;
-  /** Has SAME/EXACT results, or may still get some. */
+  /** Has SAME/EXACT results or threads that mention the page, or may still get some. */
   participates: boolean;
-  /** SAME and EXACT discussions. */
+  /** SAME and EXACT rows, text posts included when they are listed. */
   count: number;
+  /** Rows in any tier. */
+  rows: number;
 }
 
 export type StatusAction =
@@ -66,18 +98,34 @@ export interface PopupModel {
   filter: Filter;
   /** SAME and EXACT discussions on every source. */
   total: number;
-  /** Replaces the filter when only one source has results, e.g. "11 on Hacker News". */
+  /** Replaces the filter when only one source has results, e.g. "11 on HN". */
   summary: string | null;
   /** Show the main list. */
   showResults: boolean;
   /** Show the filter/sort bar above it (not for a text post's lone thread). */
   showBar: boolean;
   /** Visible SAME/EXACT rows, sorted. */
-  main: Discussion[];
-  /** Zero-comment rows hidden behind "+N more with no comments". */
-  folded: Discussion[];
+  main: ListRow[];
+  /** Zero-comment rows hidden behind "+N more without comments". */
+  folded: ListRow[];
   /** SIMILAR rows ("Other versions"), sorted. */
-  similar: Discussion[];
+  similar: ListRow[];
+  /**
+   * Threads that link to the page ("Mentioned in comments"), minus the ones listed above, in the
+   * popup's
+   * sort. By points or comments, rows without numbers (found through comments) come after the rest;
+   * Newest orders by the newest mention.
+   */
+  mentions: Mention[];
+  /** A shown source has more mentions than were fetched: the count reads "N+". */
+  moreMentions: boolean;
+  /** The group's heading: where its threads link to the page. */
+  mentionsLabel: string;
+  /**
+   * Reddit's own comment search for the page, which Find On can't search itself: a link at the end
+   * of the results while Reddit is asked and shown. Null otherwise.
+   */
+  commentSearch: string | null;
   /** Sources to show placeholder rows for. */
   skeletons: SourceId[];
   statuses: StatusLine[];
@@ -97,17 +145,57 @@ const MIN_FOLD = 2;
 
 export function buildModel(input: ModelInput): PopupModel {
   const { result, busy } = input;
-  const view = (id: SourceId): SourceView => {
+  const page = result?.page;
+  const from = page?.resolvedFrom ?? page?.noLink;
+  const current = from ? { source: from.source, id: from.id } : null;
+
+  const stateOf = (id: SourceId): SourceState => {
     const reported = result?.sources[id] ?? initialState(id, input);
     // Still loading after the lookup ended: the request itself failed.
-    const state: SourceState =
-      !busy && reported.status === 'loading'
-        ? { status: 'error', kind: 'network', detail: 'no answer' }
-        : reported;
+    return !busy && reported.status === 'loading'
+      ? { status: 'error', kind: 'network', detail: 'no answer' }
+      : reported;
+  };
+  const states: Record<SourceId, SourceState> = { hn: stateOf('hn'), reddit: stateOf('reddit') };
+  // The only text post among the discussions can be the one the user is on, with no link to look up.
+  const kindOf = (d: Discussion): RowKind =>
+    page?.noLink?.source === d.source && page.noLink.id === d.id && !page.noLink.linkPost
+      ? 'text'
+      : 'link';
+  const discussions = input.order.flatMap((id): ListRow[] => {
+    const state = states[id];
+    // oxlint-disable-next-line oxc/no-map-spread -- the items belong to the result; never mutate them
+    return state.status === 'ok' ? state.items.map((d) => ({ ...d, kind: kindOf(d) })) : [];
+  });
+
+  const found = input.order.flatMap((id) => {
+    const state = result?.mentions?.[id];
+    return state?.status === 'ok' ? [{ source: id, state }] : [];
+  });
+  // A thread listed as a discussion (in any tier), or the one the user is on, is not a mention.
+  const listed = new Set(discussions.map(threadKey));
+  if (current) listed.add(threadKey(current));
+  const everyMention = sortMentions(
+    found.flatMap(({ state }) => state.items).filter((m) => !listed.has(threadKey(m))),
+    input.sort,
+    input.order,
+  );
+  // Listed text posts join the discussions; only threads found through comments stay mentions.
+  const posts = input.textPosts ? everyMention.filter(hasPost).map(postRow) : [];
+  const grouped = input.textPosts ? everyMention.filter((m) => !hasPost(m)) : everyMention;
+
+  const view = (id: SourceId): SourceView => {
+    const state = states[id];
     const pending = busy && isWaiting(state);
-    const items = state.status === 'ok' ? state.items : [];
+    const items = [
+      ...(state.status === 'ok' ? state.items : []),
+      ...posts.filter((p) => p.source === id),
+    ];
     const count = items.filter((d) => d.tier !== 'similar').length;
-    return { id, state, pending, participates: pending || count > 0, count };
+    // Threads in the mentions group make a source worth filtering to as well.
+    const mentioned = grouped.some((m) => m.source === id);
+    const participates = pending || count > 0 || mentioned;
+    return { id, state, pending, participates, count, rows: items.length };
   };
   const sources: Record<SourceId, SourceView> = { hn: view('hn'), reddit: view('reddit') };
   const views = input.order.map((id) => sources[id]);
@@ -116,19 +204,17 @@ export function buildModel(input: ModelInput): PopupModel {
   const showFilter = participating.length === views.length;
 
   const chosen = input.filter === 'all' ? undefined : sources[input.filter];
-  const filter: Filter =
-    showFilter && chosen !== undefined && (chosen.pending || chosen.count > 0) ? chosen.id : 'all';
+  const filter: Filter = showFilter && chosen?.participates === true ? chosen.id : 'all';
 
-  const page = result?.page;
-  const from = page?.resolvedFrom ?? page?.noLink;
-  const current = from ? { source: from.source, id: from.id } : null;
   const note: PageNote = page?.noLink
-    ? { kind: 'text-post' }
+    ? page.noLink.linkPost
+      ? null
+      : { kind: 'text-post' }
     : page?.resolvedFrom
       ? { kind: 'linked-from', url: page.resolvedFrom.url }
       : null;
 
-  const all = views.flatMap((s) => (s.state.status === 'ok' ? s.state.items : []));
+  const all: ListRow[] = [...discussions, ...posts];
   const shown = sortDiscussions(
     filter === 'all' ? all : all.filter((d) => d.source === filter),
     input.sort,
@@ -141,6 +227,29 @@ export function buildModel(input: ModelInput): PopupModel {
   const skeletons = views
     .filter((s) => s.pending && (filter === 'all' || filter === s.id))
     .map((s) => s.id);
+
+  const shows = (id: SourceId) => filter === 'all' || filter === id;
+  const mentions = grouped.filter((m) => shows(m.source));
+  const moreMentions = found.some(({ source, state }) => shows(source) && !state.complete);
+  const linkedInPosts = mentions.some(hasPost);
+  const linkedInComments = mentions.some((m) => m.inComments > 0);
+  const mentionsLabel =
+    linkedInPosts && linkedInComments
+      ? 'Mentioned in posts and comments'
+      : linkedInPosts
+        ? 'Mentioned in posts'
+        : 'Mentioned in comments';
+
+  // Not in a private window (where Reddit is skipped) or for a text post, which has nothing to look
+  // up. It does not wait for Reddit's answer, so it never appears late under the results.
+  const reddit = sources.reddit.state;
+  const redditAsked =
+    reddit.status !== 'off' && !(reddit.status === 'skipped' && reddit.reason === 'incognito');
+  const searchKeys =
+    page !== undefined && !page.noLink && redditAsked && shows('reddit')
+      ? computeKeys(page.url)
+      : null;
+  const commentSearch = searchKeys ? commentSearchUrl(searchKeys) : null;
 
   const total = views.reduce((n, s) => n + s.count, 0);
   const totalSimilar = all.length - total;
@@ -161,8 +270,11 @@ export function buildModel(input: ModelInput): PopupModel {
   const summary = showFilter ? null : summarize(participating[0], views);
 
   const statuses = views.flatMap((s) => {
-    const line = statusLine(s, { busy, redditHost: input.redditHost, pageUrl: page?.url });
-    return line ? [line] : [];
+    const lines = [
+      statusLine(s, { busy, redditHost: input.redditHost, pageUrl: page?.url }),
+      mentionLine(s, result?.mentions?.[s.id], busy),
+    ];
+    return lines.filter((line) => line !== null);
   });
 
   return {
@@ -174,17 +286,31 @@ export function buildModel(input: ModelInput): PopupModel {
     total,
     summary,
     showResults: ranked.length > 0 || skeletons.length > 0,
-    showBar: (ranked.length > 0 || skeletons.length > 0) && !page?.noLink,
+    // From every source, not the filtered list, so a filter never takes the bar (and itself) away.
+    // Also with only unlisted text posts, so their toggle stays within reach.
+    showBar: (total > 0 || pending || showFilter || everyMention.some(hasPost)) && !page?.noLink,
     main,
     folded,
     similar,
+    mentions,
+    moreMentions,
+    mentionsLabel,
+    commentSearch,
     skeletons,
     statuses,
     empty,
     submit,
     current,
     note,
-    announcement: announce(views, { empty, total, totalSimilar, statuses }),
+    // Like the other counts it reads, the mentions it reads ignore the filter.
+    announcement: announce(views, {
+      empty,
+      total,
+      totalSimilar,
+      mentions: grouped.length,
+      moreMentions: found.some(({ state }) => !state.complete),
+      statuses,
+    }),
   };
 }
 
@@ -210,23 +336,24 @@ function isWaiting(state: SourceState): boolean {
  * Zero-comment rows to fold away. When nothing has comments, the first row stays visible so the list
  * never starts with the fold. The thread the user came from is never folded.
  */
-function foldable(rows: Discussion[], keep: (d: Discussion) => boolean): Discussion[] {
+function foldable<T extends Discussion>(rows: T[], keep: (d: T) => boolean): T[] {
   const zero = rows.filter((d) => d.comments === 0 && !keep(d));
   const candidates = rows.some((d) => !zero.includes(d)) ? zero : zero.slice(1);
   return candidates.length >= MIN_FOLD ? candidates : [];
 }
 
 /**
- * "11 on Hacker News", plus "none on Reddit" when Reddit answered with nothing at all (not even
- * other versions, which would show under the list).
+ * "11 on HN", plus "none on Reddit" when Reddit answered with nothing at all (not even other
+ * versions, which would show under the list). Nothing for a source with mentions only.
  */
 function summarize(single: SourceView | undefined, views: SourceView[]): string | null {
   if (single === undefined) return null;
   if (single.pending) return `Checking ${SOURCE_NAMES[single.id]}`;
-  const text = `${single.count} on ${SOURCE_NAMES[single.id]}`;
+  if (single.count === 0) return null;
+  const text = `${single.count} on ${SOURCE_SHORT[single.id]}`;
   const other = views.find((s) => s.id !== single.id);
-  if (other?.state.status !== 'ok' || other.state.items.length > 0) return text;
-  return `${text}, none on ${SOURCE_NAMES[other.id]}`;
+  if (other?.state.status !== 'ok' || other.rows > 0) return text;
+  return `${text}, none on ${SOURCE_SHORT[other.id]}`;
 }
 
 const ERROR_TEXT: Record<Extract<SourceState, { status: 'error' }>['kind'], string> = {
@@ -292,9 +419,37 @@ function statusLine(
   }
 }
 
+/**
+ * A note when a source answered but its mention search did not: it failed, was held back by the
+ * Reddit rate guard (counting down to when Reddit can be asked again), or never answered before the
+ * lookup ended. A failed source has a band of its own instead.
+ */
+function mentionLine(
+  s: SourceView,
+  state: MentionState | undefined,
+  busy: boolean,
+): StatusLine | null {
+  if (busy || s.state.status !== 'ok' || state === undefined || state.status === 'ok') return null;
+  const retryAt = state.status === 'failed' ? state.retryAt : undefined;
+  return {
+    source: s.id,
+    tone: 'note',
+    text: 'mentions not checked',
+    ...(retryAt !== undefined && { retryAt }),
+    action: { kind: 'retry', label: 'Retry', force: false },
+  };
+}
+
 function announce(
   views: SourceView[],
-  ctx: { empty: string | null; total: number; totalSimilar: number; statuses: StatusLine[] },
+  ctx: {
+    empty: string | null;
+    total: number;
+    totalSimilar: number;
+    mentions: number;
+    moreMentions: boolean;
+    statuses: StatusLine[];
+  },
 ): string {
   const parts: string[] = [];
   const waiting = views.filter((s) => s.pending).map((s) => SOURCE_NAMES[s.id]);
@@ -304,27 +459,77 @@ function announce(
   if (ctx.totalSimilar > 0 && waiting.length === 0) {
     parts.push(`${ctx.totalSimilar} other ${ctx.totalSimilar === 1 ? 'version' : 'versions'}`);
   }
+  if (ctx.mentions > 0 && waiting.length === 0) {
+    const n = `${ctx.mentions}${ctx.moreMentions ? '+' : ''}`;
+    parts.push(
+      `Mentioned in ${n} ${ctx.mentions === 1 && !ctx.moreMentions ? 'thread' : 'threads'}`,
+    );
+  }
   for (const line of ctx.statuses) {
     if (line.tone === 'band') parts.push(`${SOURCE_NAMES[line.source]}: ${line.text}`);
   }
   return parts.join('. ');
 }
 
+const threadKey = (t: { source: SourceId; id: string }) => `${t.source}:${t.id}`;
+
+/** A mention whose post itself links to the page: listed like a discussion, wherever it shows. */
+export const hasPost = (m: Mention): m is Mention & { post: MentionPost } => m.post !== undefined;
+
+/** A text post as a row of the main list. */
+export function postRow(m: Mention & { post: MentionPost }): ListRow {
+  const { post } = m;
+  return {
+    source: m.source,
+    id: m.id,
+    title: m.title,
+    // Only "Other versions" rows show the submitted URL.
+    submittedUrl: '',
+    venue: m.venue,
+    author: post.author,
+    points: post.points,
+    comments: post.comments,
+    createdAt: post.createdAt,
+    tier: 'exact',
+    permalink: m.permalink,
+    flags: m.flags,
+    kind: post.link,
+  };
+}
+
 /**
  * Sorts by tier (SAME and EXACT before SIMILAR), then by `order`, then by comments, points and
  * newest as tie-breakers. Returns a new array.
  */
-function sortDiscussions(items: readonly Discussion[], order: SortOrder): Discussion[] {
-  return items.toSorted((a, b) => {
-    const byGroup = tierGroup(a) - tierGroup(b);
-    if (byGroup !== 0) return byGroup;
-    for (const k of SORT_KEYS[order]) {
-      const diff = k(b) - k(a);
-      if (diff !== 0) return diff;
-    }
-    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-  });
+function sortDiscussions<T extends Discussion>(items: readonly T[], order: SortOrder): T[] {
+  return items.toSorted(
+    (a, b) => tierGroup(a) - tierGroup(b) || byKeys(SORT_KEYS[order], a, b) || byId(a, b),
+  );
 }
+
+/** Mentions by `order`, then in the sources' order. Returns a new array. */
+function sortMentions(
+  items: readonly Mention[],
+  order: SortOrder,
+  sources: readonly SourceId[],
+): Mention[] {
+  const rank = (id: SourceId) => sources.indexOf(id);
+  return items.toSorted(
+    (a, b) =>
+      byKeys(MENTION_SORT_KEYS[order], a, b) || rank(a.source) - rank(b.source) || byId(a, b),
+  );
+}
+
+/** Compares by each key in turn, larger values first. */
+function byKeys<T>(keys: ReadonlyArray<(x: T) => number>, a: T, b: T): number {
+  for (const k of keys) {
+    const diff = k(b) - k(a);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
+
+const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
 const tierGroup = (d: Discussion) => (d.tier === 'similar' ? 1 : 0);
 
@@ -333,4 +538,14 @@ const SORT_KEYS: Record<SortOrder, ReadonlyArray<(d: Discussion) => number>> = {
   comments: [(d) => d.comments, (d) => d.points, (d) => d.createdAt],
   points: [(d) => d.points, (d) => d.comments, (d) => d.createdAt],
   newest: [(d) => d.createdAt, (d) => d.comments, (d) => d.points],
+};
+
+/**
+ * The same for mention rows, with `linkedAt` as the age. A missing number counts -1, so by points or
+ * comments a row without numbers follows every row with them.
+ */
+const MENTION_SORT_KEYS: Record<SortOrder, ReadonlyArray<(m: Mention) => number>> = {
+  comments: [(m) => m.post?.comments ?? -1, (m) => m.post?.points ?? -1, (m) => m.linkedAt],
+  points: [(m) => m.post?.points ?? -1, (m) => m.post?.comments ?? -1, (m) => m.linkedAt],
+  newest: [(m) => m.linkedAt, (m) => m.post?.comments ?? -1, (m) => m.post?.points ?? -1],
 };

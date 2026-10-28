@@ -49,6 +49,54 @@ export type SourceState =
   | { status: 'skipped'; reason: 'incognito' | 'filtered' }
   | { status: 'error'; kind: 'network' | 'http' | 'format'; detail: string };
 
+/**
+ * A thread that links to the page from a comment, or from its post's text or title. Its own URL is
+ * never read, so it may also be a submission of the page; the popup leaves out threads it lists.
+ */
+export interface Mention {
+  source: SourceId;
+  /** The thread: HN story objectID or Reddit base36 post id. */
+  id: string;
+  title: string;
+  /** Subreddit name without "r/" for Reddit; "" for HN. */
+  venue: string;
+  /** As in Discussion. */
+  permalink: string;
+  /**
+   * The post itself, when it links to the page. A thread found only through its comments has none:
+   * HN's comment search does not return the thread's own details.
+   */
+  post?: MentionPost;
+  /** HN comments in the thread that link to the page, among those fetched; 0 on Reddit. */
+  inComments: number;
+  /** HN only: the newest of those comments, to open the thread at. Set only without `post`. */
+  commentId?: string;
+  /** When the newest linking comment or post was written, epoch ms. */
+  linkedAt: number;
+  flags: DiscussionFlag[];
+}
+
+/** A post that links to the page: the popup can list it with the discussions. */
+export interface MentionPost {
+  /** Where: its text (HN or Reddit), or only its title (Reddit). */
+  link: 'text' | 'title';
+  author: string;
+  points: number;
+  comments: number;
+  /** Epoch ms. */
+  createdAt: number;
+}
+
+export type MentionState =
+  | { status: 'loading' }
+  /** `complete` is false when more candidates exist than were fetched. */
+  | { status: 'ok'; items: Mention[]; complete: boolean }
+  /**
+   * The search failed, or the Reddit rate guard held it back (`retryAt`: when Reddit can be asked
+   * again, after a 429, a pause or the breaker). The next popup lookup asks again.
+   */
+  | { status: 'failed'; retryAt?: number };
+
 export interface PageInfo {
   /** URL actually looked up (after discussion-page resolution). */
   url: string;
@@ -56,8 +104,11 @@ export interface PageInfo {
   display: string;
   /** Set when the tab was a discussion page. */
   resolvedFrom?: { source: SourceId; id: string; url: string };
-  /** Text/self post: nothing to look up. */
-  noLink?: { source: SourceId; id: string };
+  /**
+   * Nothing to look up: a text/self post, or (`linkPost`) a link post whose link can't be looked up
+   * (another Reddit thread, a private address).
+   */
+  noLink?: { source: SourceId; id: string; linkPost?: true };
 }
 
 export interface LookupResult {
@@ -73,6 +124,12 @@ export interface LookupResult {
    * result's time, so reuse never extends the cache TTL.
    */
   fetchedAt: number;
+  /**
+   * Threads that link to the page, per source. Only `full` lookups search for them, and only on a
+   * source whose discussions answered `ok`; they never count toward the badge. A source is absent
+   * when it was not asked.
+   */
+  mentions?: Partial<Record<SourceId, MentionState>>;
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {

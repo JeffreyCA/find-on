@@ -2,14 +2,25 @@
 //
 // Algolia is a candidate generator only: it searches the submitted URL text, and every hit is then
 // classified locally against the page's keys (SAME / EXACT / SIMILAR). Hits in no tier are dropped.
+// Mentions work the same way: Algolia searches comment and post text, and only the comments and
+// posts with a link to the page are kept.
 
 import { failureState, getJson, REQUEST_TIMEOUT_MS, type FetchPolicy, type HttpEnv } from '../http';
-import { isRecord, type Depth, type Discussion, type SourceState } from '../types';
+import {
+  isRecord,
+  type Depth,
+  type Discussion,
+  type Mention,
+  type MentionState,
+  type SourceState,
+} from '../types';
 import { classifyHits, splitIdentity, type UrlKeys } from '../url';
 import { registrableLabels } from '../url/common';
 import { hasStrongMatch, numberOr0, stringOr, type OkState } from './common';
+import { linkingItems, linksInHtml } from './text-links';
 
 export const HN_SEARCH_API = 'https://hn.algolia.com/api/v1/search';
+export const HN_SEARCH_BY_DATE_API = 'https://hn.algolia.com/api/v1/search_by_date';
 
 /** Fixed search parameters, each chosen by measuring results for URLs with known HN submissions. */
 const SEARCH_PARAMS = {
@@ -85,8 +96,14 @@ export function itemUrl(id: string): string {
  * and "Gödel" spellings. A segment with no such piece ("Fl%C3%A2neur") is kept whole, as encoded:
  * Algolia splits it the same way as the stored encoded URL, the common spelling. No scheme, query
  * string or fragment: they only cost recall.
+ *
+ * For mentions, such a segment is split at every other character too: a query that keeps only "go"
+ * or "law" matches tens of thousands of comments. A word right after an ASCII escape or an
+ * apostrophe is left out, because Algolia indexes the escaped spelling with the digits attached
+ * ("%27Reilly" as "27reilly"): "Goodhart%27s_law" and "Goodhart's_law" both give "goodhart law".
+ * A segment with no word longer than a letter ("C%2B%2B") is kept whole.
  */
-export function buildQuery(host: string, rawPath: string): string {
+export function buildQuery(host: string, rawPath: string, { mention = false } = {}): string {
   const labels = host.split('.');
   const n = registrableLabels(host);
   const hostWords = [labels.slice(-n).join('.'), ...labels.slice(0, -n)].filter(Boolean);
@@ -98,6 +115,14 @@ export function buildQuery(host: string, rawPath: string): string {
     if (/^[A-Za-z0-9._~+-]+$/.test(seg)) {
       const trimmed = seg.replace(/^[._~+-]+|[._~+-]+$/g, '');
       if (trimmed) pathWords.push(trimmed);
+    } else if (mention) {
+      const pieces = seg
+        .replace(/(?:%[0-7][0-9A-Fa-f]|')[A-Za-z0-9]*/g, ' ')
+        .split(/[^A-Za-z0-9%]+/)
+        .filter((piece) => /^[A-Za-z0-9]+$/.test(piece));
+      if (pieces.some((piece) => piece.length > 1)) pathWords.push(...pieces);
+      else if (/%[0-9A-Fa-f]{2}/.test(seg)) pathWords.push(seg);
+      else pathWords.push(...pieces);
     } else {
       const pieces = seg.split(/[-_.~+]+/).filter((piece) => /^[A-Za-z0-9]+$/.test(piece));
       if (pieces.length > 0) pathWords.push(...pieces);
@@ -107,6 +132,12 @@ export function buildQuery(host: string, rawPath: string): string {
   // Each word must match a distinct occurrence in the URL, so duplicates would exclude matches.
   const words = [...new Set([...hostWords, ...pathWords].map((w) => w.toLowerCase()))];
   const fixed = new Set(hostWords.map((w) => w.toLowerCase())).size;
+  // Algolia prefix-matches the last word, so a one-letter last word ("x") matches almost anything.
+  const last = words.at(-1);
+  if (mention && last?.length === 1 && words.length > fixed + 1) {
+    words.pop();
+    words.splice(-1, 0, last);
+  }
   // Too long: drop middle path words first, keeping the host and the last path word.
   while (joinedLength(words) > MAX_QUERY_LENGTH && words.length > fixed + 1) words.splice(fixed, 1);
   // Still too long (one huge segment): cut the last word. Algolia prefix-matches the last word.
@@ -128,9 +159,10 @@ export interface HnQuery {
 /**
  * The search query for a page. Identity sites query by their content id (placed last, so Algolia's
  * prefix match on the last word also covers "1706.03762v2"), which matches every spelling of the
- * URL and never requires a slug that other submissions may lack. Other pages use buildQuery.
+ * URL and never requires a slug that other submissions may lack. Other pages use buildQuery, in
+ * its mention form for `mention`.
  */
-export function hnQuery(keys: UrlKeys): HnQuery {
+export function hnQuery(keys: UrlKeys, { mention = false } = {}): HnQuery {
   const [kind, id] = splitIdentity(keys.identity);
   switch (kind) {
     case 'youtube':
@@ -155,7 +187,7 @@ export function hnQuery(keys: UrlKeys): HnQuery {
   // Stack Exchange questions ("stackoverflow.com:q123"): the slug after the id is optional.
   const question = /^q(\d+)$/.exec(id)?.[1];
   if (question) return { query: buildQuery(host, `/questions/${question}`), idValues: [] };
-  return { query: buildQuery(host, url.pathname), idValues: idValues(keys) };
+  return { query: buildQuery(host, url.pathname, { mention }), idValues: idValues(keys) };
 }
 
 /** Host for the query: no "www"/"m."/"mobile."/"amp." prefixes (they only exclude matches). */
@@ -333,4 +365,196 @@ export async function resolveHnItem(id: string, opts: HnContext): Promise<HnItem
   if (!hit) return { kind: 'unknown' };
   if (hit.url !== undefined) return { kind: 'link', url: hit.url, hit };
   return { kind: 'text', thread: toDiscussion(hit, 'same') };
+}
+
+/** Comments and text posts whose text holds the query words, newest first. */
+const MENTION_PARAMS = {
+  tags: '(story,comment)',
+  restrictSearchableAttributes: 'comment_text,story_text',
+  typoTolerance: 'false',
+  // On by default, it reads a leading "-" (as in some YouTube ids) as "without this word".
+  advancedSyntax: 'false',
+  analytics: 'false',
+  attributesToRetrieve:
+    '_tags,title,story_id,story_title,comment_text,story_text,created_at_i,author,points,num_comments',
+  attributesToHighlight: 'none',
+} as const;
+
+/** A first page with fewer threads than this is widened, when the wide page holds every hit. */
+const MENTIONS_ENOUGH = 10;
+/** Threads kept, newest first; bounds the cached result. */
+export const MAX_MENTIONS = 100;
+
+export function mentionSearchUrl(query: string, hitsPerPage: number): string {
+  const params = new URLSearchParams({
+    query,
+    ...MENTION_PARAMS,
+    hitsPerPage: String(hitsPerPage),
+  });
+  return `${HN_SEARCH_BY_DATE_API}?${params}`;
+}
+
+/** The page's query for mentions, with its identifier values: a link in a comment has them all. */
+function mentionQuery(keys: UrlKeys): string {
+  const { query, idValues: ids } = hnQuery(keys, { mention: true });
+  return withIdValues(query, ids);
+}
+
+/** A comment, or a story with text, from the mention search. */
+interface MentionHit {
+  objectID: string;
+  kind: 'comment' | 'story';
+  /** The story: its own objectID, or a comment's story_id. */
+  thread: string;
+  title: string;
+  /** `comment_text` or `story_text`. */
+  html: string;
+  /** Epoch seconds. */
+  created_at_i: number;
+  author: string;
+  /** A story's own numbers (comments have none). */
+  points: number;
+  num_comments: number;
+}
+
+interface MentionPage {
+  hits: MentionHit[];
+  nbHits: number;
+  /** Hits in the response, including the malformed ones that were skipped. */
+  fetched: number;
+  /**
+   * Whether `nbHits` is exact. For broad queries Algolia only estimates it, and may then stop short
+   * of it even on a page large enough to hold every hit.
+   */
+  exhaustive: boolean;
+}
+
+/** Validates a mention search response; malformed hits are skipped, a malformed body is null. */
+export function parseMentionSearch(data: unknown): MentionPage | null {
+  if (!isRecord(data) || !Array.isArray(data['hits'])) return null;
+  const raw: unknown[] = data['hits'];
+  const hits = raw.flatMap((h) => {
+    const hit = parseMentionHit(h);
+    return hit ? [hit] : [];
+  });
+  const nbHits = typeof data['nbHits'] === 'number' ? data['nbHits'] : raw.length;
+  const { exhaustive } = data;
+  const estimated =
+    data['exhaustiveNbHits'] === false || (isRecord(exhaustive) && exhaustive['nbHits'] === false);
+  return { hits, nbHits, fetched: raw.length, exhaustive: !estimated };
+}
+
+function parseMentionHit(h: unknown): MentionHit | null {
+  if (!isRecord(h) || typeof h['objectID'] !== 'string' || !/^\d+$/.test(h['objectID'])) {
+    return null;
+  }
+  const tags = Array.isArray(h['_tags']) ? h['_tags'] : [];
+  const kind = tags.includes('comment') ? 'comment' : tags.includes('story') ? 'story' : null;
+  if (kind === null) return null;
+  const storyId = h['story_id'];
+  let thread = h['objectID'];
+  if (kind === 'comment') {
+    if (typeof storyId !== 'number' || !Number.isSafeInteger(storyId) || storyId <= 0) return null;
+    thread = String(storyId);
+  }
+  // Comments of deleted stories have no story title.
+  const title = stringOr(kind === 'comment' ? h['story_title'] : h['title'], '');
+  const html = stringOr(kind === 'comment' ? h['comment_text'] : h['story_text'], '');
+  if (title === '' || html === '') return null;
+  return {
+    objectID: h['objectID'],
+    kind,
+    thread,
+    title,
+    html,
+    created_at_i: numberOr0(h['created_at_i']),
+    author: stringOr(h['author'], ''),
+    points: numberOr0(h['points']),
+    num_comments: numberOr0(h['num_comments']),
+  };
+}
+
+/**
+ * Keeps the comments and text posts that link to the page and groups them by thread, newest
+ * mention first. A story's own URL is never read: a story submitted with it is a discussion.
+ */
+function matchHnMentions(hits: readonly MentionHit[], page: UrlKeys): Mention[] {
+  const seen = new Set<string>();
+  const unique = hits.filter((h) => {
+    if (seen.has(h.objectID)) return false;
+    seen.add(h.objectID);
+    return true;
+  });
+  const linking = linkingItems(
+    unique.map((h) => linksInHtml(h.html)),
+    page,
+  );
+  const threads = new Map<string, Mention>();
+  unique.forEach((hit, index) => {
+    if (!linking.has(index)) return;
+    const at = hit.created_at_i * 1000;
+    const mention: Mention = threads.get(hit.thread) ?? {
+      source: 'hn',
+      id: hit.thread,
+      title: hit.title,
+      venue: '',
+      permalink: `/item?id=${hit.thread}`,
+      inComments: 0,
+      linkedAt: at,
+      flags: [],
+    };
+    threads.set(hit.thread, mention);
+    if (hit.kind === 'story') {
+      mention.title = hit.title;
+      mention.post = {
+        link: 'text',
+        author: hit.author,
+        points: hit.points,
+        comments: hit.num_comments,
+        createdAt: at,
+      };
+    } else {
+      mention.inComments += 1;
+      // `linkedAt` is still the newest earlier mention; a thread with a post drops commentId below.
+      if (mention.commentId === undefined || at > mention.linkedAt)
+        mention.commentId = hit.objectID;
+    }
+    mention.linkedAt = Math.max(mention.linkedAt, at);
+  });
+  const mentions = [...threads.values()];
+  // A thread whose post links to the page opens at the post.
+  for (const m of mentions) if (m.post) delete m.commentId;
+  return mentions.toSorted(newestFirst);
+}
+
+function newestFirst(a: Mention, b: Mention): number {
+  return b.linkedAt - a.linkedAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+}
+
+async function fetchMentions(url: string, ctx: HnContext): Promise<MentionPage | null> {
+  const outcome = await getJson(url, hnPolicy(ctx.depth), ctx.env, ctx.signal);
+  return outcome.kind === 'ok' ? parseMentionSearch(outcome.data) : null;
+}
+
+/**
+ * Finds HN threads that link to the page from a comment or from the post's text. One search for
+ * the newest 100 comments and text posts; when they hold few threads and 1000 hits would hold
+ * every one, one more search for all of them.
+ */
+export async function lookupHnMentions(page: UrlKeys, ctx: HnContext): Promise<MentionState> {
+  const query = mentionQuery(page);
+  let found = await fetchMentions(mentionSearchUrl(query, FIRST_PAGE), ctx);
+  if (!found) return { status: 'failed' };
+  let items = matchHnMentions(found.hits, page);
+  if (found.nbHits > found.fetched && found.nbHits <= WIDE_PAGE && items.length < MENTIONS_ENOUGH) {
+    const wide = await fetchMentions(mentionSearchUrl(query, WIDE_PAGE), ctx);
+    // A failed second search keeps what the first one found, and a short one adds to it.
+    if (wide) {
+      items = matchHnMentions([...found.hits, ...wide.hits], page);
+      found = wide;
+    }
+  }
+  const complete =
+    found.exhaustive && found.nbHits <= found.fetched && items.length <= MAX_MENTIONS;
+  return { status: 'ok', items: items.slice(0, MAX_MENTIONS), complete };
 }

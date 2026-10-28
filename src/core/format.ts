@@ -11,7 +11,8 @@ export const BADGE_TEXT = '#FFFFFF';
 
 /**
  * Badge text for the toolbar icon: SAME and EXACT discussions (or their comments), not counting the
- * thread the page itself is, so a discussion page alone lights nothing. '' when nothing counts.
+ * thread the page itself is, so a discussion page alone lights nothing. Mentions never count. ''
+ * when nothing counts.
  */
 export function badgeText(r: LookupResult, mode: 'discussions' | 'comments'): string {
   const from = r.page.resolvedFrom ?? r.page.noLink;

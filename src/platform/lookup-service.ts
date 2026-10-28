@@ -2,9 +2,9 @@
 // lookup per key at a time (other callers join it), writes progressive snapshots to storage.session
 // for the popup, and lets at most MAX_AUTO_LOOKUPS automatic lookups run at once.
 //
-// Lookups for a private window write nothing: their page addresses must not outlive the window, and
-// with Reddit skipped there, HN is the only source, so a snapshot would show nothing the response
-// does not. They may still read normal-window results (canServe hands out only what fits them).
+// Lookups for a private window write nothing: their page addresses must not outlive the window.
+// Their snapshots go to the popup by message instead. They may still read normal-window results
+// (canServe hands out only what fits them).
 //
 // In-flight state is kept in module memory on purpose: the fetches it tracks die with the service
 // worker anyway, and the snapshots they leave behind are not settled answers, so they get re-run.
@@ -14,6 +14,7 @@ import { RedditGuard } from '@/core/rate-guard';
 import type { Depth, LookupResult, SourceId } from '@/core/types';
 import { checkEligibility } from '@/core/url';
 import { canServe, isFresh, readResult, sessionKV, touch, writeResult } from './cache';
+import { sendProgress } from './messaging';
 import { getSettings } from './settings';
 
 export const MAX_AUTO_LOOKUPS = 2;
@@ -153,11 +154,11 @@ function startFlight(
           signal: controller.signal,
           ...(previous !== undefined && { previous }),
           ...(opts.isBlocked && { isBlocked: opts.isBlocked }),
-          ...(!incognito && {
-            onProgress: (snapshot: LookupResult) => {
-              if (!done) void writeResult(key, snapshot);
-            },
-          }),
+          onProgress: (snapshot: LookupResult) => {
+            if (done) return;
+            if (incognito) sendProgress(key, snapshot);
+            else void writeResult(key, snapshot);
+          },
         },
         lookupEnv,
       );

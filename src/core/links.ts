@@ -3,7 +3,7 @@
 // Remote data (ids, permalinks, names) only ever lands in a path or query of a fixed origin, so a
 // crafted value can't turn a link into one that leaves news.ycombinator.com or reddit.com.
 
-import type { Discussion } from './types';
+import type { Discussion, Mention } from './types';
 import { registrableLabels } from './url/common';
 
 export type RedditHost = 'www' | 'old';
@@ -14,7 +14,12 @@ export function redditOrigin(host: RedditHost): string {
   return host === 'old' ? 'https://old.reddit.com' : 'https://www.reddit.com';
 }
 
-export function threadUrl(d: Discussion, host: RedditHost): string {
+/** The fields that locate a thread (a Discussion or a Mention). */
+type Thread = Pick<Discussion, 'source' | 'id' | 'permalink'>;
+/** The fields that name where a thread is (a Discussion or a Mention). */
+type Venue = Pick<Discussion, 'source' | 'venue'>;
+
+export function threadUrl(d: Thread, host: RedditHost): string {
   if (d.source === 'hn') return `${HN_ORIGIN}/item?id=${encodeURIComponent(d.id)}`;
   const origin = redditOrigin(host);
   // Permalinks are site-relative ("/r/sub/comments/id/slug/"); anything else falls back to the id.
@@ -26,7 +31,7 @@ export function threadUrl(d: Discussion, host: RedditHost): string {
 }
 
 /** "HN", "r/programming", or "u/name" for a post to a user's profile. */
-export function venueLabel(d: Discussion): string {
+export function venueLabel(d: Venue): string {
   if (d.source === 'hn') return 'HN';
   const profile = profileOf(d);
   return profile === undefined ? `r/${d.venue}` : `u/${profile}`;
@@ -37,8 +42,14 @@ export function authorLabel(d: Discussion): string {
   return profileOf(d)?.toLowerCase() === d.author.toLowerCase() ? '' : d.author;
 }
 
-function profileOf(d: Discussion): string | undefined {
+function profileOf(d: Venue): string | undefined {
   return d.source === 'reddit' ? /^u_(.+)$/.exec(d.venue)?.[1] : undefined;
+}
+
+/** A mention's thread, opened at the newest linking HN comment when the post itself does not link. */
+export function mentionUrl(m: Mention, host: RedditHost): string {
+  const url = threadUrl(m, host);
+  return m.commentId !== undefined && /^\d+$/.test(m.commentId) ? `${url}#${m.commentId}` : url;
 }
 
 export function redditLoginUrl(host: RedditHost): string {

@@ -16,6 +16,7 @@ import {
   getSettings,
   onboardedItem,
   removeV1Leftovers,
+  seenVersionItem,
   watchSettings,
   type Settings,
 } from '@/platform/settings';
@@ -102,6 +103,15 @@ async function onInstalled({
     await removeV1Leftovers().catch((error: unknown) => {
       console.error('Find On: removing 1.x data failed', error);
     });
+  }
+  // A new install has nothing new to point out; an update leaves the old version, so the popup's
+  // settings button points to what changed.
+  if (reason === 'install') {
+    await seenVersionItem
+      .setValue(browser.runtime.getManifest().version)
+      .catch((error: unknown) => {
+        console.error('Find On: recording the version failed', error);
+      });
   }
   if (reason === 'install' || fromV1) {
     await browser.tabs.create({ url: browser.runtime.getURL('/welcome.html') });

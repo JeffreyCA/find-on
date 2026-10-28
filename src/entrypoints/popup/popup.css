@@ -20,6 +20,16 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+/* A heading or link that ends the list takes the room below it as its own padding, so its hover
+   background reaches the popup's edge */
+.results:has(> .comment-search:last-child),
+.results:has(> .others:last-child > .others-head:last-child) {
+  padding-bottom: 0;
+}
+.results > .comment-search:last-child > .comment-search-link,
+.results > .others:last-child > .others-head:last-child {
+  padding-bottom: var(--s-5);
+}
 
 /* Page line */
 
@@ -142,7 +152,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--s-5);
+  /* Narrower than the filter's own gaps, so the "Text posts" toggle fits beside it */
+  column-gap: var(--s-4);
   min-height: 35px;
   padding: 0 var(--s-4) 0 var(--gutter);
   border-top: 1px solid var(--rule);
@@ -151,8 +162,37 @@
 .bar .segment {
   padding: var(--s-4) 0 7px;
 }
+.bar .segmented {
+  flex: none;
+  gap: var(--s-4);
+}
 .bar-summary {
   color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* "Text posts": whether posts that link to the page in their text or title join the list. On, it
+   takes the accent; off, it fades to the rule colours. */
+.chip {
+  flex: none;
+  height: 22px;
+  margin-left: auto;
+  padding: 0 var(--s-3);
+  border: 1px solid var(--rule);
+  border-radius: 11px;
+  background: none;
+  color: var(--ink-3);
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.chip:hover {
+  color: var(--ink);
+}
+.chip[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
 }
 
 .pending-dots {
@@ -179,43 +219,44 @@
   }
 }
 
+/* The sort glyph, the chosen order and a chevron, with the select laid invisibly over them. The
+   order is the one thing in the bar that gives way: with no room left (very large counts and the
+   "Text posts" toggle), it is cut short with an ellipsis, down to the glyph and chevron alone. */
 .sort {
   position: relative;
   display: inline-flex;
+  flex: 0 1 auto;
   align-items: center;
-  color: var(--ink-2);
-}
-.sort select {
-  appearance: none;
-  /* As wide as the chosen order, so the chevron follows the text */
-  field-sizing: content;
+  gap: var(--s-2);
+  min-width: 0;
   height: 26px;
-  /* Room for the sort glyph (14px + 5px) on the left and the chevron on the right */
-  padding: 0 22px 0 calc(var(--s-3) + 19px);
-  border: 0;
+  padding: 0 var(--s-2);
   border-radius: var(--r-1);
-  background: none;
-  color: inherit;
+  color: var(--ink-2);
   font-size: var(--fs-ui);
-  cursor: pointer;
 }
-.sort select:hover {
+.sort:hover {
   background: var(--bg-2);
   color: var(--ink);
 }
-.sort select:focus-visible {
-  outline-offset: 0;
+.sort:has(select:focus-visible) {
+  outline: var(--focus-width) solid var(--focus-color);
 }
-.sort .icon {
+.sort-value {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sort select {
   position: absolute;
-  pointer-events: none;
-}
-/* The sort glyph, then the chevron */
-.sort .icon:first-of-type {
-  left: var(--s-3);
-}
-.sort .icon:last-of-type {
-  right: var(--s-3);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  font-size: var(--fs-ui);
+  cursor: pointer;
 }
 
 /* Rows */
@@ -253,6 +294,10 @@
 .row-link:focus-visible {
   outline-offset: calc(-1 * var(--focus-width));
 }
+/* Mention rows found only through comments have no count column */
+.row-link.no-count {
+  grid-template-columns: minmax(0, 1fr);
+}
 /* The pointer only ever hovers the link itself, never the lines, words or gaps inside it, so the
    link's tooltip (the full title) stays up as the pointer moves around the row.
    The age keeps its own tooltip with the exact date. */
@@ -264,40 +309,53 @@
 }
 
 .row-title {
+  /* The kind icon (12px) and its margin (5px): a hanging indent, so a title's second line starts
+     under its first character rather than under the icon */
+  --kind-indent: 17px;
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+  padding-left: var(--kind-indent);
   font-size: var(--fs-title);
   line-height: var(--lh-title);
+  text-indent: calc(-1 * var(--kind-indent));
   overflow-wrap: anywhere;
 }
 
+/* What the thread is (link post, text post, mentioned in comments), before its title. It takes the
+   pointer, unlike the rest of the row, so its tooltip can say so. */
+.row-kind {
+  display: inline-block;
+  margin-right: 5px;
+  /* The title's hanging indent is inherited, and would pull the icon out of its own box */
+  text-indent: 0;
+  color: var(--ink-3);
+  vertical-align: -1px;
+  pointer-events: auto;
+}
+
+/* The icon, then the number */
 .row-count {
   grid-row: 1 / span 2;
   grid-column: 2;
   /* Centred against the title and meta lines, however many lines the title takes */
   align-self: center;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  text-align: right;
+  align-items: center;
+  gap: var(--s-2);
+}
+.row-count .icon {
+  width: 13px;
+  height: 13px;
+  color: var(--ink-3);
 }
 .row-n {
   font-size: var(--fs-count);
   font-weight: 600;
   line-height: 18px;
   font-variant-numeric: tabular-nums;
-}
-.row-link:hover .row-n {
-  color: var(--accent);
-}
-.row-unit {
-  margin-top: 1px;
-  color: var(--ink-3);
-  font-size: var(--fs-micro);
-  line-height: 16px;
 }
 
 /* One line: an item that doesn't fit wraps onto a second line, which is hidden, so items drop off
@@ -316,6 +374,15 @@
 }
 .row-meta > * {
   flex: none;
+}
+/* The other number: its icon, then the number */
+.row-stat {
+  display: inline-flex;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.row-stat .icon {
+  margin-right: 3px;
 }
 .row-meta > * + *::before {
   content: '\00b7';
@@ -376,6 +443,8 @@
 .tag {
   display: inline-block;
   margin-left: 5px;
+  /* In a title, the hanging indent is inherited and would pull the text out of the pill */
+  text-indent: 0;
   padding: 0 4px;
   border-radius: 3px;
   background: var(--bg-3);
@@ -411,6 +480,7 @@
   display: flex;
   align-items: center;
   height: 18px;
+  padding-left: 0;
 }
 .is-skeleton .row-title .sk {
   height: 11px;
@@ -433,7 +503,23 @@
   margin-left: var(--s-3);
 }
 
-/* Disclosures: "+N more with no comments" and "Other versions" */
+/* After an update, until the settings page is opened: a dot on the settings button pointing to
+   "What's new" there */
+.icon-btn.has-dot {
+  position: relative;
+}
+.icon-btn.has-dot::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Disclosures: "+N more without comments", "Other versions" and "Mentioned in comments" */
 
 .fold {
   position: relative;
@@ -478,6 +564,23 @@
   font-weight: 600;
 }
 
+/* "Search Reddit comments": a link out, closing the results like a group heading */
+.comment-search {
+  border-top: 1px solid var(--rule);
+}
+.comment-search-link {
+  padding-block: var(--s-4);
+  font-size: var(--fs-ui);
+  text-decoration: none;
+}
+.comment-search-link .icon {
+  margin-left: auto;
+}
+/* The same size as the marks in the rows above, whose text is smaller */
+.comment-search-link .mark {
+  --mark-size: calc(var(--fs-meta) * 1.15);
+}
+
 /* Empty and not-checkable states */
 
 /* Empty and can't-be-checked states: a quiet centred line, then any actions */
@@ -510,6 +613,7 @@
   height: 28px;
   padding: 0 var(--s-4);
 }
-.empty + .others {
+.empty + .others,
+.empty + .comment-search {
   margin-top: var(--s-2);
 }
