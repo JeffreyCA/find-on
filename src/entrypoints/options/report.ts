@@ -13,10 +13,10 @@ export function browserName(userAgent: string): string {
 
 export function reportUrl(version: string, userAgent: string): string {
   const body = [
-    '**What happened**',
+    '### What happened',
     '',
     '',
-    '**Page URL (optional)**',
+    '### Page URL (optional)',
     '',
     '',
     '---',
