@@ -1,6 +1,6 @@
 # Find On
 
-Find On is a Chrome and Edge extension that shows Hacker News and Reddit discussions of the page you're on. It can look up each page as it loads and show the discussion count on the toolbar badge, or look up pages only when you click the toolbar button.
+Find On is a Chrome and Edge extension that shows Hacker News and Reddit discussions of the page you're on.
 
 ![The Find On popup listing Hacker News and Reddit discussions of xkcd.com/927](store/screenshots/1-results.png)
 
@@ -11,28 +11,16 @@ Find On is a Chrome and Edge extension that shows Hacker News and Reddit discuss
 
 Reddit results require a signed-in reddit.com session in the same browser profile.
 
-## How matching works
+## Features
 
-- Before a lookup, Find On cleans the URL. It removes tracking parameters (`utm_*`, `fbclid` and the rest of Brave's and Firefox's lists), parameters that look like secrets (tokens, keys, signatures, session IDs) and the `#` fragment. It also unwraps AMP, Wayback Machine, archive.today and redirect links.
-- A discussion matches when it links to the same cleaned URL, or to the same content on a site with stable IDs: YouTube videos and playlists, arXiv papers (any version), Twitter/X posts, GitHub repos, Medium posts and Stack Exchange questions.
-- Looser matches, such as `m.` or `amp.` hosts, `/amp` paths or extra parameters like `?ref=`, are listed under "Other versions" and don't count toward the badge.
-- On a Hacker News or Reddit thread, Find On looks up the page the thread links to and marks the thread you're on.
-
-## Mentions
-
-When you open the popup, Find On also looks for Hacker News comments and text posts, and Reddit posts, that link to the page. None of these count toward the badge.
-
-- Posts that link to the page in their text or title are listed with the discussions. The "Text posts" toggle hides them.
-- "Mentioned in comments" lists Hacker News threads where a comment links to the page.
-- Find On can't search Reddit comments. Instead, "Search Reddit comments" opens Reddit's own comment search for the page in a new tab.
+- Looks up pages as they load, or only when you click the toolbar button, and shows the discussion count on the toolbar badge.
+- Removes tracking parameters and unwraps AMP, archive and redirect links before matching, and recognizes the same YouTube video, arXiv paper or GitHub repo under different URLs.
+- Also finds text posts and Hacker News comments that link to the page.
+- Customizable site filter: a blocklist (webmail, search and chat sites by default) or an allowlist.
 
 ## Privacy
 
-Find On has no server and no analytics. Lookups go directly from the browser to Hacker News search (`hn.algolia.com`, run by Algolia) and to Reddit (`old.reddit.com`). Hacker News requests carry no cookies. Reddit requests carry your reddit.com cookies, so Reddit can associate the lookups with your account.
-
-Automatic mode (the default) sends the URL of every page you load, except sites on the blocklist (webmail, search and chat sites by default, editable in settings). Manual mode sends a URL only when you open the popup or use the context menu. URLs that aren't public web pages, such as `localhost`, IP addresses or `.local` hosts, are never sent, and nothing is sent to Reddit from private windows.
-
-Lookup results are kept in memory and cleared when the browser closes. Settings are kept in the browser's sync storage. The full policy is in [PRIVACY.md](PRIVACY.md).
+There is no Find On server and no analytics. Page URLs go directly from the browser to Hacker News search (`hn.algolia.com`) and Reddit (`old.reddit.com`), and Reddit requests carry your reddit.com cookies. In automatic mode, every page you load is looked up unless its site is skipped. See [PRIVACY.md](PRIVACY.md) for details.
 
 ## Development
 

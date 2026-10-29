@@ -1,89 +1,71 @@
 # Privacy Policy
 
-**Last updated:** 2026-10-27 · **Applies to:** Find On 2.0 and later, for Google Chrome and Microsoft Edge
-
-Find On looks up the page you're on in Hacker News and Reddit. It has no server of its own. Every request goes directly from your browser to the services listed below.
+**Last updated:** 2026-10-28 · **Applies to:** Find On for Google Chrome and Microsoft Edge
 
 ## Summary
 
-| Data                                               | Sent to                                                  | When                                                                                                        |
-| -------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Search terms from the cleaned page URL             | Hacker News search (`hn.algolia.com`, run by Algolia)    | Each lookup, if the Hacker News source is enabled; one or two more searches on manual lookups               |
-| The cleaned page URL, with your reddit.com cookies | Reddit (`old.reddit.com`)                                | Each lookup, if the Reddit source is enabled; one more search on manual lookups; never from private windows |
-| The cleaned page URL and the page title            | The Hacker News or Reddit submit page                    | Only when you click "Submit to Hacker News" or "Submit to Reddit"                                           |
-| A search term from the cleaned page URL            | Reddit's comment search (`www.reddit.com`), in a new tab | Only when you click "Search Reddit comments"                                                                |
+Find On shows Hacker News and Reddit discussions of the page you're on. To find them, it handles your web browsing history: the addresses of the pages you look up. It sends search terms built from those addresses to Hacker News search (run by Algolia) and to Reddit. Find On has no server of its own, so every request goes directly from your browser to those services. It has no analytics and does not sell or share data.
 
-## Data Find On reads
+## What Find On reads
 
-Find On reads the URL and title of your browser tabs. It does not read page content. The title is used only to prefill a submit link when you click one.
+Find On reads the address and title of your browser tabs. It does not read page content, and it never reads or stores your cookies. The title is used only to prefill a submit link when you click one.
+
+## Cleaned addresses
+
+Before an address is sent anywhere, Find On removes tracking parameters (such as `utm_source`), parameters that look like secrets (such as tokens, keys or session IDs), the fragment after `#` unless the site uses it for routing, and any user name or password inside a wrapped link.
+
+Find On never looks up addresses that are not public web pages: anything other than `http` and `https`, addresses with a user name or password, `localhost`, IP addresses, single-label host names, and private domains such as `.local`, `.internal` or `.onion`.
+
+## Who receives what
+
+| Recipient                                                       | What it receives                                                                                                  | When                                                                         |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Hacker News search (`hn.algolia.com`, run by Algolia)           | Search terms built from the cleaned page address, such as its host name, words from its path and IDs. No cookies. | Each lookup, while the Hacker News source is enabled                         |
+| Reddit (`old.reddit.com`)                                       | The cleaned page address, search terms built from it and IDs of matching posts, with your reddit.com cookies      | Each lookup, while the Reddit source is enabled. Never from private windows. |
+| The Hacker News or Reddit submit page                           | The cleaned page address and the page title                                                                       | Only when you choose to submit the page                                      |
+| Reddit's comment search (`www.reddit.com`), opened in a new tab | A search term built from the cleaned page address                                                                 | Only when you click the link to search Reddit comments                       |
+
+On a Hacker News or Reddit thread, the thread's ID is sent to the same service to find the page the thread links to.
+
+Reddit only answers signed-in users, so Reddit requests carry your reddit.com cookies. The browser attaches them because Find On has permission to access reddit.com, and sends them only to reddit.com. If you are signed in, Reddit can associate these lookups with your account.
+
+Like any website you visit, both services also see your IP address and browser details. See [Algolia's privacy policy](https://www.algolia.com/policies/privacy) and [Reddit's privacy policy](https://www.reddit.com/policies/privacy-policy).
+
+While the Reddit source is enabled, the welcome and settings pages can check whether you are signed in to Reddit. Each check is a Reddit search for a fixed address (`xkcd.com/927`), never one of your pages, and is never made from a private window.
 
 ## When lookups happen
 
-- **Automatic lookups** (the default lookup mode) run when a page finishes loading in the active tab, when you switch to a tab that has not been looked up yet, and for the active tab when the browser starts. They begin only after you choose a lookup mode on the welcome page or in the popup, or change a setting. Sites on the site filter's blocklist are skipped, including when a Hacker News or Reddit thread links to one. In allowlist mode, only listed sites are looked up.
-- **Manual lookups** run when you open the popup (toolbar button or keyboard shortcut), choose "Find discussions for this link" or "Find discussions for this page" from the context menu, or enter a URL in the popup.
+- **Automatic lookups** (the default mode) run when a page finishes loading in the active tab, when you switch to a tab that has not been looked up yet, and when the browser starts. They begin only after you choose a lookup mode. They follow the site filter: sites on the blocklist are skipped, including when a Hacker News or Reddit thread links to one, and in allowlist mode only listed sites are looked up.
+- **Manual lookups** run when you open the popup, use the context menu, or enter an address in the popup.
 
-Manual lookups also search for threads that link to the page: Hacker News comments and text posts, and Reddit posts. Automatic lookups don't.
-
-Find On never looks up URLs that are not public web pages: anything other than `http` and `https`, URLs that contain a user name or password, `localhost`, IP addresses, single-label host names, and private domains such as `.local`, `.internal`, `.lan`, `.home.arpa` or `.onion`.
-
-## What is sent
-
-### URL cleaning
-
-Before a URL is sent anywhere, Find On removes:
-
-- tracking parameters, such as `utm_source` or `fbclid`;
-- parameters that look like secrets, such as tokens, keys, passwords, signatures or session IDs;
-- the fragment (after `#`), unless the site uses it for routing (`#!` or `#/`);
-- any user name or password inside a URL wrapped in another link, such as a Wayback Machine or redirect link.
-
-The result is what this policy calls the "cleaned URL".
-
-### Hacker News search (Algolia)
-
-Algolia receives search terms taken from the cleaned URL: the host name, words from the path and, for some pages, an identifier from the URL, such as a YouTube video ID or the value of an `id` parameter. On a Hacker News thread page it receives the thread ID. Manual lookups send one or two more searches, built from the same parts of the URL, for comments and text posts that link to the page. These requests carry no cookies. See [Algolia's privacy policy](https://www.algolia.com/policies/privacy).
-
-### Reddit
-
-Reddit receives the cleaned URL in a few spellings (for example with or without `www.` or a trailing slash), the ID of a matching post (to find other submissions of the same link), and on a Reddit thread page, the thread ID. Manual lookups send one more search, for posts that link to the page in their title or text. Its search term is the cleaned URL without its scheme, `www.`, trailing slash or most parameters. For YouTube, X, Medium and arXiv pages, it is only the content ID.
-
-Reddit only answers signed-in users, so these requests carry your reddit.com cookies. The browser attaches them because Find On has permission to access reddit.com, and sends them only to reddit.com. Find On itself never reads or stores your cookies. If you are signed in, Reddit can associate these lookups with your account. See [Reddit's privacy policy](https://www.reddit.com/policies/privacy-policy).
-
-### Other requests
-
-- "Search Reddit comments" in the popup opens Reddit's comment search for the page (`www.reddit.com/search`) in a new tab, only when you click it. Find On does not send that request itself. The page loads like any other page you open, with your reddit.com cookies. The link isn't shown in private windows.
-- While the Reddit source is enabled, the welcome and settings pages can show whether you are signed in to Reddit. They never check from a private window. Each check sends one Reddit search for a fixed URL (`xkcd.com/927`), never one of your pages.
-- Both services see your IP address and browser details, as with any website you visit.
+Lookups also search for threads that link to the page: Hacker News posts and comments, and Reddit posts. Manual lookups always do; automatic lookups do while text posts are turned on in the popup.
 
 ## Private windows
 
-Find On runs in private windows (Incognito in Chrome, InPrivate in Edge) only if you allow it in the browser's extension settings. In a private window it never looks up pages automatically, sends nothing to Reddit, and does not cache results. Opening the popup there still looks up the page on Hacker News, along with the comments and text posts that link to it.
+Find On runs in private windows (Incognito in Chrome, InPrivate in Edge) only if you allow it in the browser's extension settings. There, it never looks up pages automatically, sends nothing to Reddit, and does not cache results. Opening the popup still looks up the page on Hacker News.
 
 ## What Find On stores
 
-| Data                                                                                                                                                                                            | Where                                                                                        | Retention                                                                                                                                                                |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Settings: lookup mode, sources, site filter, toolbar badge, displayed count, Reddit domain, link behavior                                                                                       | Browser sync storage (synced through your Google or Microsoft account if browser sync is on) | Until you change them or remove Find On                                                                                                                                  |
-| Popup preferences (sort order, the "Text posts" toggle, whether "Mentioned in comments" is open), whether you have chosen a lookup mode, and the last version whose release notes you have seen | Extension local storage on this device                                                       | Until you remove Find On                                                                                                                                                 |
-| Lookup results (URLs looked up, and the discussions and mentions found), Reddit rate-limit state, the URL you right-clicked until the popup opens                                               | Extension session storage, in memory only                                                    | Cleared when the browser closes or Find On is updated or disabled. Results are reused for up to 10 minutes (5 minutes when nothing was found), and at most 300 are kept. |
+| Data                                                                                                                                                 | Where                                                                                        | Retention                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Settings                                                                                                                                             | Browser sync storage (synced through your Google or Microsoft account if browser sync is on) | Until you change them or remove Find On                                                               |
+| Popup preferences, whether you have chosen a lookup mode, and the last version whose release notes you have seen                                     | Extension local storage on this device                                                       | Until you remove Find On                                                                              |
+| Lookup results (the addresses looked up and the discussions found), Reddit rate-limit state, and the address you right-clicked until the popup opens | Extension session storage, in memory only                                                    | Until the browser closes, or Find On is updated or disabled. A result is reused for up to 10 minutes. |
 
 All of this stays in your browser and, for settings, your browser's sync service. The developer has no copy to access or delete.
 
-Updating from Find On 1.x deletes its old settings and the result cache it kept in local storage, keyed by the URLs it looked up.
-
 ## Your controls
 
-All of these are on Find On's settings page, except signing out of Reddit.
-
-- Switch the lookup mode to **Manual**, so pages are looked up only when you open the popup or use the context menu.
-- Disable the **Hacker News** or **Reddit** source; Find On then sends nothing to that service.
-- Edit the **site filter** blocklist, or switch to an allowlist, to control which sites are looked up automatically.
+- Switch the lookup mode to **Manual** in settings, so pages are looked up only when you ask.
+- Disable the **Hacker News** or **Reddit** source in settings. Find On then sends nothing to that service.
+- Edit the **site filter** in settings to choose which sites are looked up automatically.
+- Turn off **Text posts** in the popup, so automatic lookups don't search for posts and comments that link to the page.
 - Sign out of reddit.com to stop Reddit from associating lookups with your account. Reddit results stop working until you sign in again.
 
 ## What Find On does not do
 
 - No analytics, telemetry, crash reporting or ads.
-- No selling or sharing of data. Data is sent only to the services above, and only to find discussions and mentions of the page.
+- No selling or sharing of data. Data goes only to the services above, and only to find discussions of the page.
 - No remote code. Everything Find On runs ships in the extension package.
 
 ## Store policies
@@ -92,7 +74,7 @@ Find On's use and transfer of user data complies with the Chrome Web Store User 
 
 ## Changes
 
-This policy is maintained in the [Find On repository](https://github.com/JeffreyCA/find-on); its history records every change.
+This policy is maintained in the [Find On repository](https://github.com/JeffreyCA/find-on), where its history records every change. The date at the top changes with each revision.
 
 ## Contact
 
