@@ -33,15 +33,16 @@ npm run dev
 
 `npm run dev` builds `.output/chrome-mv3-dev` and rebuilds on change. It does not start a browser. To load the build, open `chrome://extensions` (or `edge://extensions`), enable Developer mode, click "Load unpacked" and select the folder. Testing Reddit results requires a profile signed in to reddit.com.
 
-| Command                        | What it does                                                                                                                        |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run check`                | Format check, lint, typecheck, unit tests and a production build. CI runs this, then the e2e tests.                                 |
-| `npm test`                     | Unit tests (Vitest).                                                                                                                |
-| `npm run format`               | Formats the code with oxfmt.                                                                                                        |
-| `npm run test:e2e`             | Builds, then runs the Playwright tests in Chromium against a mocked network. Needs `openssl` and `npx playwright install chromium`. |
-| `npm run zip`                  | Writes `.output/find-on-<version>-chrome.zip`, the package for both stores.                                                         |
-| `npm run update-tracking-list` | Regenerates the tracking-parameter list from Brave's and Firefox's lists. A weekly workflow runs it and opens a pull request.       |
-| `npm run smoke:hn`             | Runs real Hacker News lookups for a few known pages.                                                                                |
+| Command                        | What it does                                                                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                | Format check, lint, typecheck, unit tests and a production build. CI runs this, then the e2e tests.                                   |
+| `npm test`                     | Unit tests (Vitest).                                                                                                                  |
+| `npm run format`               | Formats the code with oxfmt.                                                                                                          |
+| `npm run test:e2e`             | Builds, then runs the Playwright tests in Chromium against a mocked network. Needs `openssl` and `npx playwright install chromium`.   |
+| `npm run zip`                  | Writes `.output/find-on-<version>-chrome.zip`, the package for both stores.                                                           |
+| `npm run update-tracking-list` | Regenerates the tracking-parameter list from Brave's and Firefox's lists. A weekly workflow runs it and opens a pull request.         |
+| `npm run smoke:hn`             | Runs real Hacker News lookups for a few known pages.                                                                                  |
+| `npm run screenshots`          | Builds, then regenerates the store screenshots from recorded responses. `-- --record` records the Hacker News mention searches again. |
 
 To release, push a `v<version>` tag on main. The Release workflow checks the tag, builds the zip and publishes a GitHub release with that version's changelog section. See `.agents/skills/release/SKILL.md` for the full steps.
 
@@ -53,9 +54,9 @@ src/platform/     Browser adapters: settings, cache, badge, automatic lookups, c
 src/entrypoints/  Background service worker, popup, options and welcome pages
 src/ui/           Shared Preact components and design tokens for those pages
 src/assets/       Icon source (SVG)
-scripts/          Tracking-list generator and Hacker News smoke test
+scripts/          Tracking-list generator, Hacker News smoke test and store screenshots
 e2e/              Playwright tests
-store/            Store screenshots
+store/            Store icons, screenshots and the recorded responses they are rendered from
 ```
 
 ## Credits

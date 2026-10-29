@@ -1,0 +1,154 @@
+{
+  "exhaustive": {
+    "nbHits": true
+  },
+  "exhaustiveNbHits": true,
+  "hits": [
+    {
+      "_tags": ["comment", "author_blsage", "story_49827351"],
+      "author": "blsage",
+      "comment_text": "If you take an essay on paulgraham.com and put &quot;ss&quot; at the beginning of the domain, you get the exact same page with a listen button at the top. For example, paulgraham.com&#x2F;greatwork.html becomes sspaulgraham.com&#x2F;greatwork.html.<p>It&#x27;s a proxy of his site, so all the pages are identical to the original, including any new essays he adds. The only thing that&#x27;s added is the listen line, which plays a very nice AI narration with a speed control up to 2x. The narration is generated the first time someone plays an essay and cached afterwards, so it&#x27;s instant from the second listener onwards.<p>Nothing is being copied or rehosted except the generated audio, and all of the pages link back to the original paulgraham.com site. But if PG wants it to come down, I am more than willing.",
+      "created_at_i": 1790234373,
+      "objectID": "49827352",
+      "story_id": 49827351,
+      "story_title": "[dead]"
+    },
+    {
+      "_tags": ["comment", "author_leetrout", "story_49300272"],
+      "author": "leetrout",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow\">https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a><p>&gt; When I&#x27;m reluctant to start work in the morning, I often trick myself by saying &quot;I&#x27;ll just read over what I&#x27;ve got so far.&quot; Five minutes later I&#x27;ve found something that seems mistaken or incomplete, and I&#x27;m off.",
+      "created_at_i": 1787147211,
+      "objectID": "49361557",
+      "story_id": 49300272,
+      "story_title": "Activation Energy is a good model for a lot of things"
+    },
+    {
+      "_tags": ["comment", "author_coldtea", "story_44101833"],
+      "author": "coldtea",
+      "comment_text": "&gt;<i>Can you point me to a single example of internet discourse from the last 30 years where a human used an em-dash unironically?</i><p>Thousands upon thousands.<p>&gt;<i>I&#x27;m looking for an example of human created discourse online. The crux of the allegation is that normal meatbag humans don&#x27;t use an em-dash when conversing with one another online</i><p>Meatbag humans whose education failed them don&#x27;t. Other humans did and still do, from Usenet to Substack, and from Slashdot to Hacker News.<p>Here&#x27;s a random PG essay sprinkled with 23 em-dashes:<p><a href=\"https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow\">https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a><p>Here&#x27;s a post from idlewords, 13 of them:<p><a href=\"https:&#x2F;&#x2F;idlewords.com&#x2F;2025&#x2F;02&#x2F;the_shape_of_a_mars_mission.htm\" rel=\"nofollow\">https:&#x2F;&#x2F;idlewords.com&#x2F;2025&#x2F;02&#x2F;the_shape_of_a_mars_mission.ht...</a><p>Here&#x27;s the current top HN post, 13 of them:<p><a href=\"https:&#x2F;&#x2F;aaronson.org&#x2F;blog&#x2F;square-theory\" rel=\"nofollow\">https:&#x2F;&#x2F;aaronson.org&#x2F;blog&#x2F;square-theory</a><p>57 in this antipope post - many by Charlie, equally many in the comments:<p><a href=\"https:&#x2F;&#x2F;www.antipope.org&#x2F;charlie&#x2F;blog-static&#x2F;2024&#x2F;12&#x2F;storm-cloud-approaching-rapidl.html\" rel=\"nofollow\">https:&#x2F;&#x2F;www.antipope.org&#x2F;charlie&#x2F;blog-static&#x2F;2024&#x2F;12&#x2F;storm-c...</a><p>And those are genuine em-dashes, the character.<p>Way more people, in posts, comments, etc. use en-dashes and hyphens as em-dashes (just because they don&#x27;t know how to quickly insert proper ones, or aren&#x27;t aware there&#x27;s a typographic distinction, but do now the use of dashes for parenthetical statements and asides.",
+      "created_at_i": 1748376926,
+      "objectID": "44110308",
+      "story_id": 44101833,
+      "story_title": "Highlights from the Claude 4 system prompt"
+    },
+    {
+      "_tags": ["comment", "author_raincole", "story_44081586"],
+      "author": "raincole",
+      "comment_text": "Paul Graham&#x27;s essays read like typical self-help books. Considering how popular self-help books are, I guess you can call that &quot;good writing&quot; for general population?<p>[0]: a typical example: <a href=\"https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow\">https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a><p>If you didn&#x27;t tell me this is from PG I would think it&#x27;s from some self help book.",
+      "created_at_i": 1748104999,
+      "objectID": "44082174",
+      "story_id": 44081586,
+      "story_title": "Good Writing"
+    },
+    {
+      "_tags": ["comment", "author_vm", "story_41963063"],
+      "author": "vm",
+      "comment_text": "The author hits on a powerful point that is getting missed in this HN discussion. That is: talented and driven students are limited by the US education system.<p>Some of those young people cultivate skill by getting practice during youth. Doing that while young builds a compounding machine of personal interest + confidence + progress.<p>I have never seen broad data to support this, so discussions revolve around anecdotes[1]. That&#x27;s fine by me though because we have countless examples of the legends of their craft who fit that mold: bill gates, zuck, warren buffett, taylor swift, mozart, da vinci... the list is long.<p>No single system will work for every single student. But that isn&#x27;t the point. The point is that the best of the best deserve to feed their interests at a young age, which the current US upbringing limits. How many more bill gates and zuck-level creators could the world have if more talented youths could cultivate their talents very early in life?<p>[1] Although not broad data, the thinking behind these works build on a similar point: Thiel Fellowship [<a href=\"https:&#x2F;&#x2F;thielfellowship.org&#x2F;];\" rel=\"nofollow\">https:&#x2F;&#x2F;thielfellowship.org&#x2F;];</a> PG&#x27;s essay How to Do Great Work [<a href=\"https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow\">https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a>]",
+      "created_at_i": 1730050819,
+      "objectID": "41964214",
+      "story_id": 41963063,
+      "story_title": "School is Not Enough: Learning is a consequence of doing (2021)"
+    },
+    {
+      "_tags": ["comment", "author_tim333", "story_40549751"],
+      "author": "tim333",
+      "comment_text": "There&#x27;s always the Paul Graham essays that may have some ideas eg. <a href=\"https:&#x2F;&#x2F;www.paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow\">https:&#x2F;&#x2F;www.paulgraham.com&#x2F;greatwork.html</a>",
+      "created_at_i": 1717366274,
+      "objectID": "40557541",
+      "story_id": 40549751,
+      "story_title": "Ask HN: How do I change the world?"
+    },
+    {
+      "_tags": ["comment", "author_troydavis", "story_39751045"],
+      "author": "troydavis",
+      "comment_text": "Try <a href=\"https:&#x2F;&#x2F;www.paulgraham.com&#x2F;love.html\" rel=\"nofollow\">https:&#x2F;&#x2F;www.paulgraham.com&#x2F;love.html</a> (2006). If that isn&#x27;t enough, <a href=\"https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow\">https:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a> (2023)",
+      "created_at_i": 1710802935,
+      "objectID": "39751100",
+      "story_id": 39751045,
+      "story_title": "Ask HN: How to decide what's the best career to pursue?"
+    },
+    {
+      "_tags": ["comment", "author_PartiallyTyped", "story_37293143"],
+      "author": "PartiallyTyped",
+      "comment_text": "I have 2 degrees, and I do consider myself - for the most part - self-taught. The degrees offered mostly guidance and support, but ultimately it was what you made of it.<p>Everything presents an opportunity, you just have to decide to unfold the fractal [1].<p>[1] <a href=\"http:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow noreferrer\">http:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a>",
+      "created_at_i": 1693256030,
+      "objectID": "37300270",
+      "story_id": 37293143,
+      "story_title": "Ask HN: Are “theoretical” concepts being lost by new engineers?"
+    },
+    {
+      "_tags": ["comment", "author_cpach", "story_37046523"],
+      "author": "cpach",
+      "comment_text": "<i>“(…) probably try to ensure they are interesting and enjoyable, since you are more likely to stick at them.”</i><p>I agree. This comment reminded me of PG’s latest essay, where he writes about this. I can gladly recommend this text.<p><a href=\"http:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow noreferrer\">http:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a>",
+      "created_at_i": 1692004449,
+      "objectID": "37118984",
+      "story_id": 37046523,
+      "story_title": "Ask HN: Deal with feeling of not knowing anything well enough?"
+    },
+    {
+      "_tags": ["comment", "author_sillysaurusx", "story_36933209"],
+      "author": "sillysaurusx",
+      "comment_text": "Chill. I say that as a reasonably accomplished scientist.<p>Yes, work hard. But there’s a difference between working hard <i>on the right thing</i> and doing it just because it makes you feel good.<p>You’re much less likely to find the right thing if you’re in a spiral of working on things you know will be a waste of time. You can pull as many 16 hour shifts at a gas station as you want to, but people only do that because they’re broke, not because they might find it fulfilling.<p>I recommend reading <a href=\"http:&#x2F;&#x2F;www.paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow noreferrer\">http:&#x2F;&#x2F;www.paulgraham.com&#x2F;greatwork.html</a> in its entirety. You strike me as the type of person it was aimed at. And believe it or not, one of the most important takeaways is that you have to allow yourself to play, just a little, in order to Rome the kind of work that makes you happy.<p>So explore your interests more, and worry less.",
+      "created_at_i": 1690740910,
+      "objectID": "36934241",
+      "story_id": 36933209,
+      "story_title": "Feynman's Messenger Lectures (1964)"
+    },
+    {
+      "_tags": ["comment", "author_boberoni", "story_36732430"],
+      "author": "boberoni",
+      "comment_text": "&quot;An early version of a new project will sometimes be dismissed as a toy. It&#x27;s a good sign when people do this. That means it has everything a new idea needs except scale, and that tends to follow.&quot; [1]<p>[1] <a href=\"http:&#x2F;&#x2F;www.paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow noreferrer\">http:&#x2F;&#x2F;www.paulgraham.com&#x2F;greatwork.html</a>",
+      "created_at_i": 1689403324,
+      "objectID": "36734213",
+      "story_id": 36732430,
+      "story_title": "Ziplm: Gzip-Backed Language Model"
+    },
+    {
+      "_tags": ["comment", "author_guptarohit", "story_36550615"],
+      "author": "guptarohit",
+      "comment_text": "This is one of the great writeup!<p>In case you want to listen it instead of reading it like me, you can do so by following command, it creates a audio file (named greatwork) which you can play:<p>wget -qO- <a href=\"http:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow noreferrer\">http:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a> | sed -e &#x27;&#x2F;&lt;script&#x2F;,&#x2F;&lt;\\&#x2F;script&gt;&#x2F;d&#x27; -e &#x27;s&#x2F;&lt;[^&gt;]*&gt;&#x2F;&#x2F;g; s&#x2F;\\&amp;nbsp\\;&#x2F; &#x2F;g; s&#x2F;\\&amp;amp\\;&#x2F;\\&amp;&#x2F;g; s&#x2F;\\&amp;lt\\;&#x2F;&lt;&#x2F;g; s&#x2F;\\&amp;gt\\;&#x2F;&gt;&#x2F;g&#x27; | say --progress -o greatwork<p>please note, this is tested on macOS only.",
+      "created_at_i": 1688239865,
+      "objectID": "36554096",
+      "story_id": 36550615,
+      "story_title": "How to Do Great Work"
+    },
+    {
+      "_tags": ["comment", "author_zephrx1111", "story_36550991"],
+      "author": "zephrx1111",
+      "comment_text": "How to Do Great Work: <a href=\"http:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html\" rel=\"nofollow noreferrer\">http:&#x2F;&#x2F;paulgraham.com&#x2F;greatwork.html</a>",
+      "created_at_i": 1688224413,
+      "objectID": "36550992",
+      "story_id": 36550991,
+      "story_title": "Paulg: How to Do Great Work"
+    }
+  ],
+  "hitsPerPage": 100,
+  "nbHits": 13,
+  "nbPages": 1,
+  "page": 0,
+  "params": "query=paulgraham.com+greatwork.html&tags=%28story%2Ccomment%29&restrictSearchableAttributes=comment_text%2Cstory_text&typoTolerance=false&advancedSyntax=false&analytics=false&attributesToRetrieve=_tags%2Ctitle%2Cstory_id%2Cstory_title%2Ccomment_text%2Cstory_text%2Ccreated_at_i%2Cauthor%2Cpoints%2Cnum_comments&attributesToHighlight=none&hitsPerPage=100&analyticsTags=backend",
+  "processingTimeMS": 12,
+  "processingTimingsMS": {
+    "_request": {
+      "roundTrip": 23
+    },
+    "afterFetch": {
+      "merge": {
+        "mergeLoop": {
+          "prepareNextHit": 3,
+          "total": 3
+        },
+        "total": 3
+      },
+      "total": 3
+    },
+    "fetch": {
+      "query": 3,
+      "scanning": 4,
+      "total": 8
+    },
+    "total": 12
+  },
+  "query": "paulgraham.com greatwork.html",
+  "serverTimeMS": 13
+}

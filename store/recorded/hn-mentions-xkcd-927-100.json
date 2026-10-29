@@ -1,0 +1,937 @@
+{
+  "exhaustive": {
+    "nbHits": true
+  },
+  "exhaustiveNbHits": true,
+  "hits": [
+    {
+      "_tags": ["comment", "author_sampo", "story_50219666"],
+      "author": "sampo",
+      "comment_text": "Situation: There are 12 major interpretations of quantum mechanics.<p>Quantum Bayesianism (QBism): We need to eliminate the interpretational conundrums that have beset quantum theory. A quantum state should not be thought to offer a description or representation of physical reality – instead it represents the degrees of belief an agent has about the possible outcomes of measurements.<p>Situation: There are 13 major interpretations of quantum mechanics.<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1792845010,
+      "objectID": "50220637",
+      "story_id": 50219666,
+      "story_title": "I don't understand quantum physics (2018)"
+    },
+    {
+      "_tags": ["comment", "author_rob74", "story_50192254"],
+      "author": "rob74",
+      "comment_text": "Relevant xkcd: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1792658679,
+      "objectID": "50192849",
+      "story_id": 50192254,
+      "story_title": "A Markdown File Should Just Open"
+    },
+    {
+      "_tags": ["comment", "author_shevy-java", "story_50175070"],
+      "author": "shevy-java",
+      "comment_text": "In general I like CSS, but ...<p>a) they keep on making CSS more and more complex. You can reason in favour of it, of course, but it is undeniable that CSS becomes more and more complex - and complicated, too. Which leads us to b)<p>b) &quot;CSS Subgrid is a good example. Subgrid is a super-powerful extension to CSS Grid which enables entirely new layouts.&quot;<p>Well ... I wanted two flexible divs side by side. It is possible, but there are like 5 different main strategies for this, grid is one of them.<p>Now via a &quot;subgrid&quot;, they acknowledge that the existing ways SUCK. So they add yet-another-component here. This reminds us of:<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>I started to go back to oldschool - HTML tables.<p>People can hate it, but they work really almost flawlessly. I am not saying I use them for everything, but I totally changed my mind after I saw how flexbox and other things SUCK to no ends. So I now compare all of them to HTML tables. If they suck more than HTML tables, I discard them. This is my quality metric now. And a lot of this has to do with developers making these decisions, failing hard at DESIGN. What happened to simplicity? HTML tables are simple for the most part; they are kind of like a grid already.",
+      "created_at_i": 1792560795,
+      "objectID": "50176454",
+      "story_id": 50175070,
+      "story_title": "The Future of CSS"
+    },
+    {
+      "_tags": ["comment", "author_xiaoyu2006", "story_50166502"],
+      "author": "xiaoyu2006",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1792544833,
+      "objectID": "50174835",
+      "story_id": 50166502,
+      "story_title": "2026 is an exciting year for the Rust compiler (and me)"
+    },
+    {
+      "_tags": ["comment", "author_Good4boothee", "story_50114359"],
+      "author": "Good4boothee",
+      "comment_text": "&gt; Linux defaults (GCC, automake, system libraries)<p>Last time I tried Gentoo desktop I ended up with 8 separate autotools versions, and gcc &amp; glibc was not that far behind in count. And just like in <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> every C developer tries to improve the situation by creating another build system.",
+      "created_at_i": 1792143450,
+      "objectID": "50116228",
+      "story_id": 50114359,
+      "story_title": "Last rites for Gentoo's Chromium package"
+    },
+    {
+      "_tags": ["comment", "author_mrlonglong", "story_50034001"],
+      "author": "mrlonglong",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1791803496,
+      "objectID": "50054635",
+      "story_id": 50034001,
+      "story_title": "No portable way to detect string-to-float conversion errors in standard C"
+    },
+    {
+      "_tags": ["comment", "author_mrlonglong", "story_49984159"],
+      "author": "mrlonglong",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1791551202,
+      "objectID": "50019950",
+      "story_id": 49984159,
+      "story_title": "A Terminal Protocol for Program Status (OSC 7501)"
+    },
+    {
+      "_tags": ["comment", "author_dorianmariecom", "story_49991227"],
+      "author": "dorianmariecom",
+      "comment_text": "obligatory xkcd <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1791373344,
+      "objectID": "49991368",
+      "story_id": 49991227,
+      "story_title": "Shipping JPEG XL in Chrome"
+    },
+    {
+      "_tags": ["comment", "author_lewelove", "story_49945933"],
+      "author": "lewelove",
+      "comment_text": "Obligatory 927.<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1791079230,
+      "objectID": "49949869",
+      "story_id": 49945933,
+      "story_title": "Agents don't need memory, they need documentation"
+    },
+    {
+      "_tags": ["comment", "author_graemep", "story_49841563"],
+      "author": "graemep",
+      "comment_text": "We could go back to using Latin as a common language. It is already far more widely understood than Esperanto.<p>The problem with invented languages is the same as with adding new standards <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1790878699,
+      "objectID": "49925167",
+      "story_id": 49841563,
+      "story_title": "Dutch governments builds alternative for Microsoft based on NixOS"
+    },
+    {
+      "_tags": ["comment", "author_ramses0", "story_49906637"],
+      "author": "ramses0",
+      "comment_text": "Exactly!  Swagger descriptions+GUI[1], HATEOAS[2], and JSONAPI[3] all coming together in jubilous harmony if MCP pulled its head out of the sand, but instead we get the XKCD#927[4] situation.<p>1: <a href=\"https:&#x2F;&#x2F;swagger.io&#x2F;docs&#x2F;specification&#x2F;v3_0&#x2F;adding-examples&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;swagger.io&#x2F;docs&#x2F;specification&#x2F;v3_0&#x2F;adding-examples&#x2F;</a><p>2: <a href=\"https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;HATEOAS\" rel=\"nofollow\">https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;HATEOAS</a><p>3: <a href=\"https:&#x2F;&#x2F;jsonapi.org\" rel=\"nofollow\">https:&#x2F;&#x2F;jsonapi.org</a><p>4: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1790776089,
+      "objectID": "49908923",
+      "story_id": 49906637,
+      "story_title": "You said no MCP"
+    },
+    {
+      "_tags": ["comment", "author_w4yai", "story_49893509"],
+      "author": "w4yai",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1790774002,
+      "objectID": "49908482",
+      "story_id": 49893509,
+      "story_title": "America.gov"
+    },
+    {
+      "_tags": ["comment", "author_danaris", "story_49830265"],
+      "author": "danaris",
+      "comment_text": "Regardless of whether this would actually be a good idea, it&#x27;s unquestionably an instance of<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1790436599,
+      "objectID": "49857488",
+      "story_id": 49830265,
+      "story_title": "From Thin Air to Bootable Images: The Tine Build System"
+    },
+    {
+      "_tags": ["comment", "author_graemep", "story_49792838"],
+      "author": "graemep",
+      "comment_text": "Further evidence that Flatpack does not solve the problem of distributing applications.<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1790025718,
+      "objectID": "49793629",
+      "story_id": 49792838,
+      "story_title": "Vibecoding isn't a crime How Distribute Your App on Linux after Flathub refusal"
+    },
+    {
+      "_tags": ["comment", "author_dessimus", "story_49699434"],
+      "author": "dessimus",
+      "comment_text": "yeah, don&#x27;t forget to roll in <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1789404415,
+      "objectID": "49699905",
+      "story_id": 49699434,
+      "story_title": "MIT creates method to force AI to comply with safety rules"
+    },
+    {
+      "_tags": ["comment", "author_Gander5739", "story_49684778"],
+      "author": "Gander5739",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1789335344,
+      "objectID": "49688972",
+      "story_id": 49684778,
+      "story_title": "Cpak – OCI application package format for Linux desktops, servers and devices"
+    },
+    {
+      "_tags": ["comment", "author_imoverclocked", "story_49645480"],
+      "author": "imoverclocked",
+      "comment_text": "Then what about all the cloud enabled spyware? How would that work? (&#x2F;sarcasm)<p>Truly though, smart-home <i>stuff</i> runs the whole gamut of privacy and device manufacturer relationships. eg: I have used three different smart&#x2F;room AC units:<p>- one requires its own cloud-enabled app for any remote connectivity, no HomeKit integration\n- one integrates with HomeKit but then leaves an upgrade hint that can only be done through an app with a login\n- one integrates with HomeKit and pretty much just works<p>HomeKit then allows me to remotely control via HomePod&#x2F;AppleTV acting as a router ... of course this is just a different cloud connectivity but with on-premises devices controlling other on-premises devices.<p>For each manufacturer of smart devices, there is potentially a separate cloud where data is being funneled through. Some devices support multiple upstreams.<p>I get that Matter should be a way to fix it but the reality feels more like <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>Part of me just wants dumb devices back. Get rid of buttons on a microwave (just give me a knob for time and maybe another knob for power setting.) Remove touchscreens from cars (mine glares at me with certain sun-angles.) Bring back the desktop&#x2F;computer hutch and phones that don&#x27;t live in your pocket. However, having the ability to start cooling my bedroom 45 minutes before I arrive home is ... pretty compelling too.",
+      "created_at_i": 1789248036,
+      "objectID": "49677324",
+      "story_id": 49645480,
+      "story_title": "LG denies TV spying claims, says tracking and snooping concerns 'not true'"
+    },
+    {
+      "_tags": ["comment", "author_dredmorbius", "story_49630931"],
+      "author": "dredmorbius",
+      "comment_text": "&quot;Throw unlimited resources at a development target&quot; has been an established F&#x2F;OSS embrace&#x2F;extend tactic for at least 20 years.<p>Red Hat, systemd, Chrome, Webkit, Android, and a few others come to mind.  Others might include Kubernetes, OpenJDK, Clang, React, Docker, Git&#x2F;Github.<p>Forks are <i>possible</i> but <i>sustained</i> forks are <i>expensive</i>, and &lt;<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>&gt; is always relevant.<p>It&#x27;s helpful to note that the guy who literally wrote the textbook on lock-in went on to have a career as Google&#x27;s chief economist:  Hal Varian, <i>Information Rules</i>.<p>&lt;<a href=\"https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Hal_Varian\" rel=\"nofollow\">https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Hal_Varian</a>&gt;<p>&lt;<a href=\"https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Information_Rules\" rel=\"nofollow\">https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Information_Rules</a>&gt;",
+      "created_at_i": 1789086838,
+      "objectID": "49652035",
+      "story_id": 49630931,
+      "story_title": "iPhone Duo"
+    },
+    {
+      "_tags": ["comment", "author_tech234a", "story_49599481"],
+      "author": "tech234a",
+      "comment_text": "(This appears to be a reference to <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>)",
+      "created_at_i": 1788814831,
+      "objectID": "49602950",
+      "story_id": 49599481,
+      "story_title": "Bill Gates tries to install MovieMaker (2003)"
+    },
+    {
+      "_tags": ["comment", "author_usernametaken29", "story_49522367"],
+      "author": "usernametaken29",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927</a><p>Nice work and all regardless",
+      "created_at_i": 1788513105,
+      "objectID": "49562268",
+      "story_id": 49522367,
+      "story_title": "Authorization terminology is a mess: Let's fix it"
+    },
+    {
+      "_tags": ["comment", "author_odyssey7", "story_49506148"],
+      "author": "odyssey7",
+      "comment_text": "I’m the person who has been explaining that the meaning of words comes from how they are used, not from how committees define them. The committees might influence people but ultimately words’ meanings come from how they are used. If you require a scientific expression of this concept, you might find distributional semantics of interest[1]. When people change how they use a word, its meaning changes. Far from having a single, universal meaning, the word “planet” means a number of different things today depending on whom you ask[2].<p>I have been defending the right for myself and for others to continue using their own language, without harassment from others in the names of scientific bodies. There was a time when linguists would prescribe that words like “y’all” are incorrect to use, and people would be shamed and discriminated against for doing so. Armchair scientists are behind the linguists on this one. We have lost cultural heritage and seen beautiful dialects gradually shrink or disappear due to prescriptive linguistics, and we now understand the harms, and it’s time that it ended.<p>Yes, people are free to use words in the ways that make sense and come naturally to them. No, it is not appropriate for people to treat others with disrespect for doing so. Harassment is harassment, bullying people into changing how they speak is bullying. This is not a philosophical point, it’s about being a decent person.<p>[1] <a href=\"https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Distributional_semantics\" rel=\"nofollow\">https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Distributional_semantics</a><p>[2] <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1788308020,
+      "objectID": "49530128",
+      "story_id": 49506148,
+      "story_title": "Since it was stripped of planetary status, Pluto’s defenders have been fighting"
+    },
+    {
+      "_tags": ["comment", "author_9x39", "story_49504905"],
+      "author": "9x39",
+      "comment_text": "The &#x27;why&#x27; behind all of these protocols and decisions is left out in favor of the cert exams. Being able to implement is usually what gets you paid.<p>&gt;mere fact that Layer 2 and Layer 3 addresses are distinct concepts.<p>The logical separation between the ideas allows for a lot of flexibility, and there were some wrong answers on how scalable vs flexible things should be.<p>Ethernet and IP beat the shit out of everything else: <a href=\"https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Protocol_Wars\" rel=\"nofollow\">https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Protocol_Wars</a><p>They emerged with a decent answer: L2 crosses intranetwork, L3 crosses internetwork. Their separation allows L3 addressing to be completely unaware of multiple changing L2 (lower level) intranetwork switches, which is immensely useful.<p>Trying to solve everything with One Master Protocol to solve it all turned out like this:\n<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1788205542,
+      "objectID": "49514079",
+      "story_id": 49504905,
+      "story_title": "Internet centralization and the original sin of NAT"
+    },
+    {
+      "_tags": ["comment", "author_bradley13", "story_49480091"],
+      "author": "bradley13",
+      "comment_text": "Our situation isn&#x27;t quite that extreme, but sometimes &quot;modern&quot; tech is just ridiculous. For home automation, every manufacturer has their own protocol. &quot;Matter&quot; has just confirmed what XKCD has to say: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>Add to that: every manufacturer wants to run their own servers and their own cloud service. I don&#x27;t want my data strewn throughout the internet. For most devices, there is zero reason they couldn&#x27;t work entirely within the LAN. Plus, we all know that half of those services will die in a few years, forcing us to replace perfectly good devices.",
+      "created_at_i": 1788160981,
+      "objectID": "49506653",
+      "story_id": 49480091,
+      "story_title": "It takes 5 cloud services to hear my doorbell"
+    },
+    {
+      "_tags": ["comment", "author_mechanicalpulse", "story_49468834"],
+      "author": "mechanicalpulse",
+      "comment_text": "Anthropic is gearing up for an IPO.  The fact that other protocols already do what MHS describes is not relevant to the intended audience: investors with FOMO.<p>Also: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1787925120,
+      "objectID": "49478496",
+      "story_id": 49468834,
+      "story_title": "Previewing the Model Hardware Standard"
+    },
+    {
+      "_tags": ["comment", "author_LoganDark", "story_49468834"],
+      "author": "LoganDark",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927</a>",
+      "created_at_i": 1787904593,
+      "objectID": "49475801",
+      "story_id": 49468834,
+      "story_title": "Previewing the Model Hardware Standard"
+    },
+    {
+      "_tags": ["comment", "author_randomblock1", "story_49468834"],
+      "author": "randomblock1",
+      "comment_text": "To me, this seems like OPC UA &#x2F; SiLA but instead of being software &lt;-&gt; machine semantics&#x2F;control it&#x27;s AI &lt;-&gt; machine semantics&#x2F;control. Or in simpler terms, an AI-facing hardware abstraction &#x2F; device-description standard.<p>This is how I understand it:<p>Agent &lt;-&gt; MCP&#x2F;CLI&#x2F;code &lt;-&gt; MHS &lt;-&gt; vendor API&#x2F;SCPI&#x2F;OPC UA&#x2F;ROS&#x2F;etc &lt;-&gt; CAN&#x2F;Modbus&#x2F;USB&#x2F;etc &lt;-&gt; hardware<p>MHS can describe capabilites, metadata, safety limits, as well as provide read&#x2F;write control and discovery. Things like &quot;can measure temperature&quot;, &quot;arm weighs X kg&quot;, &quot;never exceed X RPM&quot;, that agents can easily understand. (as opposed to that being buried in a datasheet somewhere, or having to be included in the prompt)<p>Also see: <a href=\"https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;OPC_Unified_Architecture\" rel=\"nofollow\">https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;OPC_Unified_Architecture</a>, <a href=\"https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Standardization_in_Lab_Automation\" rel=\"nofollow\">https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Standardization_in_Lab_Automat...</a>, <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1787865349,
+      "objectID": "49471381",
+      "story_id": 49468834,
+      "story_title": "Previewing the Model Hardware Standard"
+    },
+    {
+      "_tags": ["comment", "author_jedbrooke", "story_49468834"],
+      "author": "jedbrooke",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>To actually add something to the discussion though: I guess getting LLMs to control robots is cool, but would potentially have more severe consequences than pure software since it interacts more with the physical world",
+      "created_at_i": 1787858073,
+      "objectID": "49469814",
+      "story_id": 49468834,
+      "story_title": "Previewing the Model Hardware Standard"
+    },
+    {
+      "_tags": ["comment", "author_abtinf", "story_49365405"],
+      "author": "abtinf",
+      "comment_text": "Obligatory XKCD reference:<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1787180403,
+      "objectID": "49368261",
+      "story_id": 49365405,
+      "story_title": "Go 1.27"
+    },
+    {
+      "_tags": ["comment", "author_hkalbasi", "story_49355968"],
+      "author": "hkalbasi",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> Standards",
+      "created_at_i": 1787136146,
+      "objectID": "49359679",
+      "story_id": 49355968,
+      "story_title": "Palomar: A registry of Lean verified mathematics"
+    },
+    {
+      "_tags": ["comment", "author_wizzwizz4", "story_49334960"],
+      "author": "wizzwizz4",
+      "comment_text": "In a world where we no longer have the rat&#x27;s nest of complexity, we pretty much no longer need to produce code. All the software we will ever need for the next century could fit on <i>books</i> in one, single-floor library, if we exclude art projects like video games. An operating system with full driver support for every I&#x2F;O peripheral (if those devices use standard protocols, allowing for a <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> constant of 5), and support for every standard document format (again, assuming 5 bitmap image formats, 5 vector image formats, 5 kinds of print-ready document, 5 kinds of hypertext document…), could easily fit in 2GiB, and that would be <i>done</i>: everything anyone could possibly need out of a computer, apart from art, mathematics and science, for… I don&#x27;t even know how long. We&#x27;re still using the Latin alphabet, more or less unchanged since the late 15th century. Working technology doesn&#x27;t need to change.<p>Being able to automatically generate large quantities of code that is worse than a good human programmer can produce is <i>not helpful</i> in this world you&#x27;re envisioning.",
+      "created_at_i": 1787106867,
+      "objectID": "49355906",
+      "story_id": 49334960,
+      "story_title": "Memory prices climb 500% in 12 months"
+    },
+    {
+      "_tags": ["comment", "author_neilalexander", "story_49325061"],
+      "author": "neilalexander",
+      "comment_text": "For anyone who missed the reference: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1786961025,
+      "objectID": "49328605",
+      "story_id": 49325061,
+      "story_title": "Reticulum – Decentralized Mesh Network"
+    },
+    {
+      "_tags": ["comment", "author_Joel_Mckay", "story_49298035"],
+      "author": "Joel_Mckay",
+      "comment_text": "Some are already on RVA23.1 even before the standard made it to more than 4 manufacturers product lines.<p>The meme joke about standards is sadly relevant for riscv. =3<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1786752036,
+      "objectID": "49306077",
+      "story_id": 49298035,
+      "story_title": "RISC-V: They Should Have Known Better"
+    },
+    {
+      "_tags": ["comment", "author_zbentley", "story_49259043"],
+      "author": "zbentley",
+      "comment_text": "Even if it&#x27;s better than Argentina&#x27;s, it&#x27;s still not good: <a href=\"https:&#x2F;&#x2F;www.eatingpolicy.com&#x2F;p&#x2F;grasping-at-paper-straws\" rel=\"nofollow\">https:&#x2F;&#x2F;www.eatingpolicy.com&#x2F;p&#x2F;grasping-at-paper-straws</a><p>Contracting policy&#x2F;regulation is an area that accumulates the worst tendencies of government rulemaking:<p>1. Corruption results in hyper-specific rules being advanced.<p>2. It&#x27;s very difficult to un-do regulation without replacing it, so rules often stay in place broadly even when whoever wanted them isn&#x27;t competing in a sector.<p>3. Executive political initiatives that have public attention but aren&#x27;t considered worth the squeeze of turning into policy often turn into &quot;do something, anything&quot; OMB memos that add endless specificity to contracting regs, just like the paper straws thing (but hey, they <i>did something, anything</i> in service to the cause of environmentalism, right? ...right?).<p>4. For specialist contractors (e.g. software, nuclear power, so on) the people writing the contracting regulations or reqs are often so out of touch with the specialist field that the results are nonsense.<p>5. Even when rulemakers&#x2F;COs are trying to do the right thing, they&#x27;re so overworked and under-specialized that they have a huge incentive to pick the devil they know (contractors with prior engagement history, even if their results are poor). As a result, sometimes a bid that clearly requires qualifications only possessed by one company in existence wasn&#x27;t even written for corrupt reasons: it was written because that&#x27;s the quickest way to get a known quantity to work. Repeat that enough, though, and you have a system guaranteed to produce poor results.<p>6. Both parties tend to add to the regulatory &quot;stack&quot; that makes finding qualified contractors quickly hard. Democrats tend to add regulation, which slows the process down for everyone. Republicans tend to <i>try</i> to remove regulation, but effectively often move the complexity elsewhere.<p>7. Even when regulatory reform really does reduce the barriers to entry, pre-existing federal decisionmakers are still around. Some of those people will make the same well-intentioned bad decisions out of overwork&#x2F;missing expertise that they did before. A lot more will make bad decisions based on where they want to work after government. The number of people that will take advantage of deregulation&#x2F;reform and produce notably better results than before is small.<p>8. The timelines (of contracting and evaluating results) are long enough that there&#x27;ll likely be a reversal of the regulatory&#x2F;partisan cycle before anyone can get data saying that a given regulatory effort helped or harmed government effectiveness. For example, DOGE&#x27;s cost cutting program was a disaster from the start, but even if it had been executed well it would have failed in the same way and on the same timeframe, because the pace of change is necessarily slow.<p>9. Even when data about what works&#x2F;what doesn&#x27;t is available, contracting regulation and performance is incredibly uninteresting to the general public. So electeds and high-ranking feds tend not to prioritize it over the other million things they could fight for. Sure, the public loves when the government spends less money, but they glaze over when it comes to the &quot;how&quot; (and the elephants in the room cost so much that incremental efficiency improvements have bad optics).<p>10. Different agencies have different contracting practices, usually multiple generations&#x2F;iterations of those. Government-wide, many people have introduced reforms&#x2F;uniform  or streamlined &quot;universal processes&quot; to secure better contractors faster. That did help somewhat, but it also harmed <i>a la</i> <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1786472038,
+      "objectID": "49262264",
+      "story_id": 49259043,
+      "story_title": "Federal vendor with $50M in contracts leaves portal broken for a month"
+    },
+    {
+      "_tags": ["comment", "author_dredmorbius", "story_49134878"],
+      "author": "dredmorbius",
+      "comment_text": "Discussion of detecting AI writing raised the question of what and how many style guides exist.<p>Which raises the question of standards:  &lt;<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>&gt;.",
+      "created_at_i": 1785595320,
+      "objectID": "49134879",
+      "story_id": 49134878,
+      "story_title": "List of Style Guides"
+    },
+    {
+      "_tags": ["comment", "author_mtrovo", "story_49098965"],
+      "author": "mtrovo",
+      "comment_text": "Right, but I&#x27;m pretty sure this is not the first time somebody thought about solving it.<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1785349983,
+      "objectID": "49101257",
+      "story_id": 49098965,
+      "story_title": "Superlogical"
+    },
+    {
+      "_tags": ["comment", "author_dlcarrier", "story_49054107"],
+      "author": "dlcarrier",
+      "comment_text": "<p><pre><code>    …a new database from scratch to compete with them all…\n</code></pre>\nI see you&#x27;ve taken this route: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1785217468,
+      "objectID": "49079869",
+      "story_id": 49054107,
+      "story_title": "An ESP32 based plane radar for my desk"
+    },
+    {
+      "_tags": ["comment", "author_dpoloncsak", "story_49071365"],
+      "author": "dpoloncsak",
+      "comment_text": "Poked around a bit..excited to see where this goes.<p>Just a quick note, Under &quot;Get help from the community &gt; Disucssions&quot;, there&#x27;s a 404 to <a href=\"https:&#x2F;&#x2F;github.com&#x2F;letsseal&#x2F;letsseal&#x2F;discussions\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;letsseal&#x2F;letsseal&#x2F;discussions</a> .<p>The idea makes sense in principle I think, and but I&#x27;ll be chewing on it a bit, haha. Seems like a solid standard, but you know how standards go.... (Relevant XKCD: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>)<p>I like that you kept a lot of the same commands&#x2F;naming&#x2F;syntax from LetsEncrypt. As someone familiar with LetsEncrypt, makes me feel like I&#x27;d slide right in here easily.<p>I&#x27;d like to learn more about the &#x27;Bitcoin anchored root&#x27;...is that part of RFC 6962 or something else entirely? Do you mean a &#x27;Bitcoin-like blockchain&#x27; or are you using the actual BTC chain? Could you point me in the right direction?",
+      "created_at_i": 1785179838,
+      "objectID": "49074372",
+      "story_id": 49071365,
+      "story_title": "Show HN: Let's Seal – Let's Encrypt for document signing, free and self-hosted"
+    },
+    {
+      "_tags": ["comment", "author_niceguy1827", "story_49065527"],
+      "author": "niceguy1827",
+      "comment_text": "May I introduce <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1785162266,
+      "objectID": "49070163",
+      "story_id": 49065527,
+      "story_title": "I built a project management tool because every alternative felt too complicated"
+    },
+    {
+      "_tags": ["comment", "author_inigyou", "story_49025984"],
+      "author": "inigyou",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927</a>",
+      "created_at_i": 1784875181,
+      "objectID": "49031932",
+      "story_id": 49025984,
+      "story_title": "Building on ATProto"
+    },
+    {
+      "_tags": ["comment", "author_AdieuToLogic", "story_48984270"],
+      "author": "AdieuToLogic",
+      "comment_text": "&gt; Ever found yourself writing this?<p><pre><code>  for f in *.txt; do\n    wc -l &quot;$f&quot;\n  done\n</code></pre>\nNo, because `wc` accepts multiple files. And the example given is incorrect for any file having a `.txt` suffix and whitespaces.<p>&gt; Or this?<p><pre><code>  find . -name &#x27;*.sh&#x27; -exec wc -l {} +\n</code></pre>\nNo.<p>&gt; These all work, but each has its own syntax, its own flags, its own quirks. I wanted something simpler — one consistent way to iterate over anything.<p>And therein lies the proverbial xkcd standards[0] proof.<p>0 - <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1784605065,
+      "objectID": "48987750",
+      "story_id": 48984270,
+      "story_title": "I wrote an bash enumerator because I was sick of xargs"
+    },
+    {
+      "_tags": ["comment", "author_caminanteblanco", "story_48984270"],
+      "author": "caminanteblanco",
+      "comment_text": "Obligatory XKCD: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1784585337,
+      "objectID": "48985496",
+      "story_id": 48984270,
+      "story_title": "I wrote an bash enumerator because I was sick of xargs"
+    },
+    {
+      "_tags": ["comment", "author_jvanderbot", "story_48941315"],
+      "author": "jvanderbot",
+      "comment_text": "You&#x27;re advocating for one solution that has two problems:<p>* It is precisely what TFA goes in for: a one-stop shop (somewhat application dependent)<p>* It is antithetical to the &quot;embarassment of riches&quot; approach that Rust tried for when they delegated almost all functionality to crates - the ecosystem has proven fruitful<p>Oh and a third:<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>It seems to me that advocacy, writing good applications, or human-readable guides will do more for convergence on crate bundles than a more technical solution. I reach for the crates I know, not yet-another-framework.",
+      "created_at_i": 1784380108,
+      "objectID": "48957830",
+      "story_id": 48941315,
+      "story_title": "Battery packs: Let's talk about crates, baby"
+    },
+    {
+      "_tags": ["comment", "author_thastings", "story_48885705"],
+      "author": "thastings",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1783923843,
+      "objectID": "48888625",
+      "story_id": 48885705,
+      "story_title": "Why Vanilla JavaScript"
+    },
+    {
+      "_tags": ["comment", "author_oblio", "story_48880209"],
+      "author": "oblio",
+      "comment_text": "Wealth is a lagging indicator.<p>Also, I have my own standard (<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>):<p><a href=\"https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Gini_coefficient\" rel=\"nofollow\">https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Gini_coefficient</a>",
+      "created_at_i": 1783890185,
+      "objectID": "48884765",
+      "story_id": 48880209,
+      "story_title": "Woman in Brazil enslaved for 55 years by 3 generations of the same family"
+    },
+    {
+      "_tags": ["comment", "author_chenglong-hn", "story_48834924"],
+      "author": "chenglong-hn",
+      "comment_text": "We find an additional dimension where previous language doesn&#x27;t explicitly use (semantic type) as the key part of the specification, which turned out to be the root reason of why certain low-level parameters are set.<p>Effectively Flint is designed to specify charts using another set of semantic parameters over geometric parameters, which happens to be something AI are pretty good at! (They can based on field names + sample values to infer the semantic types reliably than guessing geometrical params.<p>Btw, for others reading this comment, this is the XKCD we are talking about! <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1783574624,
+      "objectID": "48841314",
+      "story_id": 48834924,
+      "story_title": "Show HN: Microsoft releases Flint, a visualization language for AI agents"
+    },
+    {
+      "_tags": ["comment", "author_ssuds", "story_48800026"],
+      "author": "ssuds",
+      "comment_text": "This is where my mind went: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1783312724,
+      "objectID": "48800696",
+      "story_id": 48800026,
+      "story_title": "Shrimple – A Simpler, Nicer Markdown"
+    },
+    {
+      "_tags": ["comment", "author_conartist6", "story_48793454"],
+      "author": "conartist6",
+      "comment_text": "Programming language design is way weirder than any textbook would make you think.<p>For example, the first rule of language design is: &quot;Sandwich Helix.&quot; <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;3003&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;3003&#x2F;</a><p>You&#x27;ll also want to study how human language evolves, e.g. through &quot;vernacularization,&quot; which is the laziness that drives people to create short words and phrases for ideas they need to communicate often.<p>You&#x27;ll want to learn about the differing purposes of formal and informal constructions, and about why and how meaning itself drifts with time.<p>You&#x27;ll want to learn why &quot;DSL&quot; is a nonsense word and what it means for a language to be embedded in more than one domain (e.g. English is both spoken and written).<p>Even a simpler discipline like API design will be incredibly enlightening. How do you get users to upgrade from an old version of your API to a new version? You need to learn how to guide people towards behaving how you want without any kind of coercion: the only power you have is the power to offer incentives. Can you figure out how to create a stable equilibrium of social behavior out of dreamed-up nonsense? If you remember nothing else remember this: every language design decision that now seems inevitable and set in stone, once seemed completely, pointlessly arbitrary. Survivorship bias is <i>very</i> tricky to reason about! Every attempt to create a language is &quot;creating a 15th standard&quot; (<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>), but you have to remember that that doesn&#x27;t mean that it will fail. Every language that has ever succeeded has passed through this seemingly-impassable gate!",
+      "created_at_i": 1783279265,
+      "objectID": "48797125",
+      "story_id": 48793454,
+      "story_title": "Introduction to Compilers and Language Design (2021)"
+    },
+    {
+      "_tags": ["comment", "author_bironran", "story_48763963"],
+      "author": "bironran",
+      "comment_text": "This is perfectly encapsulated in xkcd&#x27;s &quot;Standards&quot; strip [<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>].",
+      "created_at_i": 1783014161,
+      "objectID": "48764897",
+      "story_id": 48763963,
+      "story_title": "Show HN: QUALITY.md – open format/specification, agent skill, and CLI"
+    },
+    {
+      "_tags": ["comment", "author_hav0c", "story_48658148"],
+      "author": "hav0c",
+      "comment_text": "Reminds me of <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1782301614,
+      "objectID": "48658317",
+      "story_id": 48658148,
+      "story_title": "Fusion Programming Language"
+    },
+    {
+      "_tags": ["comment", "author_s1mon", "story_48647799"],
+      "author": "s1mon",
+      "comment_text": "Somehow I assumed that you were linking to this one:\n<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1782241772,
+      "objectID": "48649846",
+      "story_id": 48647799,
+      "story_title": "F3"
+    },
+    {
+      "_tags": ["comment", "author_corvad", "story_48647799"],
+      "author": "corvad",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1782236264,
+      "objectID": "48648462",
+      "story_id": 48647799,
+      "story_title": "F3"
+    },
+    {
+      "_tags": ["comment", "author_horticulturist", "story_48638850"],
+      "author": "horticulturist",
+      "comment_text": "Basically this but for communications and knowledge tools: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1782227662,
+      "objectID": "48646341",
+      "story_id": 48638850,
+      "story_title": "Death by a Thousand Comments"
+    },
+    {
+      "_tags": ["comment", "author_Lethalman", "story_48624782"],
+      "author": "Lethalman",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1782107148,
+      "objectID": "48626197",
+      "story_id": 48624782,
+      "story_title": "Sakana Fugu"
+    },
+    {
+      "_tags": ["comment", "author_rho138", "story_48568487"],
+      "author": "rho138",
+      "comment_text": "Obligatory:\n<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1782090184,
+      "objectID": "48624332",
+      "story_id": 48568487,
+      "story_title": "Architecting a Conversion Engine in Swift"
+    },
+    {
+      "_tags": ["comment", "author_9dev", "story_48621517"],
+      "author": "9dev",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1782071533,
+      "objectID": "48622016",
+      "story_id": 48621517,
+      "story_title": "JSON-LD explained for personal websites"
+    },
+    {
+      "_tags": ["comment", "author_Catloafdev", "story_48573268"],
+      "author": "Catloafdev",
+      "comment_text": "As always, relevant XKCD <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1781813090,
+      "objectID": "48590779",
+      "story_id": 48573268,
+      "story_title": "Agentic Resource Discovery Specification"
+    },
+    {
+      "_tags": ["comment", "author_trashb", "story_48450694"],
+      "author": "trashb",
+      "comment_text": "That page does not load for me, did you mean <a href=\"https:&#x2F;&#x2F;imgs.xkcd.com&#x2F;comics&#x2F;standards.png\" rel=\"nofollow\">https:&#x2F;&#x2F;imgs.xkcd.com&#x2F;comics&#x2F;standards.png</a> or <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1780994396,
+      "objectID": "48458366",
+      "story_id": 48450694,
+      "story_title": "I'm building a parallel internet, and it's called The Thinnernet"
+    },
+    {
+      "_tags": ["comment", "author_lucrbvi", "story_48428796"],
+      "author": "lucrbvi",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1780781296,
+      "objectID": "48429166",
+      "story_id": 48428796,
+      "story_title": "Universal Memory Protocol – a shared format for agent memory"
+    },
+    {
+      "_tags": ["comment", "author_fnordpiglet", "story_48330436"],
+      "author": "fnordpiglet",
+      "comment_text": "I’m confused by the question. You listed a bunch of standards over time, all of which reach to solve a similar problem (you left off XDR&#x2F;RPC, CORBA, and about 10000 others), and unironically ask why is there a n+1 standard?  Are you genuinely confused?<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927</a>",
+      "created_at_i": 1780280118,
+      "objectID": "48351933",
+      "story_id": 48330436,
+      "story_title": "MCP is dead?"
+    },
+    {
+      "_tags": ["comment", "author_MathMonkeyMan", "story_48184322"],
+      "author": "MathMonkeyMan",
+      "comment_text": "You got downvoted, but you&#x27;re correct. Obligatory XKCD: &lt;<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>&gt;<p>Personally I prefer lisp 1 languages, like scheme. Even there, though, there was a split over r6rs, so we got a bunch of mostly-like-r5rs schemes and racket.<p>Maybe the problem is that lisps are no longer popular enough to have a winning implementation! If there is one, though, then it&#x27;s Common Lisp on SBCL.",
+      "created_at_i": 1779147061,
+      "objectID": "48187321",
+      "story_id": 48184322,
+      "story_title": "Hyperpolyglot Lisp: Common Lisp, Racket, Clojure, Emacs Lisp"
+    },
+    {
+      "_tags": ["comment", "author_alt227", "story_48142251"],
+      "author": "alt227",
+      "comment_text": "This just sounds like &#x27;We have too many systems, so lets build another one to solve the problem!&quot;<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1778856951,
+      "objectID": "48149491",
+      "story_id": 48142251,
+      "story_title": "UK government replaces Palantir software with internally-built refugee system"
+    },
+    {
+      "_tags": ["comment", "author_projektfu", "story_48139148"],
+      "author": "projektfu",
+      "comment_text": "It is making me feel less dumb when I use it to get Linux admin things done because 1) it gets it wrong and I have to help it and 2) even though I would have gotten frustrated and given up without AI it shows me that Linux has gotten way out of hand for administration.  Wheels have been reinvented and conventions have been changed for no good reason, or because of <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1778788609,
+      "objectID": "48140375",
+      "story_id": 48139148,
+      "story_title": "AI is making me dumb"
+    },
+    {
+      "_tags": ["comment", "author_vladms", "story_48037223"],
+      "author": "vladms",
+      "comment_text": "Reminds me of <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> - and to avoid confusions: everybody has good intentions and think they know better.<p>We definitely should try to improve and experiment with any system, including education, but I really doubt it is that easy to improve education and it will depend on objective, culture and political environment more than doing A or B.",
+      "created_at_i": 1778402944,
+      "objectID": "48082160",
+      "story_id": 48037223,
+      "story_title": "We see something that works, and then we understand it"
+    },
+    {
+      "_tags": ["comment", "author_rickydroll", "story_48074087"],
+      "author": "rickydroll",
+      "comment_text": "Ah yes, another &quot;If I Were King&quot; blog post. For an example of how it will turn out, look at how many JavaScript frameworks have been built to replace an overly complicated, unwieldy previous one.<p>oh and also <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1778331201,
+      "objectID": "48074611",
+      "story_id": 48074087,
+      "story_title": "Forking the Web"
+    },
+    {
+      "_tags": ["comment", "author_dlcarrier", "story_48038031"],
+      "author": "dlcarrier",
+      "comment_text": "They went full XKCD 927 (<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>) and what started as an attempt to introduce students to the diversity of all cultures ended up forcing them into a new culture antithetical to all other cultures.",
+      "created_at_i": 1778098118,
+      "objectID": "48041076",
+      "story_id": 48038031,
+      "story_title": "The Disadvantages of an Elite Education (2008)"
+    },
+    {
+      "_tags": ["comment", "author_skydhash", "story_48000028"],
+      "author": "skydhash",
+      "comment_text": "&gt;  cross platform<p>That&#x27;s one word that should never been used in an design meeting. None of the GUI I&#x27;ve used has managed to do this right. Even Emacs and Firefox. The platform are totally different (and in the case of Linux&#x2F;Unix, there&#x27;s a lot of different HIG competing). So trying to be cross platform is a good illustration of the lesson in <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>The best bet should be a core with the domain with a UI shell. And then you swap the shell according to the platform.",
+      "created_at_i": 1777851334,
+      "objectID": "48002771",
+      "story_id": 48000028,
+      "story_title": "Why TUIs are back"
+    },
+    {
+      "_tags": ["comment", "author_dylan604", "story_47988592"],
+      "author": "dylan604",
+      "comment_text": "obligatory: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1777779801,
+      "objectID": "47993125",
+      "story_id": 47988592,
+      "story_title": "Do_not_track"
+    },
+    {
+      "_tags": ["comment", "author_internetguy", "story_47988592"],
+      "author": "internetguy",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1777776658,
+      "objectID": "47992846",
+      "story_id": 47988592,
+      "story_title": "Do_not_track"
+    },
+    {
+      "_tags": ["comment", "author_sputknick", "story_47919240"],
+      "author": "sputknick",
+      "comment_text": "The nice thing is that with LLMs using markdown we are getting a nice ecosystem for a universal method for communicating textual information. The negative is that Markdown is starting to look like the <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> cartoon.",
+      "created_at_i": 1777302129,
+      "objectID": "47922562",
+      "story_id": 47919240,
+      "story_title": "Quarkdown – Markdown with Superpowers"
+    },
+    {
+      "_tags": ["comment", "author_chfritz", "story_47898159"],
+      "author": "chfritz",
+      "comment_text": "Obligatory: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1777128158,
+      "objectID": "47901891",
+      "story_id": 47898159,
+      "story_title": "I am trying to collect a robotics community to learn robotics from scratch"
+    },
+    {
+      "_tags": ["comment", "author_criddell", "story_47891801"],
+      "author": "criddell",
+      "comment_text": "&gt; design a universal app engine<p>You&#x27;ve reminded me of the XKCD comic about standards: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>Do you really want a universal app engine? If you don&#x27;t have a good reason for ignoring platform guidelines (as many games do), then don&#x27;t. The best applications on any platform are the ones that embrace the platform&#x27;s conventions and quirks.<p>I get why businesses will settle for mediocre, but for personal projects why would you? Pick the platform you use and make the best application you can. If you must have cross-platform support, then decouple your UI and pick the right language and libraries for each platform (SwiftUI on Mac, GTK for Linux, etc...).",
+      "created_at_i": 1777059560,
+      "objectID": "47894849",
+      "story_id": 47891801,
+      "story_title": "I'm done making desktop applications (2009)"
+    },
+    {
+      "_tags": ["comment", "author_forgetfreeman", "story_47886773"],
+      "author": "forgetfreeman",
+      "comment_text": "Obligatory XKCD: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1777034447,
+      "objectID": "47889399",
+      "story_id": 47886773,
+      "story_title": "Composition shouldn't be this hard"
+    },
+    {
+      "_tags": ["comment", "author_schrotie", "story_47886773"],
+      "author": "schrotie",
+      "comment_text": "Great idea, though maybe you meant &quot;standards&quot; not &quot;models&quot;?\n<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1777028249,
+      "objectID": "47888455",
+      "story_id": 47886773,
+      "story_title": "Composition shouldn't be this hard"
+    },
+    {
+      "_tags": ["comment", "author_athrowaway3z", "story_47886773"],
+      "author": "athrowaway3z",
+      "comment_text": "&gt; I think I’ve found a model that can break out of this tradeoff. Implementing it is more than I can do alone<p>I think anything that can change this has to be simple enough that it&#x27;d be more effective to just explain the system and implement it, than wax about the general outline of part of the problem. Especially since the real target audience for an initial release by necessity needs to understand it.<p>There are some big leaps we could make with having code be more flat. Things like having the frontend and backend handler in the same file under the same compiler&#x2F;type checker. But somebody will want to interact with a system outside of the &#x27;known-world&#x27; and then you&#x27;re writing bindings and <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>At the end of the day I think the core tension is that once the speed of light is noticeable to your usecase things become distributed, which creates the desire for separate rate-of-change. I&#x27;m not sure what would &#x27;solve&#x27; that.<p>AI will be a plus, for the fact that a single team can be in charge of more of the parts leading to a more coherent whole.<p>Hope OP builds some nice tools, but I&#x27;ve seen too many of these attempts fail to get excited about &quot;i think we found it&quot;.",
+      "created_at_i": 1777023311,
+      "objectID": "47887809",
+      "story_id": 47886773,
+      "story_title": "Composition Shouldn't be this Hard"
+    },
+    {
+      "_tags": ["comment", "author_abdusco", "story_47852177"],
+      "author": "abdusco",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1776798723,
+      "objectID": "47853142",
+      "story_id": 47852177,
+      "story_title": "Framework Laptop 13 Pro"
+    },
+    {
+      "_tags": ["comment", "author_brightball", "story_47792593"],
+      "author": "brightball",
+      "comment_text": "Obligatory <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1776374832,
+      "objectID": "47799708",
+      "story_id": 47792593,
+      "story_title": "Cloudflare Email Service"
+    },
+    {
+      "_tags": ["comment", "author_chewbacha", "story_47788857"],
+      "author": "chewbacha",
+      "comment_text": "My immediate first thought is if the XKCD standards comic<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1776318399,
+      "objectID": "47789111",
+      "story_id": 47788857,
+      "story_title": "IPv8 Proposal"
+    },
+    {
+      "_tags": ["comment", "author_riwsky", "story_47784397"],
+      "author": "riwsky",
+      "comment_text": "The web IS the duck typing equivalent at the network boundary! That’s why plenty of alternative service providers can and do implement eg object storage APIs that work with aws s3 client libraries, or LLM APIs that work with Claude Code. The reasons these use cases are standardized (while others remain fragmented) are economic, not technical (lock-in isn’t as profitable for these alt services as raw adoption)—and so a purely technical solution like this is unlikely to address the crux of the problem.<p>Even purely on the technical level, this seemingly hasn&#x27;t internalized the lessons of <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1776314391,
+      "objectID": "47788713",
+      "story_id": 47784397,
+      "story_title": "One interface, every protocol"
+    },
+    {
+      "_tags": ["comment", "author_ButlerianJihad", "story_47777258"],
+      "author": "ButlerianJihad",
+      "comment_text": "TBQH, I had to check that the publication date was not April 1st.<p>I guess that now is the opportune time to invoke xkcd: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1776253406,
+      "objectID": "47777753",
+      "story_id": 47777258,
+      "story_title": "Internet Protocol Version 8 (IPv8)"
+    },
+    {
+      "_tags": ["comment", "author_0xMalotru", "story_47705413"],
+      "author": "0xMalotru",
+      "comment_text": "Relevant XKCD: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1775807588,
+      "objectID": "47714924",
+      "story_id": 47705413,
+      "story_title": "Show HN: I built a Cargo-like build tool for C/C++"
+    },
+    {
+      "_tags": ["comment", "author_electroly", "story_47645717"],
+      "author": "electroly",
+      "comment_text": "Practically speaking, I&#x27;ve found that Claude never uses collection expressions, so the feature has disappeared from my code. Before AI, the feature was looked at with skepticism by my coworkers. We like writing &quot;var&quot; for all variable declarations. You have to write the type on the left side if you want to declare a variable with a collection expression, and we would never do that otherwise. Can&#x27;t do `foreach (var x in [1, 2, 3])`. Too often, you have to make specific accommodations in your code to allow the collection expression to be valid.<p>Collection expressions today are more the sort of thing that a code poet or golfer can do to prettify their code than something a newbie can count on using. It&#x27;s tough to explain &quot;you can only use this when the collection type is implied in that spot&quot; to a newbie. The value of the base feature is still unproven for me. I&#x27;m not sure I agree, without some convincing, that collection expressions made the language more coherent rather than doing <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927</a>.",
+      "created_at_i": 1775688390,
+      "objectID": "47697212",
+      "story_id": 47645717,
+      "story_title": "Union types in C# 15"
+    },
+    {
+      "_tags": ["comment", "author_reincarnate0x14", "story_47692661"],
+      "author": "reincarnate0x14",
+      "comment_text": "I sincerely think the chatbot phenomena is giving people the perspective that whatever hallucinatory conversation they&#x27;re having is profound because it&#x27;s the first time they personally have thought about it.<p>On one hand this is normal in education and pedagogy to have the student or apprentice put the boring pieces together to find the wonder of the puzzle itself, but on the other this is how we end up with <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1775675956,
+      "objectID": "47694954",
+      "story_id": 47692661,
+      "story_title": "Show HN: TUI-use: Let AI agents control interactive terminal programs"
+    },
+    {
+      "_tags": ["comment", "author_fsloth", "story_47638498"],
+      "author": "fsloth",
+      "comment_text": "Export of the parametric model would fit well with the user respecting philosophy underpinning the whole project.<p>While <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> is something to be avoided there really isn’t an existing format I would be aware off that fits the bill.<p>I’ll add this to the roadmap.<p>But to do this right it really needs to be a properly specified schema, with conformance test suite and versioning.<p>I appreciate your use case, but for users coming out of context, parsing underspecified XML files would be more of a curse than blessing :)",
+      "created_at_i": 1775621783,
+      "objectID": "47685157",
+      "story_id": 47638498,
+      "story_title": "Show HN: AdaShape-3D modeler for intuitive 3D printing parts / Windows 11"
+    },
+    {
+      "_tags": ["comment", "author_magicmicah85", "story_47524704"],
+      "author": "magicmicah85",
+      "comment_text": "Or Basic Memory? <a href=\"https:&#x2F;&#x2F;github.com&#x2F;basicmachines-co&#x2F;basic-memory-skills\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;basicmachines-co&#x2F;basic-memory-skills</a><p>Relevant XKCD: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1774490803,
+      "objectID": "47525883",
+      "story_id": 47524704,
+      "story_title": "Show HN: A plain-text cognitive architecture for Claude Code"
+    },
+    {
+      "_tags": ["comment", "author_latchkey", "story_47517539"],
+      "author": "latchkey",
+      "comment_text": "&gt; There&#x27;s this interesting issue that we&#x27;ve never had occupational licensing for software developers despite the sheer incompetence that we see all the time.<p>I&#x27;m laughing over the current Delve&#x2F;SOC2 situation right now. Everyone pulls for &#x27;licenses&#x27; as the first card, but we all know that is equally fraught with trauma. <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1774458492,
+      "objectID": "47520195",
+      "story_id": 47517539,
+      "story_title": "Thoughts on slowing the fuck down"
+    },
+    {
+      "_tags": ["comment", "author_duskdozer", "story_47514603"],
+      "author": "duskdozer",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1774441575,
+      "objectID": "47516419",
+      "story_id": 47514603,
+      "story_title": "Why I forked httpx"
+    },
+    {
+      "_tags": ["comment", "author_fc417fc802", "story_47388137"],
+      "author": "fc417fc802",
+      "comment_text": "Don&#x27;t worry, I will personally see to solving this problem once and for all. <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1773630812,
+      "objectID": "47394801",
+      "story_id": 47388137,
+      "story_title": "Separating the Wayland compositor and window manager"
+    },
+    {
+      "_tags": ["comment", "author_jitl", "story_47336989"],
+      "author": "jitl",
+      "comment_text": "there are a zillion of these &quot;json pro&quot; kind of things: superjson, devalue, capnweb, all with slightly different ideas about how to lower high-level semantics to json&#x27;s available types. it&#x27;s so easy to do this kind of thing, its a real <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> situation.<p>CBOR (Concise Binary Object Representation) has JSON-like semantics with type extension support; with built in type extensions its much easier to get some agreement about registering certain magic type IDs to mean certain things. for example from a random google search for &quot;cbor datetime&quot; <a href=\"https:&#x2F;&#x2F;j-richter.github.io&#x2F;CBOR&#x2F;date.html\" rel=\"nofollow\">https:&#x2F;&#x2F;j-richter.github.io&#x2F;CBOR&#x2F;date.html</a>; there&#x27;s an IANA registry of type IDs: <a href=\"https:&#x2F;&#x2F;www.iana.org&#x2F;assignments&#x2F;cbor-tags&#x2F;cbor-tags.xhtml\" rel=\"nofollow\">https:&#x2F;&#x2F;www.iana.org&#x2F;assignments&#x2F;cbor-tags&#x2F;cbor-tags.xhtml</a><p>however, it is binary.",
+      "created_at_i": 1773290118,
+      "objectID": "47346491",
+      "story_id": 47336989,
+      "story_title": "Temporal: The 9-year journey to fix time in JavaScript"
+    },
+    {
+      "_tags": ["comment", "author_chewbacha", "story_47340935"],
+      "author": "chewbacha",
+      "comment_text": "Sure, but just for reference: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1773266573,
+      "objectID": "47342744",
+      "story_id": 47340935,
+      "story_title": "The dead Internet is not a theory anymore"
+    },
+    {
+      "_tags": ["comment", "author_AlfredBarnes", "story_47296255"],
+      "author": "AlfredBarnes",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1773240977,
+      "objectID": "47336441",
+      "story_id": 47296255,
+      "story_title": "PeppyOS: A simpler alternative to ROS 2 (now with containers support)"
+    },
+    {
+      "_tags": ["comment", "author_whurley23", "story_47289311"],
+      "author": "whurley23",
+      "comment_text": "This calls for <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>.",
+      "created_at_i": 1772982394,
+      "objectID": "47297916",
+      "story_id": 47289311,
+      "story_title": "A decade of Docker containers"
+    },
+    {
+      "_tags": ["comment", "author_jstanley", "story_47256376"],
+      "author": "jstanley",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1772958896,
+      "objectID": "47295635",
+      "story_id": 47256376,
+      "story_title": "My “grand vision” for Rust"
+    },
+    {
+      "_tags": ["comment", "author_lacoolj", "story_47181208"],
+      "author": "lacoolj",
+      "comment_text": "Feels like they&#x27;re trying to implement a new wide-reaching protocol&#x2F;spec by requiring it by law first, then expecting someone to magically develop something, and god forbid it&#x27;s a different standard than anyone else&#x27;s.<p>By next January there will be 30 different methods of age input signalling between OS and application.  And then by 2030 we might have the top 3 adopted as established defacto standards.<p>somewhat related-ish <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> :)",
+      "created_at_i": 1772236676,
+      "objectID": "47187826",
+      "story_id": 47181208,
+      "story_title": "A new California law says all operating systems need to have age verification"
+    },
+    {
+      "_tags": ["comment", "author_lucaslazarus", "story_47066552"],
+      "author": "lucaslazarus",
+      "comment_text": "re: consistency<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1771473662,
+      "objectID": "47069760",
+      "story_id": 47066552,
+      "story_title": "Sizing chaos"
+    },
+    {
+      "_tags": ["comment", "author_uecker", "story_47016530"],
+      "author": "uecker",
+      "comment_text": "Well, I consider it abuse of header files to put an implementation in there. And comparing including a c-file to IOCCC seems very exaggerated.<p>My experience with dependencies in Debian-derived distributions is actually very good, far less problematic than any other packaging system I ever used. But yes, one needs to maintain dependencies separately for RPM and others distributions.  But obviously the problem is not lack of a package manager and adding another one would not solve anyhing: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>    The solution would be standardizing package names and versions across distributions.",
+      "created_at_i": 1771215939,
+      "objectID": "47030880",
+      "story_id": 47016530,
+      "story_title": "A header-only C vector database library"
+    },
+    {
+      "_tags": ["comment", "author_ultratalk", "story_46992553"],
+      "author": "ultratalk",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1770995008,
+      "objectID": "47003506",
+      "story_id": 46992553,
+      "story_title": "GPT‑5.3‑Codex‑Spark"
+    },
+    {
+      "_tags": ["comment", "author_edhelas", "story_46944245"],
+      "author": "edhelas",
+      "comment_text": "<a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1770646368,
+      "objectID": "46945400",
+      "story_id": 46944245,
+      "story_title": "Matrix messaging gaining ground in government IT"
+    },
+    {
+      "_tags": ["comment", "author_btown", "story_46868759"],
+      "author": "btown",
+      "comment_text": "Email is one of the very few success cases of the xkcd Standards meme: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a> - and it&#x27;s due to practicality and ingenuity on the part of people who made <i>very</i> creative parsers and placed real-world understanding behind every word of the early RFCs.<p>Without a unified email standard, the world would look incredibly different today, especially as it bootstrapped open communication between different countries and institutions in developing every protocol since.",
+      "created_at_i": 1770161176,
+      "objectID": "46878895",
+      "story_id": 46868759,
+      "story_title": "What's up with all those equals signs anyway?"
+    },
+    {
+      "_tags": ["comment", "author_AnthonyMouse", "story_46741045"],
+      "author": "AnthonyMouse",
+      "comment_text": "&gt; No, the system package managers is part of the fragmentation problem, as every app would have to support n different package managers.<p>Apps don&#x27;t support system package managers, system package managers package apps.<p>The problem is that this should be easy. Given a written description by the app developer of what files the app needs to be installed and what its dependencies are, writing a packaging metadata file for any given package manager should be less than ten minutes of work for the packager, and anybody should be able to learn how to do it in less than a day.<p>But the packaging systems are poorly documented and in some cases unnecessarily complicated, and then getting someone to add your app to any given package manager is more work than it should be and app developers start trying to figure out how to package it themselves instead of getting on with just developing their app.<p>&gt; Getting away from that is the main feature that drive adoption of language specific managers.<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a><p>&gt; What is needed is a layer in between that work well with both languages and systems.<p>That&#x27;s what system package managers <i>are</i>.",
+      "created_at_i": 1769816303,
+      "objectID": "46831516",
+      "story_id": 46741045,
+      "story_title": "Package management is a wicked problem"
+    },
+    {
+      "_tags": ["comment", "author_freehorse", "story_46821774"],
+      "author": "freehorse",
+      "comment_text": "Obligatory xkcd<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a>",
+      "created_at_i": 1769768875,
+      "objectID": "46822724",
+      "story_id": 46821774,
+      "story_title": "GOG: Linux \"the next major frontier\" for gaming as it works on a native client"
+    }
+  ],
+  "hitsPerPage": 100,
+  "nbHits": 1645,
+  "nbPages": 10,
+  "page": 0,
+  "params": "query=xkcd.com+927&tags=%28story%2Ccomment%29&restrictSearchableAttributes=comment_text%2Cstory_text&typoTolerance=false&advancedSyntax=false&analytics=false&attributesToRetrieve=_tags%2Ctitle%2Cstory_id%2Cstory_title%2Ccomment_text%2Cstory_text%2Ccreated_at_i%2Cauthor%2Cpoints%2Cnum_comments&attributesToHighlight=none&hitsPerPage=100&analyticsTags=backend",
+  "processingTimeMS": 23,
+  "processingTimingsMS": {
+    "_request": {
+      "queue": 1,
+      "roundTrip": 21
+    },
+    "afterFetch": {
+      "merge": {
+        "mergeLoop": {
+          "prepareNextHit": 2,
+          "total": 2
+        },
+        "total": 2
+      },
+      "total": 2
+    },
+    "fetch": {
+      "scanning": 18,
+      "total": 19
+    },
+    "total": 23
+  },
+  "query": "xkcd.com 927",
+  "serverTimeMS": 25
+}

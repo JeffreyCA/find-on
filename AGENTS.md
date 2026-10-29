@@ -25,6 +25,7 @@ Find On is a Chrome and Edge (Manifest V3) extension that looks up the current p
 - Keep README.md to what Find On does and how to build it.
 - In PRIVACY.md, describe data by category and purpose, not implementation.
 - When a change alters what is sent or stored, update PRIVACY.md.
+- When the popup's look changes, regenerate the store screenshots with `npm run screenshots`. Otherwise leave them alone: every run rewrites the PNGs.
 
 ## Releases
 
