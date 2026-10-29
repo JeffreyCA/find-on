@@ -569,30 +569,28 @@ function WhatsNew({ notes, onClose }: { notes: ReleaseNotes; onClose: () => void
           <CloseIcon />
         </button>
       </div>
-      <div class="release">
-        {notes.groups.map((group) => (
-          <div class="release-group" key={group.title}>
-            <h3>{group.title}</h3>
-            <ul>
-              {group.items.map((item) => (
-                <li key={item}>
-                  {inlineParts(item).map((part) =>
-                    part.kind === 'code' ? (
-                      <code key={part.start}>{part.text}</code>
-                    ) : part.kind === 'link' ? (
-                      <a key={part.start} href={part.url} target="_blank" rel="noreferrer">
-                        {part.text}
-                      </a>
-                    ) : (
-                      part.text
-                    ),
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+      {notes.groups.map((group) => (
+        <div class="release-group" key={group.title}>
+          <h3>{group.title}</h3>
+          <ul>
+            {group.items.map((item) => (
+              <li key={item}>
+                {inlineParts(item).map((part) =>
+                  part.kind === 'code' ? (
+                    <code key={part.start}>{part.text}</code>
+                  ) : part.kind === 'link' ? (
+                    <a key={part.start} href={part.url} target="_blank" rel="noreferrer">
+                      {part.text}
+                    </a>
+                  ) : (
+                    part.text
+                  ),
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
       <p>
         <a class="btn-text" href={`${REPO_URL}/releases`} target="_blank" rel="noreferrer">
           All releases

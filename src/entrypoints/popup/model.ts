@@ -94,7 +94,7 @@ export interface PopupModel {
   showFilter: boolean;
   /** The filter in effect (falls back to "all" when the chosen source has nothing). */
   filter: Filter;
-  /** SAME and EXACT discussions on every source. */
+  /** SAME and EXACT rows on every source, text posts included when they are listed. */
   total: number;
   /** In place of the filter when only one source is looked up, e.g. "11 on HN". */
   summary: string | null;
@@ -162,10 +162,6 @@ export function buildModel(input: ModelInput): PopupModel {
     return state.status === 'ok' ? state.items.map((d) => ({ ...d, kind: kindOf(d) })) : [];
   });
 
-  const found = input.order.flatMap((id) => {
-    const state = result?.mentions?.[id];
-    return state?.status === 'ok' ? [{ source: id, state }] : [];
-  });
   // A thread listed as a discussion (in any tier), or the one the user is on, is not a mention.
   const everyMention = result ? unlistedMentions(result) : [];
   // Text posts join the discussions, unless the user hides them; threads found through comments
@@ -228,7 +224,10 @@ export function buildModel(input: ModelInput): PopupModel {
   // Only for a source with threads here: Reddit's search finds posts alone, so more of its mentions
   // are more text posts.
   const more = (rows: Mention[]) =>
-    found.some(({ source, state }) => !state.complete && rows.some((m) => m.source === source));
+    rows.some((m) => {
+      const state = result?.mentions?.[m.source];
+      return state?.status === 'ok' && !state.complete;
+    });
 
   // Not in a private window (where Reddit is skipped) or for a text post, which has nothing to look
   // up. It does not wait for Reddit's answer, so it never appears late under the results.

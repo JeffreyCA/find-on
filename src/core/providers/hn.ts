@@ -34,7 +34,7 @@ const SEARCH_PARAMS = {
 } as const;
 
 const FIRST_PAGE = 100;
-/** Algolia's hard cap; only for user-initiated lookups. */
+/** Algolia's hard cap. Discussion searches use it only on user-initiated lookups. */
 const WIDE_PAGE = 1000;
 /** Algolia rejects queries of 512 bytes or more. Query words are ASCII, so length is bytes. */
 const MAX_QUERY_LENGTH = 480;
@@ -152,7 +152,7 @@ const joinedLength = (words: readonly string[]) => words.join(' ').length;
 
 export interface HnQuery {
   query: string;
-  /** Identifier-like query-string values, sent only on escalation. */
+  /** Identifier-like query-string values: sent on escalation, and always in mention searches. */
   idValues: string[];
 }
 

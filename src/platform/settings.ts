@@ -70,8 +70,8 @@ export const onboardedItem = storage.defineItem<boolean>('local:onboarded', {
 export const sortItem = storage.defineItem<SortOrder>('local:ui.sort');
 
 /**
- * Whether the popup's group of threads that link to the page ("Mentioned in comments") starts open:
- * as the user last left it; null until they first open or close it.
+ * Whether the popup's group of threads found through comments that link to the page ("Mentioned in
+ * comments") starts open: as the user last left it; null until they first open or close it.
  */
 export const mentionsOpenItem = storage.defineItem<boolean>('local:ui.mentionsOpen');
 

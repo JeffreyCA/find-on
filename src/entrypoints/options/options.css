@@ -155,27 +155,19 @@
   align-self: center;
   margin: -6px -10px -6px auto;
 }
-.release {
-  display: grid;
-  gap: var(--s-5);
-}
 .release-date {
   color: var(--ink-3);
   font-size: var(--fs-ui);
-  font-weight: 400;
 }
 .release-group h3 {
   margin-bottom: var(--s-2);
   color: var(--ink-2);
   font-size: var(--fs-ui);
-  font-weight: 600;
 }
 .release-group ul {
   display: grid;
   gap: var(--s-2);
-  margin: 0;
   padding-left: 18px;
-  line-height: var(--lh-body);
   list-style: disc;
 }
 .release-group li::marker {

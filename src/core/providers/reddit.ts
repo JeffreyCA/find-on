@@ -544,7 +544,7 @@ export async function lookupRedditMentions(
   const admission = await guard.admit({
     depth: ctx.depth,
     force: ctx.force,
-    cost: 1,
+    cost: stopped ? 0 : 1,
     optional: true,
   });
   if (!admission.ok) {

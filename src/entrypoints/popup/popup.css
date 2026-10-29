@@ -151,8 +151,7 @@
 .bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  /* Narrower than the filter's own gaps, so the "Text posts" toggle fits beside it */
+  /* As narrow as the filter's own gaps (below), so the "Text posts" toggle fits beside it */
   column-gap: var(--s-4);
   min-height: 35px;
   padding: 0 var(--s-4) 0 var(--gutter);
