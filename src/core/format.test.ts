@@ -97,7 +97,6 @@ describe('badgeText', () => {
           status: 'ok',
           // A text post, a discussion that is a mention too, and a thread found through comments.
           items: [mention('post', 40), mention('same600', 600), mention('thread')],
-          complete: true,
         },
       },
     };

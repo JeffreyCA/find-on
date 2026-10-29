@@ -70,7 +70,7 @@ describe('lookup', () => {
     const full = setup();
     const result = await full.run('https://xkcd.com/927/');
     expect(full.calls.filter((c) => isMentionSearch(c.url))).toHaveLength(2);
-    const none = { status: 'ok', items: [], complete: true };
+    const none = { status: 'ok', items: [] };
     expect(result.mentions).toEqual({ hn: none, reddit: none });
 
     const auto = setup();

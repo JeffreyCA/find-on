@@ -1,6 +1,6 @@
 // The results area: the filter/sort bar (with the "Text posts" toggle) and the list of discussions,
 // with placeholder rows for sources still being checked, the zero-comment fold, the "Other versions"
-// and "Mentioned in comments" groups, and the "Search Reddit comments" link that ends the results.
+// and "Mentioned in comments" groups, and the links to the sources' own sites that end the results.
 
 import { useId } from 'preact/hooks';
 import { authorLabel, mentionUrl, threadUrl, venueLabel, type RedditHost } from '@/core/links';
@@ -19,7 +19,14 @@ import {
 import { Segmented, type Segment } from '@/ui/Segmented';
 import { SourceMark } from '@/ui/SourceMark';
 import { fullDate, grouped, shortAge, urlDifference } from './format';
-import { SOURCE_SHORT, type Filter, type ListRow, type PopupModel, type RowKind } from './model';
+import {
+  SOURCE_SHORT,
+  type Filter,
+  type ListRow,
+  type PopupModel,
+  type RowKind,
+  type SourceLink,
+} from './model';
 
 /** Handles click and auxclick on a link (see links.ts for the rules). */
 export type LinkHandler = (event: MouseEvent, url: string) => void;
@@ -252,11 +259,7 @@ export function ResultList({
             onClick={onMentions}
           >
             <ChevronIcon open={mentionsOpen} />
-            Mentioned in comments{' '}
-            <span class="disclosure-count">
-              {model.mentions.length}
-              {model.moreMentions && '+'}
-            </span>
+            Mentioned in comments <span class="disclosure-count">{model.mentions.length}</span>
           </button>
           {mentionsOpen && (
             <ul class="list">
@@ -356,22 +359,27 @@ function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
   );
 }
 
-/** Reddit's own comment search for the page, which Find On can't search itself. */
-export function CommentSearch({ url, onLink }: { url: string; onLink: LinkHandler }) {
+/** Links to the sources' own sites, for what Find On can't fetch, ending the results. */
+export function SourceLinks({ links, onLink }: { links: SourceLink[]; onLink: LinkHandler }) {
   return (
-    <p class="comment-search">
-      <a
-        class="disclosure comment-search-link"
-        href={url}
-        data-nav
-        onClick={(event) => onLink(event, url)}
-        onAuxClick={(event) => onLink(event, url)}
-      >
-        <SourceMark source="reddit" />
-        Search Reddit comments
-        <ExternalIcon />
-      </a>
-    </p>
+    <ul class="source-links">
+      {links.map(({ source, label, url }) => (
+        <li key={source}>
+          <a
+            class="disclosure source-link"
+            href={url}
+            title={label}
+            data-nav
+            onClick={(event) => onLink(event, url)}
+            onAuxClick={(event) => onLink(event, url)}
+          >
+            <SourceMark source={source} />
+            <span class="source-link-label">{label}</span>
+            <ExternalIcon />
+          </a>
+        </li>
+      ))}
+    </ul>
   );
 }
 

@@ -147,7 +147,6 @@ describe('lookupRedditMentions', () => {
     expect(calls[0]?.init?.credentials).toBe('include');
     // zzm3 links to xkcd.com/1927; zzm4 was removed. iuhzn is a discussion too; the popup leaves
     // it out.
-    expect(state).toMatchObject({ status: 'ok', complete: true });
     if (state.status !== 'ok') throw new Error(state.status);
     expect(state.items.map((m) => m.id)).toEqual(['zzm1', 'zzm2', 'iuhzn']);
     expect(state.items[1]).toEqual({

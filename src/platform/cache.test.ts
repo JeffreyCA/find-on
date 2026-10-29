@@ -4,7 +4,7 @@ import { canServe, type Want } from './cache';
 
 const NOW = 1_760_000_000_000;
 const ANSWERED: SourceState = { status: 'ok', items: [], complete: true };
-const FOUND: MentionState = { status: 'ok', items: [], complete: true };
+const FOUND: MentionState = { status: 'ok', items: [] };
 
 function result(mentions?: LookupResult['mentions'], noLink = false): LookupResult {
   return {

@@ -71,12 +71,25 @@ export type StatusAction =
 
 export interface StatusLine {
   source: SourceId;
-  /** "band": a problem, shown above the results. "note": a footnote under them. */
+  /**
+   * "band": a problem with the source, and what to do about it, above the results. "note": a
+   * footnote under them, such as what was left unchecked.
+   */
   tone: 'band' | 'note';
   text: string;
   /** Rate limits: the action appears once this time has passed; until then the line counts down. */
   retryAt?: number;
   action?: StatusAction;
+}
+
+/**
+ * A link to a source's own site, for what Find On can't fetch: HN's listing of the site's
+ * submissions when its search had more than it returned, and Reddit's comment search.
+ */
+export interface SourceLink {
+  source: SourceId;
+  label: string;
+  url: string;
 }
 
 /** A line under the URL field about how the page was looked up. */
@@ -112,13 +125,8 @@ export interface PopupModel {
    * listed above, newest mention first: they have no numbers to sort by.
    */
   mentions: Mention[];
-  /** A source in the group has more mentions than were fetched: the count reads "N+". */
-  moreMentions: boolean;
-  /**
-   * Reddit's own comment search for the page, which Find On can't search itself: a link at the end
-   * of the results while Reddit is asked and shown. Null otherwise.
-   */
-  commentSearch: string | null;
+  /** Links to what a source's own site shows beyond the results, ending the list. */
+  links: SourceLink[];
   /** Sources to show placeholder rows for. */
   skeletons: SourceId[];
   statuses: StatusLine[];
@@ -219,25 +227,23 @@ export function buildModel(input: ModelInput): PopupModel {
 
   const shows = (id: SourceId) => filter === 'all' || filter === id;
   const mentions = grouped.filter((m) => shows(m.source));
-  // Only for a source with threads here: Reddit's search finds posts alone, so more of its mentions
-  // are more text posts.
-  const more = (rows: Mention[]) =>
-    rows.some((m) => {
-      const state = result?.mentions?.[m.source];
-      return state?.status === 'ok' && !state.complete;
-    });
 
-  // Only while Reddit is asked: not when it is skipped (a private window, its own front page; a
-  // blocklist skip is only an automatic lookup's), and not for a text post, which has nothing to look
-  // up. It does not wait for Reddit's answer, so it never appears late under the results.
-  const reddit = sources.reddit.state;
-  const redditAsked =
-    reddit.status !== 'off' && !(reddit.status === 'skipped' && reddit.reason !== 'filtered');
-  const searchKeys =
-    page !== undefined && !page.noLink && redditAsked && shows('reddit')
-      ? computeKeys(page.url)
-      : null;
-  const commentSearch = searchKeys ? commentSearchUrl(searchKeys) : null;
+  const links = input.order.flatMap((id): SourceLink[] => {
+    if (page === undefined || page.noLink || !shows(id)) return [];
+    const state = sources[id].state;
+    if (id === 'hn') {
+      const site = state.status === 'ok' && !state.complete ? hnSiteUrl(page.url) : null;
+      return site ? [{ source: id, label: `All HN posts from ${site.site}`, url: site.url }] : [];
+    }
+    // While Reddit is asked: not when it is skipped (a private window, its own front page; a
+    // blocklist skip is only an automatic lookup's). It does not wait for Reddit's answer, so it
+    // never appears late under the results.
+    const asked =
+      state.status !== 'off' && !(state.status === 'skipped' && state.reason !== 'filtered');
+    const keys = asked ? computeKeys(page.url) : null;
+    const url = keys ? commentSearchUrl(keys) : null;
+    return url ? [{ source: id, label: 'Search Reddit comments', url }] : [];
+  });
 
   const total = views.reduce((n, s) => n + s.count, 0);
   const totalSimilar = all.length - total;
@@ -260,7 +266,7 @@ export function buildModel(input: ModelInput): PopupModel {
     // Reddit's mention search finds posts alone, so with text posts hidden its failure hides nothing.
     const mentionsUsed = input.textPosts || s.id !== 'reddit';
     const lines = [
-      statusLine(s, { busy, redditHost: input.redditHost, pageUrl: page?.url }),
+      statusLine(s, { busy, redditHost: input.redditHost }),
       mentionsUsed ? mentionLine(s, result?.mentions?.[s.id], busy) : null,
     ];
     return lines.filter((line) => line !== null);
@@ -281,8 +287,7 @@ export function buildModel(input: ModelInput): PopupModel {
     folded,
     similar,
     mentions,
-    moreMentions: more(mentions),
-    commentSearch,
+    links,
     skeletons,
     statuses,
     empty,
@@ -295,7 +300,6 @@ export function buildModel(input: ModelInput): PopupModel {
       total,
       totalSimilar,
       mentions: grouped.length,
-      moreMentions: more(grouped),
       statuses,
     }),
   };
@@ -341,7 +345,7 @@ const ERROR_TEXT: Record<Extract<SourceState, { status: 'error' }>['kind'], stri
 
 function statusLine(
   s: SourceView,
-  ctx: { busy: boolean; redditHost: RedditHost; pageUrl: string | undefined },
+  ctx: { busy: boolean; redditHost: RedditHost },
 ): StatusLine | null {
   const { id, state } = s;
   const band = (text: string, action?: StatusAction): StatusLine => ({
@@ -350,9 +354,11 @@ function statusLine(
     text,
     ...(action && { action }),
   });
+  const note = (text: string): StatusLine => ({ source: id, tone: 'note', text });
   switch (state.status) {
     case 'off':
     case 'loading':
+    case 'ok':
       return null;
     case 'deferred':
     case 'paused':
@@ -360,16 +366,6 @@ function statusLine(
       return ctx.busy
         ? null
         : band('not checked', { kind: 'retry', label: 'Check now', force: true });
-    case 'ok': {
-      const from = id === 'hn' && !state.complete && ctx.pageUrl ? hnSiteUrl(ctx.pageUrl) : null;
-      if (from === null) return null;
-      return {
-        source: id,
-        tone: 'note',
-        text: 'more results may exist',
-        action: { kind: 'link', label: `All from ${from.site}`, url: from.url },
-      };
-    }
     case 'signed-out':
       return band('not signed in', {
         kind: 'link',
@@ -388,8 +384,8 @@ function statusLine(
         retryAt: state.retryAt,
       };
     case 'skipped':
-      if (state.reason === 'incognito') return band('not checked in private windows');
-      return state.reason === 'unsupported' ? band('not checked on front page') : null;
+      if (state.reason === 'incognito') return note('not checked in private windows');
+      return state.reason === 'unsupported' ? note('not checked on front page') : null;
     case 'error':
       return band(ERROR_TEXT[state.kind], { kind: 'retry', label: 'Retry', force: false });
     default:
@@ -425,7 +421,6 @@ function announce(
     total: number;
     totalSimilar: number;
     mentions: number;
-    moreMentions: boolean;
     statuses: StatusLine[];
   },
 ): string {
@@ -438,14 +433,9 @@ function announce(
     parts.push(`${ctx.totalSimilar} other ${ctx.totalSimilar === 1 ? 'version' : 'versions'}`);
   }
   if (ctx.mentions > 0 && waiting.length === 0) {
-    const n = `${ctx.mentions}${ctx.moreMentions ? '+' : ''}`;
-    parts.push(
-      `Mentioned in ${n} ${ctx.mentions === 1 && !ctx.moreMentions ? 'thread' : 'threads'}`,
-    );
+    parts.push(`Mentioned in ${ctx.mentions} ${ctx.mentions === 1 ? 'thread' : 'threads'}`);
   }
-  for (const line of ctx.statuses) {
-    if (line.tone === 'band') parts.push(`${SOURCE_NAMES[line.source]}: ${line.text}`);
-  }
+  for (const line of ctx.statuses) parts.push(`${SOURCE_NAMES[line.source]}: ${line.text}`);
   return parts.join('. ');
 }
 

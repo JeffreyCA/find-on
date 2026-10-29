@@ -22,11 +22,11 @@
 }
 /* A heading or link that ends the list takes the room below it as its own padding, so its hover
    background reaches the popup's edge */
-.results:has(> .comment-search:last-child),
+.results:has(> .source-links:last-child),
 .results:has(> .others:last-child > .others-head:last-child) {
   padding-bottom: 0;
 }
-.results > .comment-search:last-child > .comment-search-link,
+.results > .source-links:last-child > li:last-child > .source-link,
 .results > .others:last-child > .others-head:last-child {
   padding-bottom: var(--s-5);
 }
@@ -106,7 +106,8 @@
   background: var(--bg-2);
 }
 
-/* Per-source status bands (above the results) and notes (below them) */
+/* Per-source status bands (above the results) and notes (below them, a section of their own like
+   the groups) */
 
 .band,
 .note {
@@ -125,6 +126,10 @@
 .note {
   color: var(--ink-3);
 }
+.notes {
+  padding-block: var(--s-2);
+  border-top: 1px solid var(--rule);
+}
 .band-source {
   display: inline-flex;
   align-items: baseline;
@@ -133,6 +138,15 @@
 }
 .band-source .mark {
   margin-right: 5px;
+}
+/* Wrapped lines start under the text, not under the mark (its 1.15em and the 5px after it) */
+.band-text {
+  --hang: calc(1.15em + 5px);
+  padding-left: var(--hang);
+  text-indent: calc(-1 * var(--hang));
+}
+.band-source {
+  text-indent: 0;
 }
 .note .band-source {
   color: var(--ink-2);
@@ -562,20 +576,27 @@
   font-weight: 600;
 }
 
-/* "Search Reddit comments": a link out, closing the results like a group heading */
-.comment-search {
+/* Links to the sources' own sites ("Search Reddit comments"): rows like the group headings, closing
+   the results */
+.source-links {
   border-top: 1px solid var(--rule);
 }
-.comment-search-link {
+.source-link {
   padding-block: var(--s-4);
   font-size: var(--fs-ui);
   text-decoration: none;
 }
-.comment-search-link .icon {
+.source-link-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.source-link .icon {
   margin-left: auto;
 }
 /* The same size as the marks in the rows above, whose text is smaller */
-.comment-search-link .mark {
+.source-link .mark {
   --mark-size: calc(var(--fs-meta) * 1.15);
 }
 
@@ -612,6 +633,7 @@
   padding: 0 var(--s-4);
 }
 .empty + .others,
-.empty + .comment-search {
+.empty + .notes,
+.empty + .source-links {
   margin-top: var(--s-2);
 }

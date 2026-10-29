@@ -422,11 +422,6 @@ interface MentionPage {
   nbHits: number;
   /** Hits in the response, including the malformed ones that were skipped. */
   fetched: number;
-  /**
-   * Whether `nbHits` is exact. For broad queries Algolia only estimates it, and may then stop short
-   * of it even on a page large enough to hold every hit.
-   */
-  exhaustive: boolean;
 }
 
 /** Validates a mention search response; malformed hits are skipped, a malformed body is null. */
@@ -438,10 +433,7 @@ export function parseMentionSearch(data: unknown): MentionPage | null {
     return hit ? [hit] : [];
   });
   const nbHits = typeof data['nbHits'] === 'number' ? data['nbHits'] : raw.length;
-  const { exhaustive } = data;
-  const estimated =
-    data['exhaustiveNbHits'] === false || (isRecord(exhaustive) && exhaustive['nbHits'] === false);
-  return { hits, nbHits, fetched: raw.length, exhaustive: !estimated };
+  return { hits, nbHits, fetched: raw.length };
 }
 
 function parseMentionHit(h: unknown): MentionHit | null {
@@ -554,7 +546,5 @@ export async function lookupHnMentions(page: UrlKeys, ctx: HnContext): Promise<M
       found = wide;
     }
   }
-  const complete =
-    found.exhaustive && found.nbHits <= found.fetched && items.length <= MAX_MENTIONS;
-  return { status: 'ok', items: items.slice(0, MAX_MENTIONS), complete };
+  return { status: 'ok', items: items.slice(0, MAX_MENTIONS) };
 }

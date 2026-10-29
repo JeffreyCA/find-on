@@ -544,7 +544,7 @@ export async function lookupRedditMentions(
   { stopped = false } = {},
 ): Promise<MentionState> {
   const term = mentionTerm(page);
-  if (!fitsSearch(term)) return { status: 'ok', items: [], complete: true };
+  if (!fitsSearch(term)) return { status: 'ok', items: [] };
   const { guard } = ctx;
   // Optional: a challenged account, or one low on requests, is not asked even for the popup.
   const admission = await guard.admit({
@@ -563,9 +563,5 @@ export async function lookupRedditMentions(
   const { outcome, posts } = await fetchPosts(mentionSearchUrl(term), ctx);
   if (outcome.kind === 'rate-limited') return { status: 'failed', retryAt: outcome.retryAt };
   if (!posts) return { status: 'failed' };
-  return {
-    status: 'ok',
-    items: matchMentionPosts(posts, page),
-    complete: posts.length < MENTION_LIMIT,
-  };
+  return { status: 'ok', items: matchMentionPosts(posts, page) };
 }

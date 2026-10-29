@@ -15,7 +15,7 @@ import { SourceMark } from '@/ui/SourceMark';
 import { StatusText } from '@/ui/StatusText';
 import { countdown, readableUrl, submitUrls } from './format';
 import { buildModel, SOURCE_NAMES, type Filter, type PopupModel, type StatusLine } from './model';
-import { CommentSearch, ResultList, Toolbar, type LinkHandler } from './Results';
+import { ResultList, SourceLinks, Toolbar, type LinkHandler } from './Results';
 import type { Target } from './target';
 
 /** How many rows of a group opening it brings into view. */
@@ -126,6 +126,7 @@ export function Popup({
   // source), so what was found is never hidden behind a closed heading. Otherwise "Other versions"
   // starts closed, and "Mentioned in comments" as the user last left it.
   const listEmpty = !model.showResults;
+  const notes = model.statuses.filter((s) => s.tone === 'note');
   const othersShown = othersOpen ?? (listEmpty && model.similar.length > 0);
   const mentionsShown =
     mentionsOpen ?? ((listEmpty && model.mentions.length > 0) || (mentionsLeftOpen ?? false));
@@ -244,20 +245,22 @@ export function Popup({
               }}
               pageUrl={pageUrl}
             />
-            {model.statuses
-              .filter((s) => s.tone === 'note')
-              .map((s) => (
-                <Status
-                  key={`${s.source}:${s.text}`}
-                  line={s}
-                  now={now}
-                  busy={busy}
-                  onLink={actions.openLink}
-                  onRetry={retry}
-                />
-              ))}
-            {model.commentSearch !== null && (
-              <CommentSearch url={model.commentSearch} onLink={actions.openLink} />
+            {notes.length > 0 && (
+              <div class="notes">
+                {notes.map((s) => (
+                  <Status
+                    key={`${s.source}:${s.text}`}
+                    line={s}
+                    now={now}
+                    busy={busy}
+                    onLink={actions.openLink}
+                    onRetry={retry}
+                  />
+                ))}
+              </div>
+            )}
+            {model.links.length > 0 && (
+              <SourceLinks links={model.links} onLink={actions.openLink} />
             )}
           </>
         )}

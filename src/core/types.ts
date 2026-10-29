@@ -89,8 +89,7 @@ export interface MentionPost {
 
 export type MentionState =
   | { status: 'loading' }
-  /** `complete` is false when more candidates exist than were fetched. */
-  | { status: 'ok'; items: Mention[]; complete: boolean }
+  | { status: 'ok'; items: Mention[] }
   /**
    * The search failed, or the Reddit rate guard held it back (`retryAt`: when Reddit can be asked
    * again, after a 429, a pause or the breaker). The next lookup that searches for mentions asks

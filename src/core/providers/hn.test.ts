@@ -181,7 +181,6 @@ describe('lookupHnMentions', () => {
     const state = await lookupHnMentions(keys('https://xkcd.com/927/'), opts);
     expect(calls).toHaveLength(1);
     if (state.status !== 'ok') throw new Error(state.status);
-    expect(state.complete).toBe(true);
     // Thread B links to xkcd.com/1927. 2784984 is a discussion too; the popup leaves it out.
     expect(state.items.map((m) => m.id)).toEqual(['90000001', '90000002', '2784984']);
     expect(state.items[0]).toEqual({
@@ -218,7 +217,6 @@ describe('lookupHnMentions', () => {
     );
     const state = await lookupHnMentions(keys('https://xkcd.com/927/'), opts);
     expect(calls.map((c) => c.url.searchParams.get('hitsPerPage'))).toEqual(['100', '1000']);
-    expect(state).toMatchObject({ status: 'ok', complete: true });
     if (state.status !== 'ok') throw new Error(state.status);
     expect(state.items.map((m) => m.id)).toEqual(['10', '20']);
   });
