@@ -50,8 +50,6 @@ export interface PopupProps {
   sort: SortOrder;
   /** The sources in the user's order. */
   order: SourceId[];
-  /** Text posts are listed with the discussions ("Text posts" toggle). */
-  textPosts: boolean;
   /** Whether the mentions group was left open last time; null until it was first toggled. */
   mentionsOpen: boolean | null;
   /** Updated since settings was last opened: the settings button carries a dot. */
@@ -68,7 +66,6 @@ export function Popup({
   onboarded,
   sort,
   order,
-  textPosts,
   mentionsOpen: mentionsLeftOpen,
   whatsNew,
   actions,
@@ -92,7 +89,7 @@ export function Popup({
     sort,
     redditHost: settings.redditHost,
     order,
-    textPosts,
+    textPosts: settings.textPosts,
   });
   // Rate-limit lines count down to their retry time.
   const ticking = model.statuses.some((s) => s.retryAt !== undefined);
@@ -201,7 +198,7 @@ export function Popup({
             sort={sort}
             onSort={actions.setSort}
             onOrder={actions.setOrder}
-            textPosts={textPosts}
+            textPosts={settings.textPosts}
             onTextPosts={actions.setTextPosts}
           />
         )}

@@ -14,7 +14,7 @@ Find On is a Chrome and Edge (Manifest V3) extension that looks up the current p
 - Keep UI copy short and functional: no taglines, filler or decorative text.
 - Never use the em dash character in code, UI copy or docs; use "-".
 - Keep tests lean. Test logic that is easy to break, such as URL matching and provider response handling. Add no tests for UI, styling or copy changes.
-- Mentions (`LookupResult.mentions`) are looked up only on `full` lookups and never count toward the badge.
+- Mentions (`LookupResult.mentions`) are looked up on `full` lookups, and on `auto` lookups only while the `textPosts` setting is on. Only text posts among them count toward the badge, and only while `textPosts` is on.
 - To add a setting, add its default to `DEFAULT_SETTINGS`. Stored settings are merged over the defaults, so no migration is needed.
 - Write commit messages without co-author, tool or session trailers.
 - Change CHANGELOG.md only when bumping the version or preparing a release.

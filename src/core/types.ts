@@ -93,7 +93,8 @@ export type MentionState =
   | { status: 'ok'; items: Mention[]; complete: boolean }
   /**
    * The search failed, or the Reddit rate guard held it back (`retryAt`: when Reddit can be asked
-   * again, after a 429, a pause or the breaker). The next popup lookup asks again.
+   * again, after a 429, a pause or the breaker). The next lookup that searches for mentions asks
+   * again.
    */
   | { status: 'failed'; retryAt?: number };
 
@@ -125,9 +126,9 @@ export interface LookupResult {
    */
   fetchedAt: number;
   /**
-   * Threads that link to the page, per source. Only `full` lookups search for them, and only on a
-   * source whose discussions answered `ok`; they never count toward the badge. A source is absent
-   * when it was not asked.
+   * Threads that link to the page, per source. `full` lookups search for them, and `auto` ones while
+   * text posts count toward the badge, only on a source whose discussions answered `ok`. A source is
+   * absent when it was not asked.
    */
   mentions?: Partial<Record<SourceId, MentionState>>;
 }

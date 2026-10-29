@@ -10,7 +10,6 @@ import {
   seenVersionItem,
   sortItem,
   sourceOrderItem,
-  textPostsItem,
 } from '@/platform/settings';
 import { updateSettings, useSettings, useStorageItem } from '@/ui/hooks';
 import { anchorTab, openExtensionPage, openModeFor, openTab } from '@/ui/links';
@@ -23,7 +22,6 @@ export function App() {
   const onboarded = useStorageItem(onboardedItem);
   const sort = useStorageItem(sortItem);
   const order = useStorageItem(sourceOrderItem);
-  const textPosts = useStorageItem(textPostsItem);
   const mentionsOpen = useStorageItem(mentionsOpenItem);
   // Updated since the settings page was last opened: its "What's new" has something to show.
   const seenVersion = useStorageItem(seenVersionItem);
@@ -44,7 +42,11 @@ export function App() {
       close,
       setSort: (next) => void sortItem.setValue(next),
       setOrder: (next) => void sourceOrderItem.setValue(next),
-      setTextPosts: (next) => void textPostsItem.setValue(next),
+      setTextPosts: (textPosts) => {
+        void updateSettings({ textPosts }).catch((error: unknown) =>
+          console.error('Find On: saving the setting failed', error),
+        );
+      },
       setMentionsOpen: (next) => void mentionsOpenItem.setValue(next),
       openLink: (event, url) => {
         const mode = openModeFor(event, openInBackground);
@@ -93,7 +95,6 @@ export function App() {
       onboarded={onboarded ?? true}
       sort={sort ?? settings.rowStat}
       order={normalizeOrder(order)}
-      textPosts={textPosts ?? true}
       mentionsOpen={mentionsOpen ?? null}
       whatsNew={whatsNew}
       actions={actions}

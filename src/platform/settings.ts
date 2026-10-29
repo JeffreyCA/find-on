@@ -14,6 +14,12 @@ export interface Settings {
   openInBackground: boolean;
   /** The number set large on the right of each popup row; the other one moves to the meta line. */
   rowStat: RowStat;
+  /**
+   * Text posts (posts that link to the page in their text or title) are listed with the discussions
+   * and counted on the badge, so automatic lookups search for them too. Set with the popup's "Text
+   * posts" toggle.
+   */
+  textPosts: boolean;
 }
 
 export type RowStat = 'comments' | 'points';
@@ -31,6 +37,7 @@ export const DEFAULT_SETTINGS: Settings = deepFreeze({
   redditHost: 'www',
   openInBackground: false,
   rowStat: 'points',
+  textPosts: true,
 });
 
 /** What sync storage holds: written by any version, so any field (or nested field) may be missing. */
@@ -61,14 +68,6 @@ export const onboardedItem = storage.defineItem<boolean>('local:onboarded', {
  * number set large on each row (`rowStat`), so that column reads from largest to smallest.
  */
 export const sortItem = storage.defineItem<SortOrder>('local:ui.sort');
-
-/**
- * Whether the popup lists text posts (posts that link to the page in their text or title) with the
- * discussions, or hides them; set with its "Text posts" toggle.
- */
-export const textPostsItem = storage.defineItem<boolean>('local:ui.textPosts', {
-  fallback: true,
-});
 
 /**
  * Whether the popup's group of threads that link to the page ("Mentioned in comments") starts open:
@@ -110,7 +109,6 @@ export async function removeV1Leftovers(): Promise<void> {
     [
       onboardedItem.key,
       sortItem.key,
-      textPostsItem.key,
       mentionsOpenItem.key,
       seenVersionItem.key,
       sourceOrderItem.key,

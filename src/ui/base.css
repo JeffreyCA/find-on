@@ -337,6 +337,15 @@ code {
   outline-offset: 0;
   border-radius: var(--r-1);
 }
+/* An option with nothing to show: its text and any mark fade */
+.segment:has(input:disabled) {
+  color: var(--ink-3);
+  cursor: default;
+}
+.segment:has(input:disabled) .mark {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
 /* Reordering by drag: the dragged option fades, the one under it is highlighted */
 .segment.is-dragged {
   opacity: 0.4;

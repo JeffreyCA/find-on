@@ -18,7 +18,7 @@ const live: Route = (url) => {
   throw new Error(`unexpected request ${url.href}`);
 };
 
-function setup(route: Route = live) {
+function setup(route: Route = live, { textPosts = false } = {}) {
   const { fetch, calls } = fakeFetch(route);
   const env = testEnv(fetch);
   const run = (url: string, depth: Depth = 'full', previous?: LookupResult) =>
@@ -28,6 +28,7 @@ function setup(route: Route = live) {
         depth,
         sources: { hn: true, reddit: true },
         incognito: false,
+        textPosts,
         signal: new AbortController().signal,
         ...(previous && { previous }),
       },
@@ -65,7 +66,7 @@ describe('lookup', () => {
     expect(result.mentions?.hn).toBeUndefined();
   });
 
-  it('looks up mentions on full lookups only', async () => {
+  it('looks up mentions on full lookups, and on automatic ones while text posts count', async () => {
     const full = setup();
     const result = await full.run('https://xkcd.com/927/');
     expect(full.calls.filter((c) => isMentionSearch(c.url))).toHaveLength(2);
@@ -75,6 +76,10 @@ describe('lookup', () => {
     const auto = setup();
     expect((await auto.run('https://xkcd.com/927/', 'auto')).mentions).toBeUndefined();
     expect(auto.calls.filter((c) => isMentionSearch(c.url))).toEqual([]);
+
+    const counted = setup(live, { textPosts: true });
+    const found = await counted.run('https://xkcd.com/927/', 'auto');
+    expect(found.mentions).toEqual({ hn: none, reddit: none });
   });
 
   it('holds back the Reddit mention search while the account is challenged', async () => {

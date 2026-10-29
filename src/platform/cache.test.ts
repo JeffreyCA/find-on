@@ -22,19 +22,21 @@ function result(mentions?: LookupResult['mentions'], noLink = false): LookupResu
   };
 }
 
-const want = (depth: Want['depth']): Want => ({
+const want = (depth: Want['depth'], textPosts = false): Want => ({
   depth,
   sources: { hn: true, reddit: true },
   incognito: false,
+  textPosts,
 });
 
 describe('canServe', () => {
-  it('serves a popup lookup only once every answering source has its mentions', () => {
+  it('serves a lookup that needs mentions only once every answering source has them', () => {
     expect(canServe(result({ hn: FOUND, reddit: FOUND }), want('full'), NOW)).toBe(true);
     const failed = result({ hn: { status: 'failed' }, reddit: FOUND });
     expect(canServe(failed, want('full'), NOW)).toBe(false);
-    // Automatic lookups never need mentions.
+    // Automatic lookups need them only while text posts are counted.
     expect(canServe(failed, want('auto'), NOW)).toBe(true);
+    expect(canServe(failed, want('auto', true), NOW)).toBe(false);
     // A text post has nothing to look up, mentions included.
     expect(canServe(result(undefined, true), want('full'), NOW)).toBe(true);
   });

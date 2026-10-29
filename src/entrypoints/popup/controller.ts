@@ -167,9 +167,9 @@ function sameTarget(a: Target | null, b: Target): boolean {
 /**
  * Takes a newer snapshot of the same lookup. While a source or its mentions are loading again (a
  * re-check, a retry, or the first snapshot of a lookup that will reuse them), what they showed
- * before stays on screen, so results never blink out and back in. An automatic lookup never looks
- * for mentions, so its snapshots keep the ones shown for every source it has not given up on, as
- * long as the page is the one they were found for.
+ * before stays on screen, so results never blink out and back in. The snapshots of an automatic
+ * lookup that does not look for mentions (text posts are off) keep the ones shown for every source
+ * it has not given up on, as long as the page is the one they were found for.
  */
 export function mergeResult(prev: LookupResult | null, next: LookupResult): LookupResult {
   if (prev === null || prev.key !== next.key) return next;

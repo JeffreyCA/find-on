@@ -53,8 +53,12 @@ export function Toolbar({
   textPosts: boolean;
   onTextPosts: (on: boolean) => void;
 }) {
-  const count = (id: SourceId) =>
-    model.sources[id].pending ? <Pending /> : String(model.sources[id].count);
+  // A source that gave no answer has no count; its status line says why.
+  const count = (id: SourceId) => {
+    const source = model.sources[id];
+    if (source.pending) return <Pending />;
+    return source.state.status === 'ok' ? String(source.count) : undefined;
+  };
   const options: Array<Segment<Filter>> = [
     // "All 0" would read as a result while nothing has answered yet.
     {
@@ -67,6 +71,8 @@ export function Toolbar({
       label: <SourceLabel source={id} />,
       count: count(id),
       movable: true,
+      // Nothing to show under it: "HN 0", dimmed.
+      disabled: !model.sources[id].participates,
     })),
   ];
   return (

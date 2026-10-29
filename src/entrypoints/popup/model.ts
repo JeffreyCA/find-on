@@ -3,6 +3,7 @@
 // the threads found through comments that link to the page ("Mentioned in comments"), status lines
 // and the empty state. Pure, so it can be tested without a DOM.
 
+import { unlistedMentions } from '@/core/format';
 import { hnSiteUrl, redditLoginUrl, redditOrigin, type RedditHost } from '@/core/links';
 import { commentSearchUrl } from '@/core/providers/reddit';
 import type {
@@ -58,12 +59,12 @@ export interface SourceView {
   state: SourceState;
   /** Waiting for this source's answer. */
   pending: boolean;
-  /** Has SAME/EXACT results or threads found through comments, or may still get some. */
+  /** Looked up for this page: not off, nor Reddit in a private window. */
+  asked: boolean;
+  /** Has rows or threads found through comments, or may still get some: its tab can be chosen. */
   participates: boolean;
   /** SAME and EXACT rows, text posts included when they are listed. */
   count: number;
-  /** Rows in any tier. */
-  rows: number;
 }
 
 export type StatusAction =
@@ -89,13 +90,13 @@ export interface PopupModel {
   order: readonly SourceId[];
   /** Some source is still being checked. */
   pending: boolean;
-  /** Show the All / HN / Reddit filter (both sources have results, or may still). */
+  /** Show the All / HN / Reddit filter: both sources are looked up. */
   showFilter: boolean;
   /** The filter in effect (falls back to "all" when the chosen source has nothing). */
   filter: Filter;
   /** SAME and EXACT discussions on every source. */
   total: number;
-  /** Replaces the filter when only one source has results, e.g. "11 on HN". */
+  /** In place of the filter when only one source is looked up, e.g. "11 on HN". */
   summary: string | null;
   /** Show the main list. */
   showResults: boolean;
@@ -166,11 +167,7 @@ export function buildModel(input: ModelInput): PopupModel {
     return state?.status === 'ok' ? [{ source: id, state }] : [];
   });
   // A thread listed as a discussion (in any tier), or the one the user is on, is not a mention.
-  const listed = new Set(discussions.map(threadKey));
-  if (current) listed.add(threadKey(current));
-  const everyMention = found
-    .flatMap(({ state }) => state.items)
-    .filter((m) => !listed.has(threadKey(m)));
+  const everyMention = result ? unlistedMentions(result) : [];
   // Text posts join the discussions, unless the user hides them; threads found through comments
   // make up the group.
   const posts = input.textPosts ? everyMention.filter(hasPost).map(postRow) : [];
@@ -189,14 +186,17 @@ export function buildModel(input: ModelInput): PopupModel {
     const count = items.filter((d) => d.tier !== 'similar').length;
     // Threads in the group make a source worth filtering to as well.
     const mentioned = grouped.some((m) => m.source === id);
-    const participates = pending || count > 0 || mentioned;
-    return { id, state, pending, participates, count, rows: items.length };
+    const participates = pending || items.length > 0 || mentioned;
+    const asked =
+      state.status !== 'off' && !(state.status === 'skipped' && state.reason === 'incognito');
+    return { id, state, pending, asked, participates, count };
   };
   const sources: Record<SourceId, SourceView> = { hn: view('hn'), reddit: view('reddit') };
   const views = input.order.map((id) => sources[id]);
   const pending = views.some((s) => s.pending);
-  const participating = views.filter((s) => s.participates);
-  const showFilter = participating.length === views.length;
+  const asked = views.filter((s) => s.asked);
+  // A source with nothing to show keeps its tab, so "HN 0" says so where the results are filtered.
+  const showFilter = asked.length > 1;
 
   const chosen = input.filter === 'all' ? undefined : sources[input.filter];
   const filter: Filter = showFilter && chosen?.participates === true ? chosen.id : 'all';
@@ -232,11 +232,8 @@ export function buildModel(input: ModelInput): PopupModel {
 
   // Not in a private window (where Reddit is skipped) or for a text post, which has nothing to look
   // up. It does not wait for Reddit's answer, so it never appears late under the results.
-  const reddit = sources.reddit.state;
-  const redditAsked =
-    reddit.status !== 'off' && !(reddit.status === 'skipped' && reddit.reason === 'incognito');
   const searchKeys =
-    page !== undefined && !page.noLink && redditAsked && shows('reddit')
+    page !== undefined && !page.noLink && sources.reddit.asked && shows('reddit')
       ? computeKeys(page.url)
       : null;
   const commentSearch = searchKeys ? commentSearchUrl(searchKeys) : null;
@@ -257,7 +254,7 @@ export function buildModel(input: ModelInput): PopupModel {
       ? views.filter((s) => s.state.status !== 'off').map((s) => s.id)
       : [];
 
-  const summary = showFilter ? null : summarize(participating[0], views);
+  const summary = showFilter ? null : summarize(asked[0]);
 
   const statuses = views.flatMap((s) => {
     // Reddit's mention search finds posts alone, so with text posts hidden its failure hides nothing.
@@ -280,7 +277,7 @@ export function buildModel(input: ModelInput): PopupModel {
     showResults: ranked.length > 0 || skeletons.length > 0,
     // From every source, not the filtered list, so a filter never takes the bar (and itself) away.
     // Also with only hidden text posts, so their toggle stays within reach.
-    showBar: (total > 0 || pending || showFilter || everyMention.some(hasPost)) && !page?.noLink,
+    showBar: (total > 0 || pending || everyMention.some(hasPost)) && !page?.noLink,
     main,
     folded,
     similar,
@@ -333,18 +330,11 @@ function foldable<T extends Discussion>(rows: T[], keep: (d: T) => boolean): T[]
   return candidates.length >= MIN_FOLD ? candidates : [];
 }
 
-/**
- * "11 on HN", plus "none on Reddit" when Reddit answered with nothing at all (not even other
- * versions, which would show under the list). Nothing for a source with mentions only.
- */
-function summarize(single: SourceView | undefined, views: SourceView[]): string | null {
+/** "11 on HN" for the one source looked up; nothing while it has no discussions. */
+function summarize(single: SourceView | undefined): string | null {
   if (single === undefined) return null;
   if (single.pending) return `Checking ${SOURCE_NAMES[single.id]}`;
-  if (single.count === 0) return null;
-  const text = `${single.count} on ${SOURCE_SHORT[single.id]}`;
-  const other = views.find((s) => s.id !== single.id);
-  if (other?.state.status !== 'ok' || other.rows > 0) return text;
-  return `${text}, none on ${SOURCE_SHORT[other.id]}`;
+  return single.count > 0 ? `${single.count} on ${SOURCE_SHORT[single.id]}` : null;
 }
 
 const ERROR_TEXT: Record<Extract<SourceState, { status: 'error' }>['kind'], string> = {
@@ -461,8 +451,6 @@ function announce(
   }
   return parts.join('. ');
 }
-
-const threadKey = (t: { source: SourceId; id: string }) => `${t.source}:${t.id}`;
 
 /** A mention whose post itself links to the page: a text post. */
 const hasPost = (m: Mention): m is Mention & { post: MentionPost } => m.post !== undefined;

@@ -1,7 +1,8 @@
 // Lookup orchestration: page keys, discussion-page resolution, the providers (run in
 // parallel and independently, so one failing never blocks the other), reuse of an earlier `auto`
-// result, progress snapshots. `full` lookups also search each source for mentions (threads that
-// link to the page) once its discussions have answered. Pure TS, no browser APIs.
+// result, progress snapshots. `full` lookups, and `auto` ones while text posts are counted, also
+// search each source for mentions (threads that link to the page) once its discussions have
+// answered. Pure TS, no browser APIs.
 
 import type { HttpEnv } from './http';
 import type { OkState } from './providers/common';
@@ -58,6 +59,8 @@ export interface LookupOptions {
   incognito: boolean;
   /** User-initiated retry: bypass the Reddit token bucket and breaker. */
   force?: boolean;
+  /** Text posts count toward the badge: `auto` lookups search for mentions too. */
+  textPosts?: boolean;
   /** Cached result to build on (e.g. `full` after `auto`). */
   previous?: LookupResult;
   signal: AbortSignal;
@@ -106,7 +109,8 @@ type Resolution =
   | { kind: 'text'; source: SourceId; id: string; thread?: Discussion; linkPost?: true };
 
 /**
- * Looks up discussions of `url` on the enabled sources, and for `full` lookups also mentions of it.
+ * Looks up discussions of `url` on the enabled sources, and for `full` lookups (or with `textPosts`)
+ * also mentions of it.
  * Rejects only when `url` is not eligible or `opts.signal` aborts; every other failure becomes that
  * source's state (or its mentions' state).
  */
@@ -136,9 +140,9 @@ export async function lookup(
         ? { status: 'skipped', reason: 'incognito' }
         : { status: 'loading' },
   };
-  // Only `full` lookups search for mentions, and only on the sources about to be asked.
+  // Mentions are searched for only on the sources about to be asked.
   const mentions: Partial<Record<SourceId, MentionState>> = {};
-  if (depth === 'full') {
+  if (depth === 'full' || opts.textPosts === true) {
     for (const id of SOURCE_IDS) {
       if (sources[id].status === 'loading') mentions[id] = { status: 'loading' };
     }
@@ -273,7 +277,7 @@ export async function lookup(
     find: () => Promise<MentionState>,
   ): Promise<void> => {
     await discussions;
-    // Not wanted (an `auto` lookup), or reused.
+    // Not wanted, or reused.
     if (mentions[id]?.status !== 'loading') return;
     if (sources[id].status !== 'ok') {
       delete mentions[id];

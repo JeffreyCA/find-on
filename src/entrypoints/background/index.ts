@@ -62,10 +62,7 @@ async function handleRequest(
     force: req.force ?? false,
   });
   // The badge follows popup lookups too, for the tab they were made for.
-  if (req.tabId !== undefined) {
-    const { badge } = await getSettings();
-    await showResult(req.tabId, key, result, badge);
-  }
+  if (req.tabId !== undefined) await showResult(req.tabId, key, result, await getSettings());
   return result;
 }
 
@@ -128,7 +125,9 @@ async function onSettingsChanged(next: Settings, previous: Settings): Promise<vo
     return;
   }
   // Badges from manual checks are re-rendered too, so this runs whether or not auto-check is on.
-  if (next.badge !== previous.badge) await refreshBadges(next.badge);
+  if (next.badge !== previous.badge || next.textPosts !== previous.textPosts) {
+    await refreshBadges(next);
+  }
   const sourcesChanged = JSON.stringify(next.sources) !== JSON.stringify(previous.sources);
   const filterChanged = JSON.stringify(next.siteFilter) !== JSON.stringify(previous.siteFilter);
   const recheck = next.autoCheck && (!previous.autoCheck || sourcesChanged || filterChanged);
@@ -139,5 +138,7 @@ async function onSettingsChanged(next: Settings, previous: Settings): Promise<vo
     cancelAll();
     await clearAllBadges();
   }
-  if (recheck) await checkActiveTabs();
+  // Turned on, text posts are searched for on the pages in view (the cache may have them already).
+  const textPostsOn = next.autoCheck && next.textPosts && !previous.textPosts;
+  if (recheck || textPostsOn) await checkActiveTabs();
 }

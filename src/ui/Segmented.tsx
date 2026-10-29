@@ -13,6 +13,8 @@ export interface Segment<T extends string> {
   count?: ComponentChildren;
   /** Can be dragged onto another movable option to reorder them (needs `onReorder`). */
   movable?: boolean;
+  /** Shown dimmed and can't be chosen; arrow keys skip it. */
+  disabled?: boolean;
 }
 
 interface SegmentedProps<T extends string> {
@@ -84,6 +86,7 @@ export function Segmented<T extends string>({
               name={name}
               value={option.value}
               checked={option.value === value}
+              disabled={option.disabled}
               onChange={() => onChange(option.value)}
             />
             {option.label}

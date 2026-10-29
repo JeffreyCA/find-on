@@ -49,6 +49,8 @@ export interface Want {
   sources: Record<SourceId, boolean>;
   /** A private window: Reddit is `skipped` there, never `ok` (its data comes with the user's cookies). */
   incognito: boolean;
+  /** Text posts count toward the badge, so an `auto` lookup needs the mentions too. */
+  textPosts: boolean;
 }
 
 /**
@@ -63,11 +65,13 @@ function settledStatus(id: SourceId, want: Want): SourceState['status'] {
 }
 
 /**
- * Whether a cached result can be returned as is, without running a lookup. A popup (`full`) lookup
- * also needs the mentions of every source that answered; when they failed, the lookup runs again and
- * only they are asked again (the discussions are reused).
+ * Whether a cached result can be returned as is, without running a lookup. A popup (`full`) lookup,
+ * and an `auto` one while text posts are counted, also needs the mentions of every source that
+ * answered; when they failed, the lookup runs again and only they are asked again (the discussions
+ * are reused).
  */
 export function canServe(r: LookupResult, want: Want, now: number): boolean {
+  const needsMentions = want.depth === 'full' || want.textPosts;
   return (
     isFresh(r, now) &&
     (r.depth === 'full' || want.depth === 'auto') &&
@@ -75,7 +79,7 @@ export function canServe(r: LookupResult, want: Want, now: number): boolean {
       const status = settledStatus(id, want);
       if (r.sources[id].status !== status) return false;
       return (
-        want.depth === 'auto' ||
+        !needsMentions ||
         status !== 'ok' ||
         r.page.noLink !== undefined ||
         r.mentions?.[id]?.status === 'ok'

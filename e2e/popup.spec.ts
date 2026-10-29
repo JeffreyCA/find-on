@@ -154,7 +154,9 @@ test('offers to sign in when Reddit has no session', async ({
     'href',
     'https://www.reddit.com/login',
   );
-  // Hacker News results still show, with its text post (the zero-comment rows are folded).
-  await expect(popup.getByText('7 on HN')).toBeVisible();
+  // Hacker News results still show, with its text post (the zero-comment rows are folded). Reddit
+  // keeps its tab, without a count, and it can't be chosen.
+  await expect(popup.getByRole('radio', { name: 'HN 7' })).toBeEnabled();
+  await expect(popup.getByRole('radio', { name: 'Reddit', exact: true })).toBeDisabled();
   await expect(popup.getByRole('list', { name: 'Discussions' }).getByRole('link')).toHaveCount(2);
 });

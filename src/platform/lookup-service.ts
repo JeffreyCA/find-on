@@ -11,11 +11,11 @@
 
 import { lookup, lookupKey, redditSignedIn, type LookupEnv } from '@/core/lookup';
 import { RedditGuard } from '@/core/rate-guard';
-import type { Depth, LookupResult, SourceId } from '@/core/types';
+import type { Depth, LookupResult } from '@/core/types';
 import { checkEligibility } from '@/core/url';
 import { canServe, isFresh, readResult, sessionKV, touch, writeResult } from './cache';
 import { sendProgress } from './messaging';
-import { getSettings } from './settings';
+import { getSettings, type Settings } from './settings';
 
 export const MAX_AUTO_LOOKUPS = 2;
 const REDDIT_CHECK_TIMEOUT_MS = 20_000;
@@ -49,9 +49,14 @@ export interface RunOptions {
   isBlocked?: (url: string) => boolean;
 }
 
+/** The settings a lookup runs with. */
+type LookupSettings = Pick<Settings, 'sources' | 'textPosts'>;
+
 interface Flight {
   readonly depth: Depth;
   readonly incognito: boolean;
+  /** It searches for mentions at `auto` depth too. */
+  readonly textPosts: boolean;
   readonly controller: AbortController;
   readonly promise: Promise<LookupResult>;
   /** Lets a queued automatic lookup start without waiting for a free slot. */
@@ -72,10 +77,11 @@ export async function runLookup(
   const eligibility = checkEligibility(url);
   const key = eligibility.ok ? lookupKey(url) : null;
   if (!eligibility.ok || key === null) throw new IneligibleUrlError();
-  const { sources } = await getSettings();
+  const { sources, textPosts } = await getSettings();
   // Only the sanitized URL (no secret-looking parameters) is handed on to the network code.
   const sanitized = eligibility.url;
-  const result = await obtain(key, sanitized, { ...opts, force: opts.force ?? false }, sources);
+  const settings = { sources, textPosts };
+  const result = await obtain(key, sanitized, { ...opts, force: opts.force ?? false }, settings);
   return { key, result };
 }
 
@@ -83,30 +89,30 @@ async function obtain(
   key: string,
   url: string,
   opts: RunOptions & { force: boolean },
-  sources: Record<SourceId, boolean>,
+  settings: LookupSettings,
 ): Promise<LookupResult> {
   opts.signal?.throwIfAborted();
   const flight = liveFlight(key);
   if (flight !== undefined) {
-    if (!opts.force && covers(flight, opts)) return join(flight, opts.signal);
+    if (!opts.force && covers(flight, opts, settings)) return join(flight, opts.signal);
     // Run after it instead: its answer becomes the cached result (or `previous`) for this one. A
     // user-initiated lookup must not wait for other pages' automatic lookups to free a slot.
     if (opts.depth === 'full' || opts.force) flight.promote();
     await settle(flight.promise, opts.signal);
-    return obtain(key, url, opts, sources);
+    return obtain(key, url, opts, settings);
   }
 
   const cached = opts.force ? undefined : await readResult(key);
   // Another caller may have started a lookup while the cache was being read.
-  if (liveFlight(key) !== undefined) return obtain(key, url, opts, sources);
+  if (liveFlight(key) !== undefined) return obtain(key, url, opts, settings);
   const now = Date.now();
-  const want = { depth: opts.depth, sources, incognito: opts.incognito };
+  const want = { depth: opts.depth, incognito: opts.incognito, ...settings };
   if (cached !== undefined && canServe(cached, want, now)) {
     void touch(key);
     return cached;
   }
   const previous = cached !== undefined && isFresh(cached, now) ? cached : undefined;
-  return join(startFlight(key, url, opts, sources, previous), opts.signal);
+  return join(startFlight(key, url, opts, settings, previous), opts.signal);
 }
 
 /** Whether Reddit accepts the user's session (null when that can't be determined). */
@@ -123,16 +129,21 @@ function liveFlight(key: string): Flight | undefined {
   return flight?.controller.signal.aborted === false ? flight : undefined;
 }
 
-/** A running full lookup also answers an auto request; an auto lookup cannot answer a full one. */
-function covers(flight: Flight, opts: RunOptions): boolean {
-  return (flight.depth === 'full' || opts.depth === 'auto') && flight.incognito === opts.incognito;
+/**
+ * A running full lookup also answers an auto request. An auto lookup cannot answer a full one, nor
+ * one that counts text posts unless it searches for them.
+ */
+function covers(flight: Flight, opts: RunOptions, settings: LookupSettings): boolean {
+  const deep =
+    flight.depth === 'full' || (opts.depth === 'auto' && (flight.textPosts || !settings.textPosts));
+  return deep && flight.incognito === opts.incognito;
 }
 
 function startFlight(
   key: string,
   url: string,
   opts: RunOptions & { force: boolean },
-  sources: Record<SourceId, boolean>,
+  { sources, textPosts }: LookupSettings,
   previous: LookupResult | undefined,
 ): Flight {
   const { depth, incognito, force } = opts;
@@ -151,6 +162,7 @@ function startFlight(
           sources: { ...sources },
           incognito,
           force,
+          textPosts,
           signal: controller.signal,
           ...(previous !== undefined && { previous }),
           ...(opts.isBlocked && { isBlocked: opts.isBlocked }),
@@ -174,6 +186,7 @@ function startFlight(
   const flight: Flight = {
     depth,
     incognito,
+    textPosts,
     controller,
     promise,
     promote: () => promoted.resolve(),

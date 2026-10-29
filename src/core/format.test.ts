@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { badgeText, compactNumber } from './format';
-import type { Discussion, LookupResult, SourceState } from './types';
+import type { Discussion, LookupResult, Mention, SourceState } from './types';
 
 describe('compactNumber', () => {
   it.each([
@@ -37,6 +37,19 @@ const item = (tier: Discussion['tier'], comments: number): Discussion => ({
   permalink: '/r/sub/comments/x/t/',
   flags: [],
 });
+const mention = (id: string, comments?: number): Mention => ({
+  source: 'reddit',
+  id,
+  title: 't',
+  venue: 'sub',
+  permalink: `/r/sub/comments/${id}/t/`,
+  ...(comments !== undefined && {
+    post: { link: 'text', author: 'a', points: 1, comments, createdAt: 0 },
+  }),
+  inComments: 0,
+  linkedAt: 0,
+  flags: [],
+});
 const result = (hn: SourceState, reddit: SourceState): LookupResult => ({
   key: 'k',
   page: { url: 'https://example.com/', display: 'example.com' },
@@ -52,14 +65,14 @@ describe('badgeText', () => {
       { status: 'ok', items: [item('exact', 700), item('similar', 5000)], complete: true },
       { status: 'ok', items: [item('same', 600)], complete: true },
     );
-    expect(badgeText(r, 'discussions')).toBe('2');
-    expect(badgeText(r, 'comments')).toBe('1.3k');
+    expect(badgeText(r, 'discussions', false)).toBe('2');
+    expect(badgeText(r, 'comments', false)).toBe('1.3k');
     // On a discussion page, that thread itself does not count.
     const thread: LookupResult = {
       ...r,
       page: { ...r.page, noLink: { source: 'reddit', id: 'same600' } },
     };
-    expect(badgeText(thread, 'discussions')).toBe('1');
+    expect(badgeText(thread, 'discussions', false)).toBe('1');
   });
 
   it('is empty when nothing counts, including failures and deferred Reddit lookups', () => {
@@ -67,7 +80,29 @@ describe('badgeText', () => {
       { status: 'ok', items: [item('similar', 3)], complete: true },
       { status: 'deferred' },
     );
-    expect(badgeText(r, 'discussions')).toBe('');
-    expect(badgeText(result({ status: 'loading' }, { status: 'signed-out' }), 'comments')).toBe('');
+    expect(badgeText(r, 'discussions', false)).toBe('');
+    expect(
+      badgeText(result({ status: 'loading' }, { status: 'signed-out' }), 'comments', false),
+    ).toBe('');
+  });
+
+  it('adds text posts while they are counted, but never a thread already listed', () => {
+    const r: LookupResult = {
+      ...result(
+        { status: 'ok', items: [], complete: true },
+        { status: 'ok', items: [item('same', 600)], complete: true },
+      ),
+      mentions: {
+        reddit: {
+          status: 'ok',
+          // A text post, a discussion that is a mention too, and a thread found through comments.
+          items: [mention('post', 40), mention('same600', 600), mention('thread')],
+          complete: true,
+        },
+      },
+    };
+    expect(badgeText(r, 'discussions', false)).toBe('1');
+    expect(badgeText(r, 'discussions', true)).toBe('2');
+    expect(badgeText(r, 'comments', true)).toBe('640');
   });
 });
