@@ -17,6 +17,7 @@ import {
 } from './providers/hn';
 import {
   checkSignedIn,
+  isRedditFrontPage,
   lookupReddit,
   lookupRedditMentions,
   resolveRedditThread,
@@ -229,6 +230,12 @@ export async function lookup(
       emit();
       return snapshot();
     }
+    emit();
+  }
+
+  if (sources.reddit.status === 'loading' && isRedditFrontPage(target.keys)) {
+    sources.reddit = { status: 'skipped', reason: 'unsupported' };
+    delete mentions.reddit;
     emit();
   }
 

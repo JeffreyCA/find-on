@@ -127,6 +127,15 @@ describe('lookup', () => {
     expect(second.mentions?.reddit).toEqual(first.mentions?.reddit);
   });
 
+  it("leaves Reddit's front page to HN", async () => {
+    const { run, calls } = setup();
+    const result = await run('https://old.reddit.com/');
+    expect(result.sources.reddit).toEqual({ status: 'skipped', reason: 'unsupported' });
+    expect(calls.filter((c) => c.url.hostname === 'old.reddit.com')).toEqual([]);
+    expect(result.sources.hn.status).toBe('ok');
+    expect(Object.keys(result.mentions ?? {})).toEqual(['hn']);
+  });
+
   it('looks up the URL a Reddit thread links to, and its other submissions', async () => {
     const { run, calls } = setup();
     const tab = 'https://www.reddit.com/r/ultimate/comments/1i0iq9e/regarding_club_team/';

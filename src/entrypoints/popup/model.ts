@@ -59,7 +59,7 @@ export interface SourceView {
   state: SourceState;
   /** Waiting for this source's answer. */
   pending: boolean;
-  /** Looked up for this page: not off, nor Reddit in a private window. */
+  /** Looked up for this page: not off, nor skipped (a private window, Reddit's front page). */
   asked: boolean;
   /** Has rows or threads found through comments, or may still get some: its tab can be chosen. */
   participates: boolean;
@@ -90,13 +90,13 @@ export interface PopupModel {
   order: readonly SourceId[];
   /** Some source is still being checked. */
   pending: boolean;
-  /** Show the All / HN / Reddit filter: both sources are looked up. */
+  /** Show the All / HN / Reddit filter: both sources are on. */
   showFilter: boolean;
   /** The filter in effect (falls back to "all" when the chosen source has nothing). */
   filter: Filter;
   /** SAME and EXACT rows on every source, text posts included when they are listed. */
   total: number;
-  /** In place of the filter when only one source is looked up, e.g. "11 on HN". */
+  /** In place of the filter when only one source is on, e.g. "11 on HN". */
   summary: string | null;
   /** Show the main list. */
   showResults: boolean;
@@ -183,16 +183,18 @@ export function buildModel(input: ModelInput): PopupModel {
     // Threads in the group make a source worth filtering to as well.
     const mentioned = grouped.some((m) => m.source === id);
     const participates = pending || items.length > 0 || mentioned;
+    // A blocklist skip is only an automatic lookup's: the popup's own lookup asks.
     const asked =
-      state.status !== 'off' && !(state.status === 'skipped' && state.reason === 'incognito');
+      state.status !== 'off' && !(state.status === 'skipped' && state.reason !== 'filtered');
     return { id, state, pending, asked, participates, count };
   };
   const sources: Record<SourceId, SourceView> = { hn: view('hn'), reddit: view('reddit') };
   const views = input.order.map((id) => sources[id]);
   const pending = views.some((s) => s.pending);
-  const asked = views.filter((s) => s.asked);
   // A source with nothing to show keeps its tab, so "HN 0" says so where the results are filtered.
-  const showFilter = asked.length > 1;
+  // So does one that isn't asked here (a private window, Reddit's front page): dimmed, under a line
+  // saying why.
+  const showFilter = views.filter((s) => s.state.status !== 'off').length > 1;
 
   const chosen = input.filter === 'all' ? undefined : sources[input.filter];
   const filter: Filter = showFilter && chosen?.participates === true ? chosen.id : 'all';
@@ -248,12 +250,13 @@ export function buildModel(input: ModelInput): PopupModel {
     // Names what was searched: the sources that answered.
     else empty = `No discussions on ${answered.map((s) => SOURCE_NAMES[s.id]).join(' or ')}`;
   }
+  // Not to a source that can't look the page up (Reddit's own front page).
   const submit =
     empty !== null && totalSimilar === 0 && !page?.noLink
-      ? views.filter((s) => s.state.status !== 'off').map((s) => s.id)
+      ? views.filter((s) => s.state.status !== 'off' && !unsupported(s.state)).map((s) => s.id)
       : [];
 
-  const summary = showFilter ? null : summarize(asked[0]);
+  const summary = showFilter ? null : summarize(views.find((s) => s.asked));
 
   const statuses = views.flatMap((s) => {
     // Reddit's mention search finds posts alone, so with text posts hidden its failure hides nothing.
@@ -307,6 +310,10 @@ function initialState(id: SourceId, input: ModelInput): SourceState {
   if (id === 'reddit' && input.incognito) return { status: 'skipped', reason: 'incognito' };
   return { status: 'loading' };
 }
+
+/** A source that can't look the page up, such as Reddit on its own front page. */
+const unsupported = (state: SourceState) =>
+  state.status === 'skipped' && state.reason === 'unsupported';
 
 /** States that the popup's own (full) lookup is about to replace. */
 function isWaiting(state: SourceState): boolean {
@@ -391,7 +398,8 @@ function statusLine(
         retryAt: state.retryAt,
       };
     case 'skipped':
-      return state.reason === 'incognito' ? band('not checked in private windows') : null;
+      if (state.reason === 'incognito') return band('not checked in private windows');
+      return state.reason === 'unsupported' ? band('not checked on front page') : null;
     case 'error':
       return band(ERROR_TEXT[state.kind], { kind: 'retry', label: 'Retry', force: false });
     default:

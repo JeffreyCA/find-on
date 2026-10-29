@@ -49,6 +49,12 @@ export function redditPolicy(depth: Depth): FetchPolicy {
   };
 }
 
+/**
+ * Reddit's own front page, on any of its hosts. Reddit answers lookups of it with its newest posts
+ * rather than the posts that link to it, so it is not looked up there.
+ */
+export const isRedditFrontPage = (keys: UrlKeys): boolean => keys.similar === 'reddit.com';
+
 /** E: Reddit's exact-URL index. */
 export function infoUrl(variant: string): string {
   return `${OLD_REDDIT}/api/info.json?url=${encodeURIComponent(variant)}&limit=100&raw_json=1`;

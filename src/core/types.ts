@@ -43,10 +43,10 @@ export type SourceState =
   /** Reddit circuit breaker open (auto only). */
   | { status: 'paused'; retryAt: number }
   /**
-   * Not asked: Reddit in a private window, or (automatic lookups only) a thread whose linked page is
-   * on the blocklist.
+   * Not asked: Reddit in a private window, (automatic lookups only) a thread whose linked page is on
+   * the blocklist, or (`unsupported`) a page the source can't look up, such as Reddit's front page.
    */
-  | { status: 'skipped'; reason: 'incognito' | 'filtered' }
+  | { status: 'skipped'; reason: 'incognito' | 'filtered' | 'unsupported' }
   | { status: 'error'; kind: 'network' | 'http' | 'format'; detail: string };
 
 /**

@@ -55,7 +55,8 @@ export interface Want {
 
 /**
  * The only source state that is a settled answer for the request: `off` (disabled), `skipped`
- * (Reddit in a private window) or `ok`. Anything else (loading, deferred, paused, errors, sign-in or
+ * (Reddit in a private window) or `ok`, which a page the source can't look up answers with `skipped`
+ * as well. Anything else (loading, deferred, paused, errors, sign-in or
  * rate problems) is re-run so the user is never stuck with a transient failure, and a result made
  * for the other kind of window is never handed out as is.
  */
@@ -76,11 +77,13 @@ export function canServe(r: LookupResult, want: Want, now: number): boolean {
     isFresh(r, now) &&
     (r.depth === 'full' || want.depth === 'auto') &&
     SOURCE_IDS.every((id) => {
+      const state = r.sources[id];
+      const unsupported = state.status === 'skipped' && state.reason === 'unsupported';
       const status = settledStatus(id, want);
-      if (r.sources[id].status !== status) return false;
+      if (state.status !== status && !(status === 'ok' && unsupported)) return false;
       return (
         !needsMentions ||
-        status !== 'ok' ||
+        state.status !== 'ok' ||
         r.page.noLink !== undefined ||
         r.mentions?.[id]?.status === 'ok'
       );
