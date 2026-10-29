@@ -59,8 +59,6 @@ export interface SourceView {
   state: SourceState;
   /** Waiting for this source's answer. */
   pending: boolean;
-  /** Looked up for this page: not off, nor skipped (a private window, Reddit's front page). */
-  asked: boolean;
   /** Has rows or threads found through comments, or may still get some: its tab can be chosen. */
   participates: boolean;
   /** SAME and EXACT rows, text posts included when they are listed. */
@@ -90,14 +88,15 @@ export interface PopupModel {
   order: readonly SourceId[];
   /** Some source is still being checked. */
   pending: boolean;
-  /** Show the All / HN / Reddit filter: both sources are on. */
-  showFilter: boolean;
+  /**
+   * The sources with a tab: every one that is on, in order. With more than one, "All" comes first and
+   * the filter can be chosen; one alone is its only tab.
+   */
+  tabs: SourceId[];
   /** The filter in effect (falls back to "all" when the chosen source has nothing). */
   filter: Filter;
   /** SAME and EXACT rows on every source, text posts included when they are listed. */
   total: number;
-  /** In place of the filter when only one source is on, e.g. "11 on HN". */
-  summary: string | null;
   /** Show the main list. */
   showResults: boolean;
   /** Show the filter/sort bar above it (not for a text post's lone thread). */
@@ -183,10 +182,7 @@ export function buildModel(input: ModelInput): PopupModel {
     // Threads in the group make a source worth filtering to as well.
     const mentioned = grouped.some((m) => m.source === id);
     const participates = pending || items.length > 0 || mentioned;
-    // A blocklist skip is only an automatic lookup's: the popup's own lookup asks.
-    const asked =
-      state.status !== 'off' && !(state.status === 'skipped' && state.reason !== 'filtered');
-    return { id, state, pending, asked, participates, count };
+    return { id, state, pending, participates, count };
   };
   const sources: Record<SourceId, SourceView> = { hn: view('hn'), reddit: view('reddit') };
   const views = input.order.map((id) => sources[id]);
@@ -194,10 +190,10 @@ export function buildModel(input: ModelInput): PopupModel {
   // A source with nothing to show keeps its tab, so "HN 0" says so where the results are filtered.
   // So does one that isn't asked here (a private window, Reddit's front page): dimmed, under a line
   // saying why.
-  const showFilter = views.filter((s) => s.state.status !== 'off').length > 1;
+  const tabs = input.order.filter((id) => sources[id].state.status !== 'off');
 
   const chosen = input.filter === 'all' ? undefined : sources[input.filter];
-  const filter: Filter = showFilter && chosen?.participates === true ? chosen.id : 'all';
+  const filter: Filter = tabs.length > 1 && chosen?.participates === true ? chosen.id : 'all';
 
   const note: PageNote = page?.noLink
     ? page.noLink.linkPost
@@ -231,10 +227,14 @@ export function buildModel(input: ModelInput): PopupModel {
       return state?.status === 'ok' && !state.complete;
     });
 
-  // Not in a private window (where Reddit is skipped) or for a text post, which has nothing to look
+  // Only while Reddit is asked: not when it is skipped (a private window, its own front page; a
+  // blocklist skip is only an automatic lookup's), and not for a text post, which has nothing to look
   // up. It does not wait for Reddit's answer, so it never appears late under the results.
+  const reddit = sources.reddit.state;
+  const redditAsked =
+    reddit.status !== 'off' && !(reddit.status === 'skipped' && reddit.reason !== 'filtered');
   const searchKeys =
-    page !== undefined && !page.noLink && sources.reddit.asked && shows('reddit')
+    page !== undefined && !page.noLink && redditAsked && shows('reddit')
       ? computeKeys(page.url)
       : null;
   const commentSearch = searchKeys ? commentSearchUrl(searchKeys) : null;
@@ -256,8 +256,6 @@ export function buildModel(input: ModelInput): PopupModel {
       ? views.filter((s) => s.state.status !== 'off' && !unsupported(s.state)).map((s) => s.id)
       : [];
 
-  const summary = showFilter ? null : summarize(views.find((s) => s.asked));
-
   const statuses = views.flatMap((s) => {
     // Reddit's mention search finds posts alone, so with text posts hidden its failure hides nothing.
     const mentionsUsed = input.textPosts || s.id !== 'reddit';
@@ -272,10 +270,9 @@ export function buildModel(input: ModelInput): PopupModel {
     sources,
     order: input.order,
     pending,
-    showFilter,
+    tabs,
     filter,
     total,
-    summary,
     showResults: ranked.length > 0 || skeletons.length > 0,
     // From every source, not the filtered list, so a filter never takes the bar (and itself) away.
     // Also with only hidden text posts, so their toggle stays within reach.
@@ -334,13 +331,6 @@ function foldable<T extends Discussion>(rows: T[], keep: (d: T) => boolean): T[]
   const zero = rows.filter((d) => d.comments === 0 && !keep(d));
   const candidates = rows.some((d) => !zero.includes(d)) ? zero : zero.slice(1);
   return candidates.length >= MIN_FOLD ? candidates : [];
-}
-
-/** "11 on HN" for the one source looked up; nothing while it has no discussions. */
-function summarize(single: SourceView | undefined): string | null {
-  if (single === undefined) return null;
-  if (single.pending) return `Checking ${SOURCE_NAMES[single.id]}`;
-  return single.count > 0 ? `${single.count} on ${SOURCE_SHORT[single.id]}` : null;
 }
 
 const ERROR_TEXT: Record<Extract<SourceState, { status: 'error' }>['kind'], string> = {

@@ -59,37 +59,39 @@ export function Toolbar({
     if (source.pending) return <Pending />;
     return source.state.status === 'ok' ? String(source.count) : undefined;
   };
+  // With one source on, its tab alone, chosen.
+  const single = model.tabs.length === 1;
   const options: Array<Segment<Filter>> = [
     // "All 0" would read as a result while nothing has answered yet.
-    {
-      value: 'all',
-      label: 'All',
-      count: model.pending && model.total === 0 ? <Pending /> : String(model.total),
-    },
-    ...model.order.map((id) => ({
+    ...(single
+      ? []
+      : [
+          {
+            value: 'all' as const,
+            label: 'All',
+            count: model.pending && model.total === 0 ? <Pending /> : String(model.total),
+          },
+        ]),
+    ...model.tabs.map((id) => ({
       value: id,
       label: <SourceLabel source={id} />,
       count: count(id),
-      movable: true,
+      movable: !single,
       // Nothing to show under it: "HN 0", dimmed.
-      disabled: !model.sources[id].participates,
+      disabled: !single && !model.sources[id].participates,
     })),
   ];
   return (
     <div class="bar">
-      {model.showFilter ? (
-        <Segmented
-          legend="Show"
-          options={options}
-          value={filter}
-          onChange={onFilter}
-          onReorder={(moved, target) => {
-            if (moved !== 'all' && target !== 'all') onOrder(reorder(model.order, moved, target));
-          }}
-        />
-      ) : (
-        <p class="bar-summary">{model.summary}</p>
-      )}
+      <Segmented
+        legend="Show"
+        options={options}
+        value={single ? (model.tabs[0] ?? filter) : filter}
+        onChange={onFilter}
+        onReorder={(moved, target) => {
+          if (moved !== 'all' && target !== 'all') onOrder(reorder(model.order, moved, target));
+        }}
+      />
       <button
         type="button"
         class="chip"

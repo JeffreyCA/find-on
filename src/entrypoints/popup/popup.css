@@ -165,10 +165,6 @@
   flex: none;
   gap: var(--s-4);
 }
-.bar-summary {
-  color: var(--ink-2);
-  white-space: nowrap;
-}
 
 /* "Text posts": whether posts that link to the page in their text or title join the list. On, it
    takes the accent; off, it fades to the rule colours. */
