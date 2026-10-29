@@ -19,6 +19,13 @@ Find On is a Chrome and Edge (Manifest V3) extension that looks up the current p
 - Write commit messages without co-author, tool or session trailers.
 - Change CHANGELOG.md only when bumping the version or preparing a release.
 
+## Docs
+
+- Write README.md, PRIVACY.md and other docs in a plain technical register.
+- Keep README.md to what Find On does and how to build it.
+- In PRIVACY.md, describe data by category and purpose, not implementation.
+- When a change alters what is sent or stored, update PRIVACY.md.
+
 ## Releases
 
 To cut a release, follow `.agents/skills/release/SKILL.md`.
