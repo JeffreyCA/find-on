@@ -56,6 +56,60 @@ export function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
+/** A post submitted with the page's URL: two links of a chain. */
+export function LinkPostIcon() {
+  return (
+    <Svg size={12}>
+      <path d="M5.25 3.75 6.5 2.5a2 2 0 0 1 2.83 2.83L8.08 6.58M6.75 8.25 5.5 9.5a2 2 0 0 1-2.83-2.83l1.25-1.25M4.75 7.25l2.5-2.5" />
+    </Svg>
+  );
+}
+
+/** A text post: a page with lines of text. */
+export function TextPostIcon() {
+  return (
+    <Svg size={12}>
+      <path d="M3 1.75h6v8.5H3zM4.75 4.25h2.5M4.75 6h2.5M4.75 7.75h1.5" />
+    </Svg>
+  );
+}
+
+/** Comments: a speech bubble. */
+export function CommentIcon() {
+  return (
+    <Svg size={12}>
+      <path d="M2.25 2.5h7.5v5.25H5.5L3 9.75v-2h-.75z" />
+    </Svg>
+  );
+}
+
+/** Points and upvotes: an arrow pointing up. */
+export function PointsIcon() {
+  return (
+    <Svg size={12}>
+      <path d="M6 10V2.25M2.75 5.5 6 2.25 9.25 5.5" />
+    </Svg>
+  );
+}
+
+/** Close: a cross. */
+export function CloseIcon() {
+  return (
+    <Svg size={12}>
+      <path d="M3 3l6 6M9 3 3 9" />
+    </Svg>
+  );
+}
+
+/** An arrow pointing up and out: the link opens another site. */
+export function ExternalIcon() {
+  return (
+    <Svg size={12}>
+      <path d="M4.25 2.75h5v5M9.25 2.75l-6.5 6.5" />
+    </Svg>
+  );
+}
+
 export function CheckIcon() {
   return (
     <Svg size={12}>

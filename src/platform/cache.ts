@@ -49,11 +49,14 @@ export interface Want {
   sources: Record<SourceId, boolean>;
   /** A private window: Reddit is `skipped` there, never `ok` (its data comes with the user's cookies). */
   incognito: boolean;
+  /** Text posts count toward the badge, so an `auto` lookup needs the mentions too. */
+  textPosts: boolean;
 }
 
 /**
  * The only source state that is a settled answer for the request: `off` (disabled), `skipped`
- * (Reddit in a private window) or `ok`. Anything else (loading, deferred, paused, errors, sign-in or
+ * (Reddit in a private window) or `ok`, which a page the source can't look up answers with `skipped`
+ * as well. Anything else (loading, deferred, paused, errors, sign-in or
  * rate problems) is re-run so the user is never stuck with a transient failure, and a result made
  * for the other kind of window is never handed out as is.
  */
@@ -62,12 +65,29 @@ function settledStatus(id: SourceId, want: Want): SourceState['status'] {
   return id === 'reddit' && want.incognito ? 'skipped' : 'ok';
 }
 
-/** Whether a cached result can be returned as is, without running a lookup. */
+/**
+ * Whether a cached result can be returned as is, without running a lookup. A popup (`full`) lookup,
+ * and an `auto` one while text posts are counted, also needs the mentions of every source that
+ * answered; when they failed, the lookup runs again and only they are asked again (the discussions
+ * are reused).
+ */
 export function canServe(r: LookupResult, want: Want, now: number): boolean {
+  const needsMentions = want.depth === 'full' || want.textPosts;
   return (
     isFresh(r, now) &&
     (r.depth === 'full' || want.depth === 'auto') &&
-    SOURCE_IDS.every((id) => r.sources[id].status === settledStatus(id, want))
+    SOURCE_IDS.every((id) => {
+      const state = r.sources[id];
+      const unsupported = state.status === 'skipped' && state.reason === 'unsupported';
+      const status = settledStatus(id, want);
+      if (state.status !== status && !(status === 'ok' && unsupported)) return false;
+      return (
+        !needsMentions ||
+        state.status !== 'ok' ||
+        r.page.noLink !== undefined ||
+        r.mentions?.[id]?.status === 'ok'
+      );
+    })
   );
 }
 
@@ -176,6 +196,7 @@ export function isLookupResult(value: unknown): value is LookupResult {
     (value['depth'] === 'auto' || value['depth'] === 'full') &&
     isRecord(value['page']) &&
     isRecord(sources) &&
-    SOURCE_IDS.every((id) => isRecord(sources[id]))
+    SOURCE_IDS.every((id) => isRecord(sources[id])) &&
+    (value['mentions'] === undefined || isRecord(value['mentions']))
   );
 }

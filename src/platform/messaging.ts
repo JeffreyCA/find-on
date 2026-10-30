@@ -4,6 +4,7 @@
 
 import { browser, type Browser } from '#imports';
 import { isRecord, type Depth, type LookupResult } from '@/core/types';
+import { isLookupResult } from './cache';
 
 export type Request =
   | {
@@ -74,6 +75,34 @@ export function isRequest(m: unknown): m is Request {
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return typeof error === 'string' ? error : 'Unknown error';
+}
+
+/** Background to popup: a snapshot of a private-window lookup, which is never stored. */
+interface ProgressMessage {
+  type: 'lookup-progress';
+  /** The lookup key (`lookupKey(url)`). */
+  key: string;
+  result: LookupResult;
+}
+
+/** Hands a private-window lookup's snapshot to an open popup. With none open, it goes nowhere. */
+export function sendProgress(key: string, result: LookupResult): void {
+  const message: ProgressMessage = { type: 'lookup-progress', key, result };
+  browser.runtime.sendMessage(message).catch(() => {
+    // No page is listening.
+  });
+}
+
+/** Calls `cb` with each private-window lookup snapshot the background sends. */
+export function onProgress(cb: (key: string, result: LookupResult) => void): () => void {
+  const listener = (message: unknown) => {
+    if (!isRecord(message) || message['type'] !== 'lookup-progress') return false;
+    const { key, result } = message;
+    if (typeof key === 'string' && isLookupResult(result)) cb(key, result);
+    return false;
+  };
+  browser.runtime.onMessage.addListener(listener);
+  return () => browser.runtime.onMessage.removeListener(listener);
 }
 
 /** `storage.session` key for the context-menu handoff `{ url, at }`. */

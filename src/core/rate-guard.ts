@@ -44,6 +44,11 @@ export interface AdmitOptions {
   force: boolean;
   /** Requests an automatic lookup is about to send; all of them must fit in the bucket. */
   cost: number;
+  /**
+   * A request the lookup can do without (a mention search): at `full` depth it also waits out the
+   * breaker and pauses, though it spends no tokens.
+   */
+  optional?: boolean;
 }
 
 export class RedditGuard {
@@ -59,18 +64,20 @@ export class RedditGuard {
 
   /**
    * Whether a Reddit lookup may send requests now. Automatic lookups take `cost` tokens, all or
-   * nothing; user-initiated (`full`) lookups only wait out an explicit 429.
+   * nothing; user-initiated (`full`) lookups only wait out an explicit 429, and for `optional`
+   * requests the breaker and pauses too.
    */
-  admit({ depth, force, cost }: AdmitOptions): Promise<Admission> {
+  admit({ depth, force, cost, optional = false }: AdmitOptions): Promise<Admission> {
     return this.#update((s, now) => {
       if (force) return { ok: true };
       if (s.limitedUntil > now) {
         return { ok: false, state: { status: 'rate-limited', retryAt: s.limitedUntil } };
       }
-      if (depth === 'full') return { ok: true };
+      if (depth === 'full' && !optional) return { ok: true };
       const pausedUntil = Math.max(s.breakerUntil, s.pausedUntil);
       if (pausedUntil > now)
         return { ok: false, state: { status: 'paused', retryAt: pausedUntil } };
+      if (depth === 'full') return { ok: true };
       if (s.tokens < cost) return { ok: false, state: { status: 'deferred' } };
       s.tokens -= cost;
       return { ok: true };

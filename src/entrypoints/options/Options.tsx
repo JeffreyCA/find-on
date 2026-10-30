@@ -4,14 +4,15 @@ import { browser } from '#imports';
 import type { ComponentChildren } from 'preact';
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { DEFAULT_BLOCK_LIST, type SiteFilter } from '@/core/site-filter';
-import { onboardedItem, type Settings } from '@/platform/settings';
+import { onboardedItem, seenVersionItem, type Settings } from '@/platform/settings';
 import { BadgeChip, Logo } from '@/ui/Badge';
+import { CloseIcon } from '@/ui/icons';
 import { Button } from '@/ui/Button';
 import { Checkbox, RadioGroup } from '@/ui/Choice';
 import { disclosure } from '@/ui/disclosure';
 import { useRedditSignIn, useStorageItem } from '@/ui/hooks';
 import { RedditSignInStatus } from '@/ui/RedditSignIn';
-import { RepoLink } from '@/ui/RepoLink';
+import { REPO_URL, RepoLink } from '@/ui/RepoLink';
 import { SourceMark } from '@/ui/SourceMark';
 import { StatusText } from '@/ui/StatusText';
 import { TextArea } from '@/ui/TextArea';
@@ -19,6 +20,9 @@ import { useSaveState, useSettingsEditor, type SaveState, type SettingsChange } 
 import { reportUrl } from './report';
 import { shortcutKeys, SHORTCUTS_PAGE, useShortcut } from './shortcut';
 import { hasPatterns, invalidLines, listToText, sameList, textToList } from './sites';
+import { inlineParts, releaseNotes, type ReleaseNotes } from './whats-new';
+// The changelog as text, bundled at build time: "What's new" shows this version's section.
+import changelog from '../../../CHANGELOG.md?raw';
 
 type SectionId = 'lookup' | 'sources' | 'sites' | 'badge' | 'results';
 type Save = (section: SectionId, change: SettingsChange) => void;
@@ -62,34 +66,72 @@ export function Options({ saveDelay = 600 }: OptionsProps) {
     [update, report],
   );
 
+  const version = extensionVersion();
+  const notes = version === '' ? null : releaseNotes(changelog, version);
+  const seenVersion = useStorageItem(seenVersionItem);
+  // "What's new" starts open after an update (or when the popup's dot led here), closed otherwise.
+  const [notesOpen, setNotesOpen] = useState<boolean | null>(null);
+  const notesLinkRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (seenVersion === undefined || notesOpen !== null || version === '') return;
+    setNotesOpen(seenVersion !== version || location.hash === '#whats-new');
+    // Opening settings counts as seeing this version's notes: the popup's dot goes.
+    seenVersionItem.setValue(version).catch((error: unknown) => {
+      console.error('Find On: recording the version failed', error);
+    });
+  }, [seenVersion, notesOpen, version]);
+
   if (settings === undefined || onboarded === undefined) return null;
   const statusOf = (id: SectionId) => (saveState?.section === id ? saveState : null);
-  const version = extensionVersion();
   const sends = disclosure(settings.sources);
 
   return (
     <div class="page options">
       <header class="page-head">
-        <div>
-          <p class="page-kicker">
-            <Logo size={16} />
-            <span>Find On</span>
-            {version !== '' && <span class="num">{version}</span>}
-          </p>
-          <h1>Settings</h1>
+        <div class="page-title">
+          <Logo size={32} />
+          <div>
+            <p class="page-kicker">
+              Find On
+              {version !== '' && <span class="page-version">{version}</span>}
+            </p>
+            <h1>Settings</h1>
+          </div>
         </div>
         <div class="page-links">
+          {notes !== null && (
+            <button
+              type="button"
+              class="btn-text"
+              ref={notesLinkRef}
+              aria-expanded={notesOpen === true}
+              aria-controls="whats-new"
+              onClick={() => setNotesOpen(notesOpen !== true)}
+            >
+              What's new
+            </button>
+          )}
           <a
             class="btn-text"
             href={reportUrl(version, navigator.userAgent)}
             target="_blank"
             rel="noreferrer"
           >
-            Report a problem
+            Report an issue
           </a>
           <RepoLink />
         </div>
       </header>
+
+      {notes !== null && notesOpen === true && (
+        <WhatsNew
+          notes={notes}
+          onClose={() => {
+            setNotesOpen(false);
+            notesLinkRef.current?.focus();
+          }}
+        />
+      )}
 
       <Section id="lookup" title="Lookup" status={statusOf('lookup')}>
         <RadioGroup
@@ -507,6 +549,54 @@ function Shortcut() {
         </Button>
       </div>
     </Section>
+  );
+}
+
+/** This version's release notes from the changelog, under the header, and a link to every release. */
+function WhatsNew({ notes, onClose }: { notes: ReleaseNotes; onClose: () => void }) {
+  return (
+    <section class="whats-new" id="whats-new" aria-labelledby="whats-new-heading">
+      <div class="whats-new-head">
+        <h2 id="whats-new-heading">What's new in {notes.version}</h2>
+        {notes.date !== '' && <span class="release-date">{notes.date}</span>}
+        <button
+          type="button"
+          class="icon-btn whats-new-close"
+          aria-label="Close what's new"
+          title="Close"
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </button>
+      </div>
+      {notes.groups.map((group) => (
+        <div class="release-group" key={group.title}>
+          <h3>{group.title}</h3>
+          <ul>
+            {group.items.map((item) => (
+              <li key={item}>
+                {inlineParts(item).map((part) =>
+                  part.kind === 'code' ? (
+                    <code key={part.start}>{part.text}</code>
+                  ) : part.kind === 'link' ? (
+                    <a key={part.start} href={part.url} target="_blank" rel="noreferrer">
+                      {part.text}
+                    </a>
+                  ) : (
+                    part.text
+                  ),
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+      <p>
+        <a class="btn-text" href={`${REPO_URL}/releases`} target="_blank" rel="noreferrer">
+          All releases
+        </a>
+      </p>
+    </section>
   );
 }
 

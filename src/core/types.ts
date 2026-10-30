@@ -43,11 +43,59 @@ export type SourceState =
   /** Reddit circuit breaker open (auto only). */
   | { status: 'paused'; retryAt: number }
   /**
-   * Not asked: Reddit in a private window, or (automatic lookups only) a thread whose linked page is
-   * on the blocklist.
+   * Not asked: Reddit in a private window, (automatic lookups only) a thread whose linked page is on
+   * the blocklist, or (`unsupported`) a page the source can't look up, such as Reddit's front page.
    */
-  | { status: 'skipped'; reason: 'incognito' | 'filtered' }
+  | { status: 'skipped'; reason: 'incognito' | 'filtered' | 'unsupported' }
   | { status: 'error'; kind: 'network' | 'http' | 'format'; detail: string };
+
+/**
+ * A thread that links to the page from a comment, or from its post's text or title. Its own URL is
+ * never read, so it may also be a submission of the page; the popup leaves out threads it lists.
+ */
+export interface Mention {
+  source: SourceId;
+  /** The thread: HN story objectID or Reddit base36 post id. */
+  id: string;
+  title: string;
+  /** Subreddit name without "r/" for Reddit; "" for HN. */
+  venue: string;
+  /** As in Discussion. */
+  permalink: string;
+  /**
+   * The post itself, when it links to the page. A thread found only through its comments has none:
+   * HN's comment search does not return the thread's own details.
+   */
+  post?: MentionPost;
+  /** HN comments in the thread that link to the page, among those fetched; 0 on Reddit. */
+  inComments: number;
+  /** HN only: the newest of those comments, to open the thread at. Set only without `post`. */
+  commentId?: string;
+  /** When the newest linking comment or post was written, epoch ms. */
+  linkedAt: number;
+  flags: DiscussionFlag[];
+}
+
+/** A post that links to the page: the popup can list it with the discussions. */
+export interface MentionPost {
+  /** Where: its text (HN or Reddit), or only its title (Reddit). */
+  link: 'text' | 'title';
+  author: string;
+  points: number;
+  comments: number;
+  /** Epoch ms. */
+  createdAt: number;
+}
+
+export type MentionState =
+  | { status: 'loading' }
+  | { status: 'ok'; items: Mention[] }
+  /**
+   * The search failed, or the Reddit rate guard held it back (`retryAt`: when Reddit can be asked
+   * again, after a 429, a pause or the breaker). The next lookup that searches for mentions asks
+   * again.
+   */
+  | { status: 'failed'; retryAt?: number };
 
 export interface PageInfo {
   /** URL actually looked up (after discussion-page resolution). */
@@ -56,8 +104,11 @@ export interface PageInfo {
   display: string;
   /** Set when the tab was a discussion page. */
   resolvedFrom?: { source: SourceId; id: string; url: string };
-  /** Text/self post: nothing to look up. */
-  noLink?: { source: SourceId; id: string };
+  /**
+   * Nothing to look up: a text/self post, or (`linkPost`) a link post whose link can't be looked up
+   * (another Reddit thread, a private address).
+   */
+  noLink?: { source: SourceId; id: string; linkPost?: true };
 }
 
 export interface LookupResult {
@@ -73,6 +124,12 @@ export interface LookupResult {
    * result's time, so reuse never extends the cache TTL.
    */
   fetchedAt: number;
+  /**
+   * Threads that link to the page, per source. `full` lookups search for them, and `auto` ones while
+   * text posts count toward the badge, only on a source whose discussions answered `ok`. A source is
+   * absent when it was not asked.
+   */
+  mentions?: Partial<Record<SourceId, MentionState>>;
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {

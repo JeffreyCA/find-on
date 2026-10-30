@@ -3,7 +3,14 @@
 
 import { browser, type Browser } from '#imports';
 import { useMemo, useRef } from 'preact/hooks';
-import { normalizeOrder, onboardedItem, sortItem, sourceOrderItem } from '@/platform/settings';
+import {
+  mentionsOpenItem,
+  normalizeOrder,
+  onboardedItem,
+  seenVersionItem,
+  sortItem,
+  sourceOrderItem,
+} from '@/platform/settings';
 import { updateSettings, useSettings, useStorageItem } from '@/ui/hooks';
 import { anchorTab, openExtensionPage, openModeFor, openTab } from '@/ui/links';
 import { usePopup } from './controller';
@@ -15,6 +22,11 @@ export function App() {
   const onboarded = useStorageItem(onboardedItem);
   const sort = useStorageItem(sortItem);
   const order = useStorageItem(sourceOrderItem);
+  const mentionsOpen = useStorageItem(mentionsOpenItem);
+  // Updated since the settings page was last opened: its "What's new" has something to show.
+  const seenVersion = useStorageItem(seenVersionItem);
+  const whatsNew =
+    seenVersion !== undefined && seenVersion !== browser.runtime.getManifest().version;
 
   // Background tabs opened from this popup line up after the current tab in click order.
   const openedRef = useRef(0);
@@ -30,6 +42,12 @@ export function App() {
       close,
       setSort: (next) => void sortItem.setValue(next),
       setOrder: (next) => void sourceOrderItem.setValue(next),
+      setTextPosts: (textPosts) => {
+        void updateSettings({ textPosts }).catch((error: unknown) =>
+          console.error('Find On: saving the setting failed', error),
+        );
+      },
+      setMentionsOpen: (next) => void mentionsOpenItem.setValue(next),
       openLink: (event, url) => {
         const mode = openModeFor(event, openInBackground);
         if (mode === 'browser-default') return;
@@ -46,7 +64,10 @@ export function App() {
           );
       },
       openSettings: () => {
-        void browser.runtime.openOptionsPage().then(close, (error: unknown) => {
+        const opened = whatsNew
+          ? openExtensionPage('/options.html#whats-new')
+          : browser.runtime.openOptionsPage();
+        void opened.then(close, (error: unknown) => {
           console.error('Find On: opening settings failed', error);
         });
       },
@@ -61,7 +82,7 @@ export function App() {
           .catch((error: unknown) => console.error('Find On: saving the choice failed', error));
       },
     };
-  }, [check, recheck, openInBackground]);
+  }, [check, recheck, openInBackground, whatsNew]);
 
   if (popup.target === null || settings === undefined) return null;
   return (
@@ -74,6 +95,8 @@ export function App() {
       onboarded={onboarded ?? true}
       sort={sort ?? settings.rowStat}
       order={normalizeOrder(order)}
+      mentionsOpen={mentionsOpen ?? null}
+      whatsNew={whatsNew}
       actions={actions}
     />
   );

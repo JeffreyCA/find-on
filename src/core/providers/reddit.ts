@@ -4,7 +4,8 @@
 // Every request goes to old.reddit.com: www.reddit.com answers JSON requests with a 403 "blocked by
 // network security" page even for signed-in users. Signed out, old.reddit.com redirects to its login
 // page. Search results are candidates only: every post is classified locally on
-// `url_overridden_by_dest ?? url`, and posts in no tier are dropped.
+// `url_overridden_by_dest ?? url`, and posts in no tier are dropped. Mentions (posts that link to the
+// page in their text or title) are verified the same way, on the links in that text.
 
 import {
   failureState,
@@ -13,6 +14,7 @@ import {
   type Failure,
   type FetchPolicy,
   type HttpEnv,
+  type HttpOutcome,
 } from '../http';
 import { redditOrigin } from '../links';
 import type { RedditGuard } from '../rate-guard';
@@ -21,11 +23,14 @@ import {
   type Depth,
   type Discussion,
   type DiscussionFlag,
+  type Mention,
+  type MentionState,
   type SourceState,
   type Tier,
 } from '../types';
 import { classifyHits, computeKeys, redditVariants, splitIdentity, type UrlKeys } from '../url';
 import { hasStrongMatch, numberOr0, stringOr, type OkState } from './common';
+import { linkingItems, linksInHtml, urlsInText } from './text-links';
 
 export const OLD_REDDIT = redditOrigin('old');
 
@@ -43,6 +48,12 @@ export function redditPolicy(depth: Depth): FetchPolicy {
     retryRateLimited: false,
   };
 }
+
+/**
+ * Reddit's own front page, on any of its hosts. Reddit answers lookups of it with its newest posts
+ * rather than the posts that link to it, so it is not looked up there.
+ */
+export const isRedditFrontPage = (keys: UrlKeys): boolean => keys.similar === 'reddit.com';
 
 /** E: Reddit's exact-URL index. */
 export function infoUrl(variant: string): string {
@@ -106,6 +117,8 @@ export interface RedditPost {
   /** Removed by moderators, admins or the author (`removed_by_category` is set). */
   removed: boolean;
   crosspost_parent?: string;
+  /** The post's text as HTML (raw, with `raw_json=1`), when it has any. */
+  selftext_html?: string;
 }
 
 /**
@@ -140,6 +153,7 @@ function parsePost(d: unknown): RedditPost | null {
   const url = absoluteUrl(rawUrl);
   if (!url) return null;
   const parent = d['crosspost_parent'];
+  const body = d['selftext_html'];
   return {
     id,
     title: stringOr(d['title'], ''),
@@ -157,6 +171,7 @@ function parsePost(d: unknown): RedditPost | null {
     archived: d['archived'] === true,
     removed: d['removed_by_category'] !== null && d['removed_by_category'] !== undefined,
     ...(typeof parent === 'string' && { crosspost_parent: parent }),
+    ...(typeof body === 'string' && body !== '' && { selftext_html: body }),
   };
 }
 
@@ -175,12 +190,16 @@ function isVisible(post: RedditPost): boolean {
   return !post.removed && post.author !== '[deleted]';
 }
 
-export function toDiscussion(post: RedditPost, tier: Tier): Discussion {
+function flagsOf(post: RedditPost): DiscussionFlag[] {
   const flags: DiscussionFlag[] = [];
   if (post.over_18) flags.push('nsfw');
   if (post.spoiler) flags.push('spoiler');
   if (post.locked) flags.push('locked');
   if (post.archived) flags.push('archived');
+  return flags;
+}
+
+export function toDiscussion(post: RedditPost, tier: Tier): Discussion {
   const parent = post.crosspost_parent?.replace(/^t3_/, '');
   return {
     source: 'reddit',
@@ -194,20 +213,43 @@ export function toDiscussion(post: RedditPost, tier: Tier): Discussion {
     createdAt: post.created_utc * 1000,
     tier,
     permalink: post.permalink,
-    flags,
+    flags: flagsOf(post),
     ...(parent && { crosspostOf: parent }),
   };
 }
 
 /** Hides deleted and removed posts, dedupes by id, classifies, and drops posts in no tier. */
 export function matchPosts(posts: readonly RedditPost[], page: UrlKeys): Discussion[] {
+  return classifyHits(uniqueVisible(posts), [page]).map((p) => toDiscussion(p, p.tier));
+}
+
+/** The posts that may be shown, each once. */
+function uniqueVisible(posts: readonly RedditPost[]): RedditPost[] {
   const seen = new Set<string>();
-  const unique = posts.filter((p) => {
+  return posts.filter((p) => {
     if (!isVisible(p) || seen.has(p.id)) return false;
     seen.add(p.id);
     return true;
   });
-  return classifyHits(unique, [page]).map((p) => toDiscussion(p, p.tier));
+}
+
+/**
+ * One admitted request, with the rate guard's bookkeeping: its outcome and, when it answered with a
+ * listing, the posts in it.
+ */
+async function fetchPosts(
+  url: string,
+  ctx: Pick<RedditContext, 'depth' | 'signal' | 'env' | 'guard'>,
+): Promise<{ outcome: HttpOutcome; posts: RedditPost[] | null }> {
+  const outcome = await getJson(url, redditPolicy(ctx.depth), ctx.env, ctx.signal);
+  await ctx.guard.observe(outcome);
+  const posts = outcome.kind === 'ok' ? parseListings(outcome.data) : null;
+  await ctx.guard.conclude({
+    anyOk: posts !== null,
+    signedOut: outcome.kind === 'login',
+    challenged: outcome.kind === 'challenge',
+  });
+  return { outcome, posts };
 }
 
 export interface RedditContext {
@@ -240,6 +282,11 @@ export interface RedditLookup {
    * result, so this is still only an `auto` answer.
    */
   held?: true;
+  /**
+   * A request failed and ended the plan (a sign-in wall, a challenge, a 429, an error), though an
+   * earlier one answered: nothing more should be sent to Reddit in this lookup.
+   */
+  stopped?: true;
 }
 
 /**
@@ -328,7 +375,10 @@ export async function lookupReddit(
   if (anyOk || previous || attempts.length === 0) {
     // With nothing sent (no usable query or variant), the result is only what was seeded.
     const base = attempts.length > 0 || previous?.complete === true;
-    return { state: { status: 'ok', items, complete: base && failures.length === 0 } };
+    return {
+      state: { status: 'ok', items, complete: base && failures.length === 0 },
+      ...(failures.length > 0 && { stopped: true }),
+    };
   }
   return { state: mostSpecific(failures) };
 }
@@ -364,8 +414,11 @@ function bestStrongMatch(items: readonly Discussion[]): Discussion | undefined {
 export type RedditThread =
   /** A link post: look up its URL. `post` is the thread itself, `thread` too if it may be shown. */
   | { kind: 'link'; url: string; post: RedditPost; thread?: Discussion }
-  /** A self post (or a crosspost of one): the thread itself, if it may be shown. */
-  | { kind: 'self'; thread?: Discussion }
+  /**
+   * Nothing to look up: a self post, or (`linkPost`) a post linking to another Reddit thread, such
+   * as a crosspost. The thread itself, if it may be shown.
+   */
+  | { kind: 'self'; thread?: Discussion; linkPost?: true }
   /** No such post. */
   | { kind: 'unknown' }
   /** The rate guard said no, or the request failed. */
@@ -376,14 +429,7 @@ export async function resolveRedditThread(id: string, ctx: RedditContext): Promi
   const { guard } = ctx;
   const admission = await guard.admit({ depth: ctx.depth, force: ctx.force, cost: 1 });
   if (!admission.ok) return { kind: 'failed', state: admission.state };
-  const outcome = await getJson(postUrl(id), redditPolicy(ctx.depth), ctx.env, ctx.signal);
-  await guard.observe(outcome);
-  const posts = outcome.kind === 'ok' ? parseListings(outcome.data) : null;
-  await guard.conclude({
-    anyOk: posts !== null,
-    signedOut: outcome.kind === 'login',
-    challenged: outcome.kind === 'challenge',
-  });
+  const { outcome, posts } = await fetchPosts(postUrl(id), ctx);
   if (outcome.kind !== 'ok') return { kind: 'failed', state: failureState(outcome, 'reddit') };
   if (!posts) {
     return {
@@ -394,9 +440,9 @@ export async function resolveRedditThread(id: string, ctx: RedditContext): Promi
   const post = posts.find((p) => p.id.toLowerCase() === id.toLowerCase());
   if (!post) return { kind: 'unknown' };
   const thread = isVisible(post) ? toDiscussion(post, 'same') : undefined;
-  // A crosspost of a self post links to another thread.
+  // A crosspost, or a post linking to another thread or comment, has nothing more to look up.
   if (post.is_self || splitIdentity(computeKeys(post.url)?.identity)[0] === 'reddit') {
-    return { kind: 'self', ...(thread && { thread }) };
+    return { kind: 'self', ...(thread && { thread }), ...(!post.is_self && { linkPost: true }) };
   }
   return { kind: 'link', url: post.url, post, ...(thread && { thread }) };
 }
@@ -405,16 +451,117 @@ export async function resolveRedditThread(id: string, ctx: RedditContext): Promi
 export async function checkSignedIn(
   ctx: Omit<RedditContext, 'depth' | 'force'>,
 ): Promise<boolean | null> {
-  const outcome = await getJson(
-    searchUrl('xkcd.com/927', 1),
-    redditPolicy('auto'),
-    ctx.env,
-    ctx.signal,
+  const { outcome, posts } = await fetchPosts(searchUrl('xkcd.com/927', 1), {
+    ...ctx,
+    depth: 'auto',
+  });
+  if (posts) return true;
+  return outcome.kind === 'login' ? false : null;
+}
+
+/**
+ * The phrase that finds links to the page in post text and titles, and in Reddit's own comment
+ * search: the content id on sites whose links come in several forms (youtu.be and /shorts/, x.com
+ * and twitter.com, arXiv /abs and /pdf), otherwise the `url:` search term ("xkcd.com/927").
+ */
+export function mentionTerm(keys: UrlKeys): string {
+  const [kind, id] = splitIdentity(keys.identity);
+  switch (kind) {
+    case 'youtube':
+    case 'youtube-list':
+    case 'twitter':
+    case 'medium':
+    case 'arxiv':
+      return id;
+    default:
+      return searchQuery(keys);
+  }
+}
+
+/** A URL never holds a raw `"`, so the term can't end the phrase early. */
+const quoted = (term: string) => `"${term}"`;
+const fitsSearch = (term: string) => quoted(term).length <= MAX_SEARCH_QUERY;
+
+/** Posts per mention search: each carries its text twice (markdown and HTML), up to 40k each. */
+const MENTION_LIMIT = 50;
+
+/** M: newest posts with the phrase in their text or title. */
+export function mentionSearchUrl(term: string): string {
+  return `${OLD_REDDIT}/search.json?q=${encodeURIComponent(quoted(term))}&sort=new&t=all&type=link&limit=${MENTION_LIMIT}&raw_json=1`;
+}
+
+/**
+ * Reddit's own comment search for the page, which Find On only links to: www, because old Reddit
+ * has none. Null when the phrase is too long to search.
+ */
+export function commentSearchUrl(keys: UrlKeys): string | null {
+  const term = mentionTerm(keys);
+  return fitsSearch(term)
+    ? `${redditOrigin('www')}/search/?q=${encodeURIComponent(quoted(term))}&type=comments`
+    : null;
+}
+
+/**
+ * Keeps the visible posts whose text or title links to the page. A post's own URL is never read: a
+ * link post to the page is a discussion.
+ */
+export function matchMentionPosts(posts: readonly RedditPost[], page: UrlKeys): Mention[] {
+  const unique = uniqueVisible(posts);
+  // Each post's text links, then its title links, all in one batch: post i is items 2i and 2i+1.
+  const linking = linkingItems(
+    unique.flatMap((p) => [linksInHtml(p.selftext_html ?? ''), urlsInText(p.title)]),
+    page,
   );
-  await ctx.guard.observe(outcome);
-  const ok = outcome.kind === 'ok' && parseListings(outcome.data) !== null;
-  const signedOut = outcome.kind === 'login';
-  await ctx.guard.conclude({ anyOk: ok, signedOut, challenged: outcome.kind === 'challenge' });
-  if (ok) return true;
-  return signedOut ? false : null;
+  return unique.flatMap((p, i): Mention[] => {
+    const link = linking.has(2 * i) ? 'text' : linking.has(2 * i + 1) ? 'title' : undefined;
+    if (link === undefined) return [];
+    const createdAt = p.created_utc * 1000;
+    return [
+      {
+        source: 'reddit',
+        id: p.id,
+        title: p.title,
+        venue: p.subreddit,
+        permalink: p.permalink,
+        post: { link, author: p.author, points: p.score, comments: p.num_comments, createdAt },
+        inComments: 0,
+        linkedAt: createdAt,
+        flags: flagsOf(p),
+      },
+    ];
+  });
+}
+
+/**
+ * Finds Reddit posts that link to the page in their text or title, with one search (M). Its
+ * failures never touch the source's state: the discussion requests report account problems. With
+ * `stopped` (a request in this lookup's discussion plan failed) nothing is sent, but the rate guard
+ * still says when Reddit can be asked again.
+ */
+export async function lookupRedditMentions(
+  page: UrlKeys,
+  ctx: RedditContext,
+  { stopped = false } = {},
+): Promise<MentionState> {
+  const term = mentionTerm(page);
+  if (!fitsSearch(term)) return { status: 'ok', items: [] };
+  const { guard } = ctx;
+  // Optional: a challenged account, or one low on requests, is not asked even for the popup.
+  const admission = await guard.admit({
+    depth: ctx.depth,
+    force: ctx.force,
+    cost: stopped ? 0 : 1,
+    optional: true,
+  });
+  if (!admission.ok) {
+    const { state } = admission;
+    return state.status === 'deferred'
+      ? { status: 'failed' }
+      : { status: 'failed', retryAt: state.retryAt };
+  }
+  if (stopped) return { status: 'failed' };
+  const { outcome, posts } = await fetchPosts(mentionSearchUrl(term), ctx);
+  if (outcome.kind === 'rate-limited') return { status: 'failed', retryAt: outcome.retryAt };
+  if (!posts) return { status: 'failed' };
+  return { status: 'ok', items: matchMentionPosts(posts, page) };
 }

@@ -7,6 +7,9 @@ import type { LookupResult } from '@/core/types';
 import { readResult } from './cache';
 import type { Settings } from './settings';
 
+/** The settings the badge text depends on. */
+export type BadgeSettings = Pick<Settings, 'badge' | 'textPosts'>;
+
 /** Sets the badge text for one tab; '' removes it. Ignores tabs that no longer exist. */
 export async function setBadge(tabId: number, text: string): Promise<void> {
   try {
@@ -33,11 +36,11 @@ export async function showResult(
   tabId: number,
   key: string,
   result: LookupResult,
-  mode: Settings['badge'],
+  settings: BadgeSettings,
 ): Promise<void> {
   const tab = await browser.tabs.get(tabId).catch(() => undefined);
   if (tab?.url === undefined || lookupKey(tab.url) !== key) return;
-  await setBadge(tabId, badgeText(result, mode));
+  await setBadge(tabId, badgeText(result, settings.badge, settings.textPosts));
 }
 
 export async function clearAllBadges(): Promise<void> {
@@ -45,8 +48,8 @@ export async function clearAllBadges(): Promise<void> {
   await Promise.all(tabs.flatMap(({ id }) => (id === undefined ? [] : [clearBadge(id)])));
 }
 
-/** Re-renders the badges currently shown (e.g. after the badge mode changed) from cached results. */
-export async function refreshBadges(mode: Settings['badge']): Promise<void> {
+/** Re-renders the badges currently shown from cached results (the badge mode or text posts changed). */
+export async function refreshBadges(settings: BadgeSettings): Promise<void> {
   const tabs = await browser.tabs.query({});
   await Promise.all(
     tabs.map(async ({ id: tabId, url }) => {
@@ -55,7 +58,9 @@ export async function refreshBadges(mode: Settings['badge']): Promise<void> {
       if (shown === '') return;
       const key = lookupKey(url);
       const result = key === null ? undefined : await readResult(key);
-      await setBadge(tabId, result === undefined ? '' : badgeText(result, mode));
+      const text =
+        result === undefined ? '' : badgeText(result, settings.badge, settings.textPosts);
+      await setBadge(tabId, text);
     }),
   );
 }

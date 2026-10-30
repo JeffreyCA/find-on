@@ -1,0 +1,62 @@
+{
+  "hits": [
+    {
+      "_tags": ["comment", "author_alice", "story_90000001"],
+      "story_id": 90000001,
+      "story_title": "Thread A",
+      "comment_text": "<p>See <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;92...</a></p>",
+      "created_at_i": 1759900000,
+      "objectID": "90000004"
+    },
+    {
+      "_tags": ["comment", "author_bob", "story_90000001"],
+      "story_id": 90000001,
+      "story_title": "Thread A",
+      "comment_text": "<p>Obligatory: https:&#x2F;&#x2F;xkcd.com&#x2F;927</p>",
+      "created_at_i": 1759800000,
+      "objectID": "90000003"
+    },
+    {
+      "_tags": ["comment", "author_frank", "story_90000002"],
+      "story_id": 90000002,
+      "story_title": "Ask HN: Will there always be competing standards?",
+      "comment_text": "<p>The one in the post: https:&#x2F;&#x2F;xkcd.com&#x2F;927</p>",
+      "created_at_i": 1759750000,
+      "objectID": "90000008"
+    },
+    {
+      "_tags": ["story", "author_carol", "story_90000002", "ask_hn"],
+      "story_id": 90000002,
+      "title": "Ask HN: Will there always be competing standards?",
+      "story_text": "<p>0: https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;<p>What would it take for one to win?",
+      "created_at_i": 1759700000,
+      "objectID": "90000002",
+      "points": 53,
+      "num_comments": 12,
+      "author": "carol"
+    },
+    {
+      "_tags": ["comment", "author_dave", "story_90000006"],
+      "story_id": 90000006,
+      "story_title": "Thread B",
+      "comment_text": "<p><a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;1927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;1927&#x2F;</a></p>",
+      "created_at_i": 1759650000,
+      "objectID": "90000005"
+    },
+    {
+      "_tags": ["comment", "author_erin", "story_2784984"],
+      "story_id": 2784984,
+      "story_title": "Xkcd: Standards",
+      "comment_text": "<p>Previously: <a href=\"https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;xkcd.com&#x2F;927&#x2F;</a></p>",
+      "created_at_i": 1759600000,
+      "objectID": "90000007"
+    }
+  ],
+  "nbHits": 6,
+  "page": 0,
+  "nbPages": 1,
+  "hitsPerPage": 100,
+  "exhaustiveNbHits": true,
+  "query": "xkcd.com 927",
+  "processingTimeMS": 2
+}

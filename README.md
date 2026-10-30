@@ -1,6 +1,6 @@
-# Find On - Look up current page on Hacker News & Reddit
+# Find On
 
-Find On is a Chrome/Edge extension that shows Hacker News and Reddit discussions of the page you're on. It can look up each page as it loads and show the discussion count on the toolbar badge, or look up pages only when you click the toolbar button.
+Find On is a Chrome and Edge extension that shows Hacker News and Reddit discussions of the page you're on.
 
 ![The Find On popup listing Hacker News and Reddit discussions of xkcd.com/927](store/screenshots/1-results.png)
 
@@ -9,26 +9,18 @@ Find On is a Chrome/Edge extension that shows Hacker News and Reddit discussions
 - [Chrome Web Store](https://chromewebstore.google.com/detail/dhbjhlhecoimpegffjpmagkhiflkbepe)
 - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/find-on-reddit-hacker/pokgoanaapnbijafopjbgfbcjhhimknl)
 
-Reddit results need you to be signed in to reddit.com in the same browser profile.
+Reddit results require a signed-in reddit.com session in the same browser profile.
 
-## How matching works
+## Features
 
-- Before a lookup, Find On cleans the URL. It removes tracking parameters (`utm_*`, `fbclid` and the rest of Brave's and Firefox's lists), parameters that look like secrets (tokens, keys, signatures, session ids) and the `#` fragment. It also unwraps AMP, Wayback Machine, archive.today and redirect links.
-- A discussion matches when it links to the same cleaned URL, or to the same content on a site with stable ids: YouTube videos and playlists, arXiv papers (any version), Twitter/X posts, GitHub repos, Medium posts, and Stack Exchange questions.
-- Looser matches, such as `m.` or `amp.` hosts, `/amp` paths or extra parameters like `?ref=`, are listed under "Other versions" and don't count toward the badge.
-- On a Hacker News or Reddit thread, Find On looks up the page the thread links to and marks the thread you're on.
+- Looks up pages as they load, or only when you click the toolbar button, and shows the discussion count on the toolbar badge.
+- Removes tracking parameters and unwraps AMP, archive and redirect links before matching, and recognizes the same YouTube video, arXiv paper or GitHub repo under different URLs.
+- Also finds text posts and Hacker News comments that link to the page.
+- Customizable site filter: a blocklist (webmail, search and chat sites by default) or an allowlist.
 
 ## Privacy
 
-- There is no Find On server and no analytics.
-- To look up a page, Find On sends its cleaned URL to Hacker News search (`hn.algolia.com`, run by Algolia) and to Reddit (`old.reddit.com`). Hacker News requests carry no cookies.
-- Reddit requests carry your reddit.com cookies, which the browser attaches, so Reddit can associate the lookups with your account.
-- Automatic lookups are on by default and send the URL of every page you load, except sites on the blocklist (webmail, search and chat sites by default, editable in settings). Manual lookup mode sends a URL only when you click the toolbar button.
-- Find On never sends URLs that aren't public web pages: anything other than http and https, localhost, IP addresses, single-label hosts and private names such as `.local` or `.internal`.
-- In private windows Find On never looks up pages automatically and sends nothing to Reddit.
-- Lookup results stay in memory and are cleared when the browser closes. Settings are kept in the browser's sync storage.
-
-The full policy is in [PRIVACY.md](PRIVACY.md).
+There is no Find On server and no analytics. Page URLs go directly from the browser to Hacker News search (`hn.algolia.com`) and Reddit (`old.reddit.com`), and Reddit requests carry your reddit.com cookies. In automatic mode, every page you load is looked up unless its site is skipped. See [PRIVACY.md](PRIVACY.md) for details.
 
 ## Development
 
@@ -39,19 +31,20 @@ npm ci
 npm run dev
 ```
 
-`npm run dev` builds `.output/chrome-mv3-dev`, rebuilds on change, and does not start a browser. To load it, open `chrome://extensions` (or `edge://extensions`), turn on Developer mode, click "Load unpacked" and pick the folder. Use a profile that is signed in to reddit.com to test Reddit results.
+`npm run dev` builds `.output/chrome-mv3-dev` and rebuilds on change. It does not start a browser. To load the build, open `chrome://extensions` (or `edge://extensions`), enable Developer mode, click "Load unpacked" and select the folder. Testing Reddit results requires a profile signed in to reddit.com.
 
-| Command                        | What it does                                                                                                                                         |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run check`                | Format check, lint, typecheck, unit tests and a production build. CI runs these, then the e2e tests.                                                 |
-| `npm test`                     | Unit tests only (Vitest).                                                                                                                            |
-| `npm run format`               | Formats the code with oxfmt.                                                                                                                         |
-| `npm run test:e2e`             | Builds, then runs the Playwright tests in bundled Chromium with a mocked network. Needs `openssl` on the PATH and `npx playwright install chromium`. |
-| `npm run zip`                  | Builds and writes `.output/find-on-<version>-chrome.zip`, the package for both stores.                                                               |
-| `npm run update-tracking-list` | Regenerates the tracking-parameter list from the upstream Brave and Firefox lists. A weekly workflow runs it and opens a pull request.               |
-| `npm run smoke:hn`             | Runs real Hacker News lookups for a few known pages against `hn.algolia.com`.                                                                        |
+| Command                        | What it does                                                                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                | Format check, lint, typecheck, unit tests and a production build. CI runs this, then the e2e tests.                                   |
+| `npm test`                     | Unit tests (Vitest).                                                                                                                  |
+| `npm run format`               | Formats the code with oxfmt.                                                                                                          |
+| `npm run test:e2e`             | Builds, then runs the Playwright tests in Chromium against a mocked network. Needs `openssl` and `npx playwright install chromium`.   |
+| `npm run zip`                  | Writes `.output/find-on-<version>-chrome.zip`, the package for both stores.                                                           |
+| `npm run update-tracking-list` | Regenerates the tracking-parameter list from Brave's and Firefox's lists. A weekly workflow runs it and opens a pull request.         |
+| `npm run smoke:hn`             | Runs real Hacker News lookups for a few known pages.                                                                                  |
+| `npm run screenshots`          | Builds, then regenerates the store screenshots from recorded responses. `-- --record` records the Hacker News mention searches again. |
 
-To release, push a `v<version>` tag on main: the Release workflow checks it, builds the zip and publishes a GitHub release with that version's changelog section. The steps are in `.agents/skills/release/SKILL.md`.
+To release, push a `v<version>` tag on main. The Release workflow checks the tag, builds the zip and publishes a GitHub release with that version's changelog section. See `.agents/skills/release/SKILL.md` for the full steps.
 
 ## Project layout
 
@@ -61,15 +54,15 @@ src/platform/     Browser adapters: settings, cache, badge, automatic lookups, c
 src/entrypoints/  Background service worker, popup, options and welcome pages
 src/ui/           Shared Preact components and design tokens for those pages
 src/assets/       Icon source (SVG)
-scripts/          Tracking-list generator and Hacker News smoke test
+scripts/          Tracking-list generator, Hacker News smoke test and store screenshots
 e2e/              Playwright tests
-store/            Store screenshots
+store/            Store icons, screenshots and the recorded responses they are rendered from
 ```
 
 ## Credits
 
-Originally forked from [AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit); v2 is a complete rewrite.
+Originally forked from [AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit). v2 is a complete rewrite.
 
-The tracking-parameter list in `src/core/url/tracking-params.generated.json` is generated from Brave's [adblock-lists](https://github.com/brave/adblock-lists) and Firefox's [StripOnShare list](https://github.com/mozilla-firefox/firefox/blob/main/toolkit/components/antitracking/StripOnShareLists/MPL2/StripOnShare.json), and is covered by the [Mozilla Public License 2.0](src/core/url/MPL-2.0.txt). The rest of the project is under the [MIT License](LICENSE).
+The tracking-parameter list in `src/core/url/tracking-params.generated.json` is generated from Brave's [adblock-lists](https://github.com/brave/adblock-lists) and Firefox's [StripOnShare list](https://github.com/mozilla-firefox/firefox/blob/main/toolkit/components/antitracking/StripOnShareLists/MPL2/StripOnShare.json), and is licensed under the [Mozilla Public License 2.0](src/core/url/MPL-2.0.txt). The rest of the project is licensed under the [MIT License](LICENSE).
 
 The Hacker News and Reddit names and favicons belong to their owners and are used only to label links to their sites.

@@ -19,8 +19,8 @@ const FIXTURES = path.resolve(import.meta.dirname, '../src/core/providers/__fixt
 const SETTLE_MS = 1500;
 
 // Badge count for xkcd.com/927 from the recorded fixtures (SAME + EXACT matches): HN 6, plus
-// Reddit 9 from search and old.reddit's exact index together.
-const BADGE = '15';
+// Reddit 9 from search and old.reddit's exact index together, plus 3 text posts that link to it.
+const BADGE = '18';
 
 function fixture(name: string): string {
   return fs.readFileSync(path.join(FIXTURES, name), 'utf8');
@@ -65,8 +65,20 @@ async function mockNetwork(
       },
     );
   await answer('https://hn.algolia.com', null, 'hn-search-xkcd-927.json');
+  await answer('https://hn.algolia.com', '/api/v1/search_by_date', 'hn-mentions-xkcd-927.json');
   await answer('https://old.reddit.com', '/search.json', 'reddit-search-xkcd-927.json');
   await answer('https://old.reddit.com', '/api/info.json', 'reddit-info-xkcd-927.json');
+  // Reddit's mention search: the page's address in quotes.
+  await context.route(
+    (url) =>
+      url.origin === 'https://old.reddit.com' &&
+      url.pathname === '/search.json' &&
+      url.searchParams.get('q')?.startsWith('"') === true,
+    (route) => {
+      requests.push(route.request().url());
+      return fulfillJson(route, 'reddit-mentions-xkcd-927.json');
+    },
+  );
   return { requests, unexpected };
 }
 
@@ -124,11 +136,14 @@ test('shows the number of discussions on the badge', async ({ context, serviceWo
   await openArticle(context);
 
   await expect.poll(() => badgeOf(serviceWorker, ARTICLE)).toBe(BADGE);
-  // An automatic check sends HN one search, and Reddit one search plus one exact-URL lookup.
+  // An automatic check sends HN one search, and Reddit one search plus one exact-URL lookup, then
+  // each one search for text posts.
   const sent = network.requests.map((u) => new URL(u)).map((u) => u.host + u.pathname);
   expect(sent.toSorted()).toEqual([
     'hn.algolia.com/api/v1/search',
+    'hn.algolia.com/api/v1/search_by_date',
     'old.reddit.com/api/info.json',
+    'old.reddit.com/search.json',
     'old.reddit.com/search.json',
   ]);
   expect(network.unexpected).toEqual([]);

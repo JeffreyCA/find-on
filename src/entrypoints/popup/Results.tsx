@@ -1,30 +1,44 @@
-// The results area: the filter/sort bar and the list of discussions, with placeholder rows for
-// sources still being checked, the zero-comment fold and the "Other versions" group.
+// The results area: the filter/sort bar (with the "Text posts" toggle) and the list of discussions,
+// with placeholder rows for sources still being checked, the zero-comment fold, the "Other versions"
+// and "Mentioned in HN comments" groups, and the links to the sources' own sites that end the
+// results.
 
 import { useId } from 'preact/hooks';
-import { authorLabel, threadUrl, venueLabel, type RedditHost } from '@/core/links';
-import type { Discussion, DiscussionFlag, SourceId } from '@/core/types';
+import { authorLabel, mentionUrl, threadUrl, venueLabel, type RedditHost } from '@/core/links';
+import type { Discussion, DiscussionFlag, Mention, SourceId } from '@/core/types';
 import type { RowStat, SortOrder } from '@/platform/settings';
 import { cx } from '@/ui/cx';
-import { ChevronIcon, SortIcon } from '@/ui/icons';
+import {
+  ChevronIcon,
+  CommentIcon,
+  ExternalIcon,
+  LinkPostIcon,
+  PointsIcon,
+  SortIcon,
+  TextPostIcon,
+} from '@/ui/icons';
 import { Segmented, type Segment } from '@/ui/Segmented';
 import { SourceMark } from '@/ui/SourceMark';
-import { fullDate, grouped, plural, shortAge, urlDifference } from './format';
-import { SOURCE_SHORT, type Filter, type PopupModel } from './model';
+import { fullDate, grouped, shortAge, urlDifference } from './format';
+import {
+  SOURCE_SHORT,
+  type Filter,
+  type ListRow,
+  type PopupModel,
+  type RowKind,
+  type SourceLink,
+} from './model';
 
 /** Handles click and auxclick on a link (see links.ts for the rules). */
 export type LinkHandler = (event: MouseEvent, url: string) => void;
 
 const SORT_ORDERS: readonly SortOrder[] = ['points', 'comments', 'newest'];
+/** Short, so the bar holds the filter, the "Text posts" toggle and the sort in 400 px. */
 const SORT_LABELS: Record<SortOrder, string> = {
-  points: 'Most points',
-  comments: 'Most comments',
+  points: 'Points',
+  comments: 'Comments',
   newest: 'Newest',
 };
-
-/** Reddit calls points upvotes, so say so when only Reddit is listed. */
-const sortLabel = (order: SortOrder, filter: Filter) =>
-  order === 'points' && filter === 'reddit' ? 'Most upvotes' : SORT_LABELS[order];
 
 export function Toolbar({
   model,
@@ -33,6 +47,8 @@ export function Toolbar({
   sort,
   onSort,
   onOrder,
+  textPosts,
+  onTextPosts,
 }: {
   model: PopupModel;
   filter: Filter;
@@ -41,41 +57,66 @@ export function Toolbar({
   onSort: (sort: SortOrder) => void;
   /** The sources reordered by dragging their tabs. */
   onOrder: (order: SourceId[]) => void;
+  /** Text posts are listed with the discussions. */
+  textPosts: boolean;
+  onTextPosts: (on: boolean) => void;
 }) {
-  const count = (id: SourceId) =>
-    model.sources[id].pending ? <Pending /> : String(model.sources[id].count);
+  // A source that gave no answer has no count; its status line says why.
+  const count = (id: SourceId) => {
+    const source = model.sources[id];
+    if (source.pending) return <Pending />;
+    return source.state.status === 'ok' ? String(source.count) : undefined;
+  };
+  // With one source on, its tab alone, chosen.
+  const single = model.tabs.length === 1;
   const options: Array<Segment<Filter>> = [
     // "All 0" would read as a result while nothing has answered yet.
-    {
-      value: 'all',
-      label: 'All',
-      count: model.pending && model.total === 0 ? <Pending /> : String(model.total),
-    },
-    ...model.order.map((id) => ({
+    ...(single
+      ? []
+      : [
+          {
+            value: 'all' as const,
+            label: 'All',
+            count: model.pending && model.total === 0 ? <Pending /> : String(model.total),
+          },
+        ]),
+    ...model.tabs.map((id) => ({
       value: id,
       label: <SourceLabel source={id} />,
       count: count(id),
-      movable: true,
+      movable: !single,
+      // Nothing to show under it: "HN 0", dimmed.
+      disabled: !single && !model.sources[id].participates,
     })),
   ];
   return (
     <div class="bar">
-      {model.showFilter ? (
-        <Segmented
-          legend="Show"
-          options={options}
-          value={filter}
-          onChange={onFilter}
-          onReorder={(moved, target) => {
-            if (moved !== 'all' && target !== 'all') onOrder(reorder(model.order, moved, target));
-          }}
-        />
-      ) : (
-        <p class="bar-summary">{model.summary}</p>
-      )}
+      <Segmented
+        legend="Show"
+        options={options}
+        value={single ? (model.tabs[0] ?? filter) : filter}
+        onChange={onFilter}
+        onReorder={(moved, target) => {
+          if (moved !== 'all' && target !== 'all') onOrder(reorder(model.order, moved, target));
+        }}
+      />
+      <button
+        type="button"
+        class="chip"
+        aria-pressed={textPosts}
+        title="Posts that link to the page in their text or title"
+        onClick={() => onTextPosts(!textPosts)}
+      >
+        <TextPostIcon />
+        Text posts
+      </button>
       <label class="sort">
         <span class="visually-hidden">Sort</span>
         <SortIcon />
+        <span class="sort-value" aria-hidden="true">
+          {SORT_LABELS[sort]}
+        </span>
+        <ChevronIcon open />
         <select
           value={sort}
           onChange={(event) => {
@@ -85,11 +126,10 @@ export function Toolbar({
         >
           {SORT_ORDERS.map((value) => (
             <option key={value} value={value}>
-              {sortLabel(value, filter)}
+              {SORT_LABELS[value]}
             </option>
           ))}
         </select>
-        <ChevronIcon open />
       </label>
     </div>
   );
@@ -136,6 +176,8 @@ interface ListProps {
   onFold: () => void;
   othersOpen: boolean;
   onOthers: () => void;
+  mentionsOpen: boolean;
+  onMentions: () => void;
   pageUrl: string;
 }
 
@@ -149,11 +191,13 @@ export function ResultList({
   onFold,
   othersOpen,
   onOthers,
+  mentionsOpen,
+  onMentions,
   pageUrl,
 }: ListProps) {
   const isCurrent = (d: Discussion) =>
     model.current?.source === d.source && model.current.id === d.id;
-  const row = (d: Discussion, others = false) => (
+  const row = (d: ListRow, others = false) => (
     <Row
       key={`${d.source}:${d.id}`}
       d={d}
@@ -184,7 +228,7 @@ export function ResultList({
                 data-nav
                 onClick={onFold}
               >
-                <ChevronIcon open={foldOpen} />+{model.folded.length} more with no comments
+                <ChevronIcon open={foldOpen} />+{model.folded.length} more without comments
               </button>
             </li>
           )}
@@ -192,7 +236,7 @@ export function ResultList({
         </ul>
       )}
       {model.similar.length > 0 && (
-        <section class="others" aria-label="Other versions">
+        <section class="others versions" aria-label="Other versions">
           <button
             type="button"
             class="disclosure others-head"
@@ -204,6 +248,33 @@ export function ResultList({
             Other versions <span class="disclosure-count">{model.similar.length}</span>
           </button>
           {othersOpen && <ul class="list">{model.similar.map((d) => row(d, true))}</ul>}
+        </section>
+      )}
+      {model.mentions.length > 0 && (
+        <section class="others mentions" aria-label="Mentioned in HN comments">
+          <button
+            type="button"
+            class="disclosure others-head"
+            aria-expanded={mentionsOpen}
+            data-nav
+            onClick={onMentions}
+          >
+            <ChevronIcon open={mentionsOpen} />
+            Mentioned in HN comments <span class="disclosure-count">{model.mentions.length}</span>
+          </button>
+          {mentionsOpen && (
+            <ul class="list">
+              {model.mentions.map((m) => (
+                <MentionRow
+                  key={`${m.source}:${m.id}`}
+                  m={m}
+                  host={host}
+                  now={now}
+                  onLink={onLink}
+                />
+              ))}
+            </ul>
+          )}
         </section>
       )}
     </>
@@ -221,7 +292,7 @@ const FLAG_LABELS: ReadonlyArray<[DiscussionFlag, string]> = [
 ];
 
 interface RowProps {
-  d: Discussion;
+  d: ListRow;
   host: RedditHost;
   /** The number set large on the right; the other one goes in the meta line. */
   stat: RowStat;
@@ -239,12 +310,18 @@ function statUnits(stat: RowStat, source: SourceId): [one: string, many: string]
   return source === 'reddit' ? ['upvote', 'upvotes'] : ['point', 'points'];
 }
 
+/** What the icon before a row's title stands for: its tooltip, and what screen readers hear. */
+const KIND_LABELS: Record<RowKind, string> = {
+  link: 'Link post',
+  text: 'Text post',
+  title: 'Link in post title',
+  comments: 'Mentioned in HN comments',
+};
+
 function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
   const id = useId();
   const href = threadUrl(d, host);
   const other: RowStat = stat === 'comments' ? 'points' : 'comments';
-  const [one, many] = statUnits(stat, d.source);
-  const flags = FLAG_LABELS.filter(([flag]) => d.flags.includes(flag));
   const author = authorLabel(d);
   return (
     <li class={cx('row', current && 'is-current')} data-key={`${d.source}:${d.id}`}>
@@ -259,6 +336,7 @@ function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
         title={d.title}
       >
         <span class="row-title" id={`${id}-title`}>
+          <KindIcon kind={d.kind} />
           {d.title}
           {current && (
             <>
@@ -267,33 +345,181 @@ function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
             </>
           )}
         </span>
-        <span class="row-count" id={`${id}-count`}>
-          <span class="row-n">{grouped(d[stat])}</span>{' '}
-          <span class="row-unit">{d[stat] === 1 ? one : many}</span>
-        </span>
+        <RowCount id={id} n={d[stat]} stat={stat} source={d.source} />
         <span class="row-meta" id={`${id}-meta`}>
-          <span class="row-venue">
-            <SourceMark source={d.source} />
-            <span class="row-venue-name">{venueLabel(d)}</span>
-          </span>
-          <span>{plural(d[other], ...statUnits(other, d.source))}</span>
-          <time dateTime={new Date(d.createdAt).toISOString()} title={fullDate(d.createdAt)}>
-            {shortAge(d.createdAt, now)}
-          </time>
-          {flags.length > 0 && (
-            <span class="row-flags">
-              {flags.map(([flag, label]) => (
-                <span class="tag" key={flag}>
-                  {label}
-                </span>
-              ))}
-            </span>
-          )}
+          <RowVenue of={d} />
+          <MetaStat n={d[other]} stat={other} source={d.source} />
+          <RowAge at={d.createdAt} now={now} />
+          <RowFlags flags={d.flags} />
           {author !== '' && <span class="row-author">{author}</span>}
+          <KindText kind={d.kind} />
         </span>
         {pageUrl !== undefined && <SubmittedUrl url={d.submittedUrl} page={pageUrl} />}
       </a>
     </li>
+  );
+}
+
+/** Links to the sources' own sites, for what Find On can't fetch, ending the results. */
+export function SourceLinks({ links, onLink }: { links: SourceLink[]; onLink: LinkHandler }) {
+  return (
+    <ul class="source-links">
+      {links.map(({ source, label, url, hint }) => (
+        <li key={source}>
+          <a
+            class="disclosure source-link"
+            href={url}
+            title={hint ?? label}
+            data-nav
+            onClick={(event) => onLink(event, url)}
+            onAuxClick={(event) => onLink(event, url)}
+          >
+            <SourceMark source={source} />
+            <span class="source-link-label">{label}</span>
+            <ExternalIcon />
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * A thread found through comments that link to the page: its title, then where it is, how many of
+ * its comments link to the page (only when several do; the heading already says one does), and when
+ * the newest one was written. HN's comment search returns no numbers for the thread itself, so there
+ * is no count on the right.
+ */
+function MentionRow({
+  m,
+  host,
+  now,
+  onLink,
+}: {
+  m: Mention;
+  host: RedditHost;
+  now: number;
+  onLink: LinkHandler;
+}) {
+  const id = useId();
+  const href = mentionUrl(m, host);
+  return (
+    <li class="row" data-key={`mention:${m.source}:${m.id}`}>
+      <a
+        class="row-link no-count"
+        href={href}
+        data-nav
+        aria-labelledby={`${id}-title`}
+        aria-describedby={`${id}-meta`}
+        onClick={(event) => onLink(event, href)}
+        onAuxClick={(event) => onLink(event, href)}
+        title={m.title}
+      >
+        <span class="row-title" id={`${id}-title`}>
+          <KindIcon kind="comments" />
+          {m.title}
+        </span>
+        <span class="row-meta" id={`${id}-meta`}>
+          <RowVenue of={m} />
+          {m.inComments > 1 && <span>in {m.inComments} comments</span>}
+          <RowAge at={m.linkedAt} now={now} />
+          <RowFlags flags={m.flags} />
+        </span>
+      </a>
+    </li>
+  );
+}
+
+/**
+ * What the thread is, as an icon before its title, with its meaning as a tooltip. It stays out of
+ * the row's name: screen readers get the meaning from KindText in the discussion rows, and from the
+ * group's name ("Mentioned in HN comments") in the rows of threads found through comments.
+ */
+function KindIcon({ kind }: { kind: RowKind }) {
+  return (
+    <span class="row-kind" title={KIND_LABELS[kind]} aria-hidden="true">
+      {kind === 'link' ? (
+        <LinkPostIcon />
+      ) : kind === 'comments' ? (
+        <CommentIcon />
+      ) : (
+        <TextPostIcon />
+      )}
+    </span>
+  );
+}
+
+/** The meaning of the row's icon for screen readers, last in its description; link posts say nothing. */
+function KindText({ kind }: { kind: RowKind }) {
+  return kind === 'link' ? null : <span class="visually-hidden">{KIND_LABELS[kind]}</span>;
+}
+
+function StatIcon({ stat }: { stat: RowStat }) {
+  return stat === 'comments' ? <CommentIcon /> : <PointsIcon />;
+}
+
+/** The other number, in the meta line: its icon and the number; the unit is only read out. */
+function MetaStat({ n, stat, source }: { n: number; stat: RowStat; source: SourceId }) {
+  const [one, many] = statUnits(stat, source);
+  return (
+    <span class="row-stat">
+      <StatIcon stat={stat} />
+      {grouped(n)}
+      <span class="visually-hidden">{` ${n === 1 ? one : many}`}</span>
+    </span>
+  );
+}
+
+/** The number set large on the right of a row, after its icon; the unit is only read out. */
+function RowCount({
+  id,
+  n,
+  stat,
+  source,
+}: {
+  id: string;
+  n: number;
+  stat: RowStat;
+  source: SourceId;
+}) {
+  const [one, many] = statUnits(stat, source);
+  return (
+    <span class="row-count" id={`${id}-count`}>
+      <StatIcon stat={stat} />
+      <span class="row-n">{grouped(n)}</span>
+      <span class="visually-hidden">{` ${n === 1 ? one : many}`}</span>
+    </span>
+  );
+}
+
+function RowVenue({ of }: { of: Pick<Discussion, 'source' | 'venue'> }) {
+  return (
+    <span class="row-venue">
+      <SourceMark source={of.source} />
+      <span class="row-venue-name">{venueLabel(of)}</span>
+    </span>
+  );
+}
+
+function RowAge({ at, now }: { at: number; now: number }) {
+  return (
+    <time dateTime={new Date(at).toISOString()} title={fullDate(at)}>
+      {shortAge(at, now)}
+    </time>
+  );
+}
+
+function RowFlags({ flags }: { flags: readonly DiscussionFlag[] }) {
+  const shown = FLAG_LABELS.filter(([flag]) => flags.includes(flag));
+  if (shown.length === 0) return null;
+  return (
+    <span class="row-flags">
+      {shown.map(([flag, label]) => (
+        <span class="tag" key={flag}>
+          {label}
+        </span>
+      ))}
+    </span>
   );
 }
 

@@ -9,7 +9,7 @@ import {
 } from '../test-utils';
 import type { Depth, SourceState } from '../types';
 import { computeKeys, type UrlKeys } from '../url';
-import { lookupReddit } from './reddit';
+import { commentSearchUrl, lookupReddit, lookupRedditMentions, mentionTerm } from './reddit';
 
 const PAGE_URL = 'https://xkcd.com/927/';
 const PAGE: UrlKeys = computeKeys(PAGE_URL) ?? expect.unreachable();
@@ -117,5 +117,69 @@ describe('lookupReddit', () => {
   it('reports JSON without data.children as a format error', async () => {
     const { run } = setup(reddit(odd, odd));
     expect(await run('auto')).toMatchObject({ status: 'error', kind: 'format' });
+  });
+});
+
+function mentions(route: Route) {
+  const { fetch, calls } = fakeFetch(route);
+  const env = testEnv(fetch);
+  const run = () =>
+    lookupRedditMentions(PAGE, {
+      depth: 'full',
+      force: false,
+      signal: new AbortController().signal,
+      env,
+      guard: env.guard,
+    });
+  return { run, calls };
+}
+
+const termFor = (url: string) => mentionTerm(computeKeys(url) ?? expect.unreachable());
+
+describe('lookupRedditMentions', () => {
+  it('finds posts that link to the page in their text or title', async () => {
+    const { run, calls } = mentions(() => json(fixtureJson('reddit-mentions-xkcd-927.json')));
+    const state = await run();
+    expect(calls).toHaveLength(1);
+    const url = calls[0]?.url;
+    expect(url?.hostname).toBe('old.reddit.com');
+    expect(url?.searchParams.get('q')).toBe('"xkcd.com/927"');
+    expect(calls[0]?.init?.credentials).toBe('include');
+    // zzm3 links to xkcd.com/1927; zzm4 was removed. iuhzn is a discussion too; the popup leaves
+    // it out.
+    if (state.status !== 'ok') throw new Error(state.status);
+    expect(state.items.map((m) => m.id)).toEqual(['zzm1', 'zzm2', 'iuhzn']);
+    expect(state.items[1]).toEqual({
+      source: 'reddit',
+      id: 'zzm2',
+      title: 'based off "xkcd: Standards" (https://xkcd.com/927/)',
+      venue: 'DoctorWhumour',
+      permalink: '/r/DoctorWhumour/comments/zzm2/slug/',
+      post: {
+        link: 'title',
+        author: 'someone',
+        points: 10,
+        comments: 3,
+        createdAt: 1_784_000_000_000,
+      },
+      inComments: 0,
+      linkedAt: 1_784_000_000_000,
+      flags: [],
+    });
+  });
+
+  it('fails on a sign-in wall', async () => {
+    expect(await mentions(oldRedditLoginWall).run()).toEqual({ status: 'failed' });
+  });
+
+  it('searches by content id where links come in several forms', () => {
+    expect(termFor('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+    expect(termFor('https://arxiv.org/pdf/1706.03762v7')).toBe('1706.03762');
+    expect(termFor('https://github.com/astral-sh/uv/tree/main')).toBe('github.com/astral-sh/uv');
+    expect(commentSearchUrl(PAGE)).toBe(
+      'https://www.reddit.com/search/?q=%22xkcd.com%2F927%22&type=comments',
+    );
+    const long = computeKeys(`https://example.com/${'a'.repeat(600)}`) ?? expect.unreachable();
+    expect(commentSearchUrl(long)).toBeNull();
   });
 });

@@ -14,6 +14,12 @@ export interface Settings {
   openInBackground: boolean;
   /** The number set large on the right of each popup row; the other one moves to the meta line. */
   rowStat: RowStat;
+  /**
+   * Text posts (posts that link to the page in their text or title) are listed with the discussions
+   * and counted on the badge, so automatic lookups search for them too. Set with the popup's "Text
+   * posts" toggle.
+   */
+  textPosts: boolean;
 }
 
 export type RowStat = 'comments' | 'points';
@@ -31,6 +37,7 @@ export const DEFAULT_SETTINGS: Settings = deepFreeze({
   redditHost: 'www',
   openInBackground: false,
   rowStat: 'points',
+  textPosts: true,
 });
 
 /** What sync storage holds: written by any version, so any field (or nested field) may be missing. */
@@ -62,6 +69,19 @@ export const onboardedItem = storage.defineItem<boolean>('local:onboarded', {
  */
 export const sortItem = storage.defineItem<SortOrder>('local:ui.sort');
 
+/**
+ * Whether the popup's group of threads found through comments that link to the page ("Mentioned in
+ * HN comments") starts open: as the user last left it; null until they first open or close it.
+ */
+export const mentionsOpenItem = storage.defineItem<boolean>('local:ui.mentionsOpen');
+
+/**
+ * The version whose notes ("What's new" in settings) the user has seen: set on install and when the
+ * settings page opens. After an update it differs from the running version, and the popup's
+ * settings button carries a dot.
+ */
+export const seenVersionItem = storage.defineItem<string>('local:ui.seenVersion');
+
 /** The order of the sources in the popup (its tabs, status lines and buttons); set by dragging a tab. */
 export const sourceOrderItem = storage.defineItem<SourceId[]>('local:ui.sourceOrder', {
   fallback: [...SOURCE_IDS],
@@ -86,7 +106,13 @@ export function normalizeOrder(order: unknown): SourceId[] {
  */
 export async function removeV1Leftovers(): Promise<void> {
   const keep = new Set(
-    [onboardedItem.key, sortItem.key, sourceOrderItem.key].map((key) => key.replace(/^local:/, '')),
+    [
+      onboardedItem.key,
+      sortItem.key,
+      mentionsOpenItem.key,
+      seenVersionItem.key,
+      sourceOrderItem.key,
+    ].map((key) => key.replace(/^local:/, '')),
   );
   const stale = Object.keys(await browser.storage.local.get(null)).filter((key) => !keep.has(key));
   await browser.storage.local.remove(stale);

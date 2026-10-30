@@ -131,7 +131,7 @@ export async function checkTab(tabId: number): Promise<void> {
         isBlocked: (url: string) => !isAllowedByFilter(url, siteFilter),
       }),
     });
-    if (!controller.signal.aborted) await showResult(tabId, key, result, settings.badge);
+    if (!controller.signal.aborted) await showResult(tabId, key, result, settings);
   } catch (error) {
     if (!controller.signal.aborted) console.warn('Find On: automatic check failed', error);
   } finally {
