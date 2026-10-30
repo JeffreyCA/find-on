@@ -4,6 +4,25 @@ All notable changes to Find On are documented here. The format is based on [Keep
 
 Versions up to 1.6.1 were released as Find on Reddit by Adeel Hassan ([AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit)). Dates before 2.0.0 are when each version appeared in the repository.
 
+## [2.1.0] - 2026-10-30
+
+### Added
+
+- Add search for threads that link to the page in Hacker News comments and text posts, and in Reddit posts.
+- Add text posts to the results and the badge count, with a new "Text posts" toggle to hide them.
+- Add new "Mentioned in HN comments" section to the popup.
+- Add new "Search Reddit comments" link.
+- Add What's new panel to settings.
+- Add links to the GitHub repository and to report an issue.
+
+### Changed
+
+- Always show the source tabs, and dim sources that are empty or weren't checked.
+- Replace text labels with icons for link posts, text posts, comment threads, points and comments.
+- Skip Reddit lookups on Reddit's front page.
+- Move notes such as "not checked in private windows" below the results.
+- Simplify the welcome page.
+
 ## [2.0.2] - 2026-10-26
 
 ### Fixed
