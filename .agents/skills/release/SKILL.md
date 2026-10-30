@@ -10,7 +10,10 @@ Pushing a `v<version>` tag runs `.github/workflows/release.yml`. It checks that 
 
 1. Start from an up-to-date, clean main: `git switch main && git pull --ff-only`, and `git status` shows no changes.
 2. Read the version from package.json. If the tag `v<version>` already exists (`git tag -l v<version>`), that version is released: ask the user whether the next one is a patch (fixes and polish) or a minor version (new features), run `npm version <next> --no-git-tag-version`, and add a `## [<next>] - Unreleased` section at the top of CHANGELOG.md.
-3. Make sure the version's CHANGELOG.md section lists every user-facing change since the previous release. Compare it with `git log --oneline <previous tag>..main`; when the previous version was never tagged, use the log since the commit that dated its changelog section.
+3. Make sure the version's CHANGELOG.md section lists every user-facing change since the previous release. Compare it with `git log --oneline <previous tag>..main`; when the previous version was never tagged, use the log since the commit that dated its changelog section. Write the entries in this style (the settings page shows them under What's new):
+   - Group them under `### Added`, `### Changed` and `### Fixed`, leaving out empty groups.
+   - Make each entry one short sentence that starts with a verb, such as `Add new "Search Reddit comments" link.` or `Move notes such as "not checked in private windows" below the results.`
+   - Name UI elements as the user sees them, in quotes. Leave out explanations, internals and fixes to changes that were never released.
 4. Replace `- Unreleased` in that section's heading with today's date, `- YYYY-MM-DD` (`date +%Y-%m-%d`).
 5. Run `npm run check` and `npm run test:e2e`.
 6. Create the branch `release/v<version>`, commit with the message `Release <version>`, push it, and open a pull request with `gh pr create`. Stop here and ask the user to merge it.
