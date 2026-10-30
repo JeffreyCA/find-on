@@ -1,6 +1,7 @@
 // The results area: the filter/sort bar (with the "Text posts" toggle) and the list of discussions,
 // with placeholder rows for sources still being checked, the zero-comment fold, the "Other versions"
-// and "Mentioned in comments" groups, and the links to the sources' own sites that end the results.
+// and "Mentioned in HN comments" groups, and the links to the sources' own sites that end the
+// results.
 
 import { useId } from 'preact/hooks';
 import { authorLabel, mentionUrl, threadUrl, venueLabel, type RedditHost } from '@/core/links';
@@ -250,7 +251,7 @@ export function ResultList({
         </section>
       )}
       {model.mentions.length > 0 && (
-        <section class="others mentions" aria-label="Mentioned in comments">
+        <section class="others mentions" aria-label="Mentioned in HN comments">
           <button
             type="button"
             class="disclosure others-head"
@@ -259,7 +260,7 @@ export function ResultList({
             onClick={onMentions}
           >
             <ChevronIcon open={mentionsOpen} />
-            Mentioned in comments <span class="disclosure-count">{model.mentions.length}</span>
+            Mentioned in HN comments <span class="disclosure-count">{model.mentions.length}</span>
           </button>
           {mentionsOpen && (
             <ul class="list">
@@ -314,7 +315,7 @@ const KIND_LABELS: Record<RowKind, string> = {
   link: 'Link post',
   text: 'Text post',
   title: 'Link in post title',
-  comments: 'Mentioned in comments',
+  comments: 'Mentioned in HN comments',
 };
 
 function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
@@ -363,12 +364,12 @@ function Row({ d, host, stat, now, onLink, current, pageUrl }: RowProps) {
 export function SourceLinks({ links, onLink }: { links: SourceLink[]; onLink: LinkHandler }) {
   return (
     <ul class="source-links">
-      {links.map(({ source, label, url }) => (
+      {links.map(({ source, label, url, hint }) => (
         <li key={source}>
           <a
             class="disclosure source-link"
             href={url}
-            title={label}
+            title={hint ?? label}
             data-nav
             onClick={(event) => onLink(event, url)}
             onAuxClick={(event) => onLink(event, url)}
@@ -432,7 +433,7 @@ function MentionRow({
 /**
  * What the thread is, as an icon before its title, with its meaning as a tooltip. It stays out of
  * the row's name: screen readers get the meaning from KindText in the discussion rows, and from the
- * group's name ("Mentioned in comments") in the rows of threads found through comments.
+ * group's name ("Mentioned in HN comments") in the rows of threads found through comments.
  */
 function KindIcon({ kind }: { kind: RowKind }) {
   return (

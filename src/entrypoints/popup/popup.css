@@ -531,7 +531,7 @@
   background: var(--accent);
 }
 
-/* Disclosures: "+N more without comments", "Other versions" and "Mentioned in comments" */
+/* Disclosures: "+N more without comments", "Other versions" and "Mentioned in HN comments" */
 
 .fold {
   position: relative;

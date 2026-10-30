@@ -123,12 +123,12 @@ test('lists threads that link to the page', async ({ context, serviceWorker, ext
 
   // Two of the mentions are discussions as well, and three are text posts, listed with the
   // discussions: the group holds the one thread found through comments.
-  await expect(popup.getByRole('button', { name: 'Mentioned in comments 1' })).toBeVisible();
+  await expect(popup.getByRole('button', { name: 'Mentioned in HN comments 1' })).toBeVisible();
 
   // With "Text posts" off they are hidden, and the counts are the discussions' alone.
   await popup.getByRole('button', { name: 'Text posts' }).click();
   await expect(popup.getByRole('radio', { name: 'All 15' })).toBeChecked();
-  await popup.getByRole('button', { name: 'Mentioned in comments 1' }).click();
+  await popup.getByRole('button', { name: 'Mentioned in HN comments 1' }).click();
   // A thread whose comments link to the page opens at the newest of them.
   await expect(popup.getByRole('link', { name: 'Thread A', exact: true })).toHaveAttribute(
     'href',

@@ -124,7 +124,7 @@ export function Popup({
   };
   // A group opens by itself when the list above it is empty (no discussions, or none for the chosen
   // source), so what was found is never hidden behind a closed heading. Otherwise "Other versions"
-  // starts closed, and "Mentioned in comments" as the user last left it.
+  // starts closed, and "Mentioned in HN comments" as the user last left it.
   const listEmpty = !model.showResults;
   const notes = model.statuses.filter((s) => s.tone === 'note');
   const othersShown = othersOpen ?? (listEmpty && model.similar.length > 0);

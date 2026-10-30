@@ -1,7 +1,7 @@
 // What the popup shows for a lookup result, as plain data: per-source state, the filtered and sorted
 // rows (text posts included unless the user hides them), the zero-comment fold, "Other versions",
-// the threads found through comments that link to the page ("Mentioned in comments"), status lines
-// and the empty state. Pure, so it can be tested without a DOM.
+// the threads found through comments that link to the page ("Mentioned in HN comments"), status
+// lines and the empty state. Pure, so it can be tested without a DOM.
 
 import { unlistedMentions } from '@/core/format';
 import { hnSiteUrl, redditLoginUrl, redditOrigin, type RedditHost } from '@/core/links';
@@ -48,7 +48,7 @@ export type RowKind =
   | 'text'
   /** A post that links to the page in its title. */
   | 'title'
-  /** A thread found through comments that link to the page ("Mentioned in comments"). */
+  /** A thread found through comments that link to the page ("Mentioned in HN comments"). */
   | 'comments';
 
 /** A row of the main list: a discussion, or a text post listed with them. */
@@ -90,6 +90,8 @@ export interface SourceLink {
   source: SourceId;
   label: string;
   url: string;
+  /** Its tooltip, when the label alone doesn't say why the link is there. */
+  hint?: string;
 }
 
 /** A line under the URL field about how the page was looked up. */
@@ -121,8 +123,8 @@ export interface PopupModel {
   /** SIMILAR rows ("Other versions"), sorted. */
   similar: ListRow[];
   /**
-   * Threads found through comments that link to the page ("Mentioned in comments"), minus the ones
-   * listed above, newest mention first: they have no numbers to sort by.
+   * Threads found through comments that link to the page ("Mentioned in HN comments"), minus the
+   * ones listed above, newest mention first: they have no numbers to sort by.
    */
   mentions: Mention[];
   /** Links to what a source's own site shows beyond the results, ending the list. */
@@ -242,7 +244,8 @@ export function buildModel(input: ModelInput): PopupModel {
       state.status !== 'off' && !(state.status === 'skipped' && state.reason !== 'filtered');
     const keys = asked ? computeKeys(page.url) : null;
     const url = keys ? commentSearchUrl(keys) : null;
-    return url ? [{ source: id, label: 'Search Reddit comments', url }] : [];
+    const hint = "Find On can't search Reddit comments directly, so this opens Reddit's search.";
+    return url ? [{ source: id, label: 'Search Reddit comments', url, hint }] : [];
   });
 
   const total = views.reduce((n, s) => n + s.count, 0);
