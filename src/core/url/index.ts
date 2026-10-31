@@ -7,7 +7,7 @@
 // Use checkEligibility() first: only its sanitized URL may be sent to other services.
 
 /** Bump whenever normalization output changes, so cached results keyed on old rules are ignored. */
-export const RULES_VERSION: number = 1;
+export const RULES_VERSION: number = 2;
 
 export { checkEligibility, type Eligibility } from './eligibility';
 export {

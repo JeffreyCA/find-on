@@ -1,5 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { linksInHtml, urlsInText } from './text-links';
+import { computeKeys } from '../url';
+import { linkingItems, linksInHtml, urlsInText } from './text-links';
+
+describe('linkingItems', () => {
+  it('keeps the closest link of each item that links to the page', () => {
+    const page = computeKeys('https://example.com/post') ?? expect.unreachable();
+    const linking = linkingItems(
+      [
+        ['https://example.com/post?ref=hn', 'https://example.com/post/'],
+        ['https://example.com/post/amp'],
+        ['https://example.com/other'],
+      ],
+      page,
+    );
+    expect([...linking]).toEqual([
+      [0, { url: 'https://example.com/post/', tier: 'exact' }],
+      [1, { url: 'https://example.com/post/amp', tier: 'similar' }],
+    ]);
+  });
+});
 
 describe('linksInHtml', () => {
   it('reads hrefs and URLs written as text, never shortened link text', () => {

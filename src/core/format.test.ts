@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { badgeText, compactNumber } from './format';
-import type { Discussion, LookupResult, Mention, SourceState } from './types';
+import type { Discussion, LookupResult, Mention, SourceState, Tier } from './types';
 
 describe('compactNumber', () => {
   it.each([
@@ -37,14 +37,22 @@ const item = (tier: Discussion['tier'], comments: number): Discussion => ({
   permalink: '/r/sub/comments/x/t/',
   flags: [],
 });
-const mention = (id: string, comments?: number): Mention => ({
+const mention = (id: string, comments?: number, tier: Tier = 'exact'): Mention => ({
   source: 'reddit',
   id,
   title: 't',
   venue: 'sub',
   permalink: `/r/sub/comments/${id}/t/`,
   ...(comments !== undefined && {
-    post: { link: 'text', author: 'a', points: 1, comments, createdAt: 0 },
+    post: {
+      link: 'text',
+      url: 'https://example.com/',
+      tier,
+      author: 'a',
+      points: 1,
+      comments,
+      createdAt: 0,
+    },
   }),
   inComments: 0,
   linkedAt: 0,
@@ -86,7 +94,7 @@ describe('badgeText', () => {
     ).toBe('');
   });
 
-  it('adds text posts while they are counted, but never a thread already listed', () => {
+  it('adds text posts while they are counted, but not other versions or threads already listed', () => {
     const r: LookupResult = {
       ...result(
         { status: 'ok', items: [], complete: true },
@@ -95,8 +103,14 @@ describe('badgeText', () => {
       mentions: {
         reddit: {
           status: 'ok',
-          // A text post, a discussion that is a mention too, and a thread found through comments.
-          items: [mention('post', 40), mention('same600', 600), mention('thread')],
+          // A text post, one that links to another version, a discussion that is a mention too,
+          // and a thread found through comments.
+          items: [
+            mention('post', 40),
+            mention('other', 90, 'similar'),
+            mention('same600', 600),
+            mention('thread'),
+          ],
         },
       },
     };

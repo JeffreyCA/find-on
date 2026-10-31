@@ -483,7 +483,8 @@ function matchHnMentions(hits: readonly MentionHit[], page: UrlKeys): Mention[] 
   );
   const threads = new Map<string, Mention>();
   unique.forEach((hit, index) => {
-    if (!linking.has(index)) return;
+    const found = linking.get(index);
+    if (found === undefined) return;
     const at = hit.created_at_i * 1000;
     const mention: Mention = threads.get(hit.thread) ?? {
       source: 'hn',
@@ -500,6 +501,7 @@ function matchHnMentions(hits: readonly MentionHit[], page: UrlKeys): Mention[] 
       mention.title = hit.title;
       mention.post = {
         link: 'text',
+        ...found,
         author: hit.author,
         points: hit.points,
         comments: hit.num_comments,

@@ -1,6 +1,7 @@
 // Links in comment and post bodies, for mentions: hrefs and URLs written as plain text, and which
 // bodies link to the page. Pure TS; no DOMParser, which the service worker lacks.
 
+import type { Tier } from '../types';
 import { classifyHits, type UrlKeys } from '../url';
 
 const HREF = /<a\b[^>]*?\bhref\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
@@ -52,14 +53,33 @@ export function urlsInText(text: string): string[] {
   return [...new Set(urls)];
 }
 
+/** How an item links to the page: its closest link, and that link's tier. */
+export interface PageLink {
+  url: string;
+  tier: Tier;
+}
+
+const TIER_RANK: Record<Tier, number> = { same: 0, exact: 1, similar: 2 };
+
+/** Whether `a` matches the page more closely than `b`. */
+export const closerLink = (a: PageLink, b: PageLink | undefined): boolean =>
+  b === undefined || TIER_RANK[a.tier] < TIER_RANK[b.tier];
+
 /**
- * Indexes of the items that link to the page, given each item's links. All links are classified in
- * one batch, like submitted URLs, so the SIMILAR fan-out guard sees every one of them. Any tier
- * counts.
+ * The items that link to the page, by index, given each item's links. All links are classified in
+ * one batch, like submitted URLs, so the SIMILAR fan-out guard sees every one of them. Each item
+ * keeps its closest link (the first of equals).
  */
-export function linkingItems(links: ReadonlyArray<readonly string[]>, page: UrlKeys): Set<number> {
+export function linkingItems(
+  links: ReadonlyArray<readonly string[]>,
+  page: UrlKeys,
+): Map<number, PageLink> {
   const candidates = links.flatMap((list, index) => list.map((url) => ({ url, index })));
-  return new Set(classifyHits(candidates, [page]).map((c) => c.index));
+  const best = new Map<number, PageLink>();
+  for (const { url, index, tier } of classifyHits(candidates, [page])) {
+    if (closerLink({ url, tier }, best.get(index))) best.set(index, { url, tier });
+  }
+  return best;
 }
 
 /** Decodes character references in one pass, so "&amp;#x2F;" becomes "&#x2F;" and stops there. */
