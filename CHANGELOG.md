@@ -4,6 +4,13 @@ All notable changes to Find On are documented here. The format is based on [Keep
 
 Versions up to 1.6.1 were released as Find on Reddit by Adeel Hassan ([AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit)). Dates before 2.0.0 are when each version appeared in the repository.
 
+## [2.1.1] - 2026-10-31
+
+### Fixed
+
+- List text posts that link to another version of the page under "Other versions", and leave them out of the badge count.
+- Ignore the "taid" tracking parameter that news sites add to links shared on social media.
+
 ## [2.1.0] - 2026-10-30
 
 ### Added
