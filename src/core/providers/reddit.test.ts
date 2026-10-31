@@ -157,6 +157,8 @@ describe('lookupRedditMentions', () => {
       permalink: '/r/DoctorWhumour/comments/zzm2/slug/',
       post: {
         link: 'title',
+        url: 'https://xkcd.com/927/',
+        tier: 'exact',
         author: 'someone',
         points: 10,
         comments: 3,

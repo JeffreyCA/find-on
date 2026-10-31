@@ -1,6 +1,6 @@
 {
   "name": "find-on",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "private": true,
   "description": "Find Hacker News and Reddit discussions of the page you're on.",
   "license": "MIT",

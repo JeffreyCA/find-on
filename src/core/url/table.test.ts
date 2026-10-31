@@ -544,6 +544,13 @@ describe('computeKeys table', () => {
 const PAIRS: Array<[string, string, 'same' | 'exact' | 'similar' | null]> = [
   ['https://www.example.com/post/?utm_source=x', 'http://example.com/post', 'exact'],
   ['https://example.com/post', 'https://example.com/post?ref=hn', 'similar'],
+  // trueAnthem's share id; the same name with another value may mean something.
+  [
+    'https://www.reuters.com/world/a-story/?taid=6adf45821579270001ce08d5&utm_medium=trueAnthem',
+    'https://www.reuters.com/world/a-story/',
+    'exact',
+  ],
+  ['https://example.com/a-story?taid=12', 'https://example.com/a-story', 'similar'],
   ['https://example.com/post', 'https://example.com/post/amp/', 'similar'],
   ['https://example.com/post', 'https://example.com/other', null],
   [

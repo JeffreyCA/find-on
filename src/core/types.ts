@@ -76,10 +76,17 @@ export interface Mention {
   flags: DiscussionFlag[];
 }
 
-/** A post that links to the page: the popup can list it with the discussions. */
+/**
+ * A post that links to the page: the popup can list it with the discussions, or with the other
+ * versions when it links to one of those.
+ */
 export interface MentionPost {
   /** Where: its text (HN or Reddit), or only its title (Reddit). */
   link: 'text' | 'title';
+  /** Its closest link to the page, as written. */
+  url: string;
+  /** That link's tier, as for a discussion's submitted URL. */
+  tier: Tier;
   author: string;
   points: number;
   comments: number;

@@ -445,21 +445,24 @@ function announce(
 /** A mention whose post itself links to the page: a text post. */
 const hasPost = (m: Mention): m is Mention & { post: MentionPost } => m.post !== undefined;
 
-/** A text post as a row of the main list. */
+/**
+ * A text post as a row: of the main list, or of "Other versions" when it links to another version
+ * of the page, as for a link post.
+ */
 function postRow(m: Mention & { post: MentionPost }): ListRow {
   const { post } = m;
   return {
     source: m.source,
     id: m.id,
     title: m.title,
-    // Only "Other versions" rows show the submitted URL.
-    submittedUrl: '',
+    // Shown under "Other versions" rows, like a link post's submitted URL.
+    submittedUrl: post.url,
     venue: m.venue,
     author: post.author,
     points: post.points,
     comments: post.comments,
     createdAt: post.createdAt,
-    tier: 'exact',
+    tier: post.tier,
     permalink: m.permalink,
     flags: m.flags,
     kind: post.link,

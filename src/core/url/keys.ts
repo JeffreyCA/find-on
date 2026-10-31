@@ -56,7 +56,6 @@ const AMBIGUOUS_SOURCE = new Set([
   'cmp',
   'trk',
   'sr_share',
-  'taid',
   '_fb_noscript',
   'hn',
   'fj',

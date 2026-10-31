@@ -12,8 +12,8 @@ export const BADGE_TEXT = '#FFFFFF';
 
 /**
  * Badge text for the toolbar icon: SAME and EXACT discussions (or their comments), plus with
- * `textPosts` the text posts among the mentions, not counting the thread the page itself is, so a
- * discussion page alone lights nothing. '' when nothing counts.
+ * `textPosts` the text posts among the mentions that link to the page in those tiers, not counting
+ * the thread the page itself is, so a discussion page alone lights nothing. '' when nothing counts.
  */
 export function badgeText(
   r: LookupResult,
@@ -32,7 +32,7 @@ export function badgeText(
   }
   if (textPosts) {
     for (const { post } of unlistedMentions(r)) {
-      if (post) n += mode === 'comments' ? post.comments : 1;
+      if (post && post.tier !== 'similar') n += mode === 'comments' ? post.comments : 1;
     }
   }
   return n > 0 ? compactNumber(n) : '';

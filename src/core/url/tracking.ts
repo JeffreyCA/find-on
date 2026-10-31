@@ -1,6 +1,7 @@
 // Query parameters that only track (removed from every key) and parameters that look secret (never
 // sent anywhere). The tracking names come from tracking-params.generated.json, which is generated
-// from MPL-2.0 lists by scripts/build-tracking-list.mjs. Pure, no browser APIs.
+// from MPL-2.0 lists by scripts/build-tracking-list.mjs, plus a few the lists lack (UNLISTED). Pure,
+// no browser APIs.
 
 import TRACKING from './tracking-params.generated.json';
 
@@ -96,6 +97,13 @@ function isSessionId(name: string, value: string): boolean {
 }
 
 /**
+ * Tracking names missing from Brave's and Firefox's lists, each with the shape of the values it
+ * tracks with, so a site that uses the name for something else keeps it. trueAnthem, which news
+ * sites use to post to social media, adds `taid` (a 24-digit hex id) next to its utm_ parameters.
+ */
+const UNLISTED: ReadonlyMap<string, RegExp> = new Map([['taid', /^[0-9a-f]{24}$/i]]);
+
+/**
  * Returns a predicate that tells whether a query parameter of this URL only tracks. `host` is the
  * lowercased host (with "www." if present), `pathAndQuery` the raw path plus search string.
  */
@@ -109,7 +117,11 @@ export function trackingFilter(
   return (name, value) => {
     const n = name.toLowerCase();
     return (
-      GLOBAL.has(n) || site.has(n) || PREFIXES.some((p) => n.startsWith(p)) || isSessionId(n, value)
+      GLOBAL.has(n) ||
+      site.has(n) ||
+      PREFIXES.some((p) => n.startsWith(p)) ||
+      UNLISTED.get(n)?.test(value) === true ||
+      isSessionId(n, value)
     );
   };
 }

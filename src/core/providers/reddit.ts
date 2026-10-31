@@ -30,7 +30,7 @@ import {
 } from '../types';
 import { classifyHits, computeKeys, redditVariants, splitIdentity, type UrlKeys } from '../url';
 import { hasStrongMatch, numberOr0, stringOr, type OkState } from './common';
-import { linkingItems, linksInHtml, urlsInText } from './text-links';
+import { closerLink, linkingItems, linksInHtml, urlsInText } from './text-links';
 
 export const OLD_REDDIT = redditOrigin('old');
 
@@ -513,8 +513,12 @@ export function matchMentionPosts(posts: readonly RedditPost[], page: UrlKeys): 
     page,
   );
   return unique.flatMap((p, i): Mention[] => {
-    const link = linking.has(2 * i) ? 'text' : linking.has(2 * i + 1) ? 'title' : undefined;
-    if (link === undefined) return [];
+    const text = linking.get(2 * i);
+    const title = linking.get(2 * i + 1);
+    // The closer link, the text's when both are as close.
+    const inTitle = title !== undefined && closerLink(title, text);
+    const found = inTitle ? title : text;
+    if (found === undefined) return [];
     const createdAt = p.created_utc * 1000;
     return [
       {
@@ -523,7 +527,14 @@ export function matchMentionPosts(posts: readonly RedditPost[], page: UrlKeys): 
         title: p.title,
         venue: p.subreddit,
         permalink: p.permalink,
-        post: { link, author: p.author, points: p.score, comments: p.num_comments, createdAt },
+        post: {
+          link: inTitle ? 'title' : 'text',
+          ...found,
+          author: p.author,
+          points: p.score,
+          comments: p.num_comments,
+          createdAt,
+        },
         inComments: 0,
         linkedAt: createdAt,
         flags: flagsOf(p),
