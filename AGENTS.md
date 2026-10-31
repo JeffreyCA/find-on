@@ -17,6 +17,7 @@ Find On is a Chrome and Edge (Manifest V3) extension that looks up the current p
 - Mentions (`LookupResult.mentions`) are looked up on `full` lookups, and on `auto` lookups only while the `textPosts` setting is on. Only text posts among them count toward the badge, and only while `textPosts` is on. A text post is tiered by its closest link to the page, like a link post by its URL: one that only links to a SIMILAR version is listed under "Other versions" and not counted.
 - To add a setting, add its default to `DEFAULT_SETTINGS`. Stored settings are merged over the defaults, so no migration is needed.
 - Write commit messages without co-author, tool or session trailers.
+- Pass `--repo JeffreyCA/find-on` to every `gh` command. The checkout also has an `upstream` remote (AdeelH/find-on-reddit, the original project), and with no default repository set, `gh` picks it.
 - Change CHANGELOG.md only when bumping the version or preparing a release.
 
 ## Docs
