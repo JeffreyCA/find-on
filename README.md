@@ -1,5 +1,9 @@
 # Find On
 
+[![Release](https://img.shields.io/github/v/release/JeffreyCA/find-on?label=Release)](https://github.com/JeffreyCA/find-on/releases/latest)
+[![Chrome](https://img.shields.io/chrome-web-store/v/dhbjhlhecoimpegffjpmagkhiflkbepe?label=Chrome&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/dhbjhlhecoimpegffjpmagkhiflkbepe)
+[![Edge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fpokgoanaapnbijafopjbgfbcjhhimknl&query=%24.version&prefix=v&label=Edge)](https://microsoftedge.microsoft.com/addons/detail/find-on-reddit-hacker/pokgoanaapnbijafopjbgfbcjhhimknl)
+
 Find On is a Chrome and Edge extension that shows Hacker News and Reddit discussions of the page you're on.
 
 ![The Find On popup listing Hacker News and Reddit discussions of xkcd.com/927](store/screenshots/1-results.png)
