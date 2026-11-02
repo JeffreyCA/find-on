@@ -786,6 +786,7 @@
         "*.x.com"
       ],
       "params": [
+        "a",
         "cxt",
         "ref_src",
         "ref_url",
@@ -1176,8 +1177,11 @@
         "x.com"
       ],
       "params": [
+        "a",
         "ref_src",
-        "ref_url"
+        "ref_url",
+        "s",
+        "t"
       ]
     },
     {
