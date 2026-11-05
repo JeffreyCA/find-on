@@ -1,8 +1,7 @@
 // Fetch wrapper with typed outcomes, per-attempt timeouts and bounded retries. Pure TS: the fetch
 // function, clock and sleep are injected, so it runs in the service worker and in tests alike.
 //
-// Nothing here parses a body unless the response is OK JSON, so an HTML block page, a login wall or
-// a captcha can never be mistaken for data (the v1 bug that started the rewrite).
+// JSON and HTML requests both reject block pages, login walls and human-verification pages.
 
 import type { SourceId, SourceState } from './types';
 
@@ -21,7 +20,7 @@ export interface ResponseMeta {
 }
 
 export type HttpOutcome =
-  /** 2xx with a JSON content type and a body that parsed. */
+  /** 2xx with the requested content type and a body that parsed. */
   | { kind: 'ok'; data: unknown; meta: ResponseMeta }
   /** Redirected to a /login page (old.reddit.com when signed out). */
   | { kind: 'login'; meta: ResponseMeta }
@@ -33,7 +32,7 @@ export type HttpOutcome =
    * Reddit serves to signed-in users too.
    */
   | { kind: 'http'; meta: ResponseMeta }
-  /** 2xx that is not JSON, or JSON that does not parse. */
+  /** An unexpected content type, invalid JSON or an oversized HTML response. */
   | { kind: 'format'; detail: string; meta: ResponseMeta }
   | { kind: 'network'; detail: string }
   | { kind: 'timeout' };
@@ -61,6 +60,8 @@ export const REQUEST_TIMEOUT_MS = 8000;
 /** Wait after a 429 that names no reset time. */
 const DEFAULT_RETRY_AFTER_S = 60;
 const CHALLENGE_MARKERS = /prove your humanity|verify (?:that )?you(?:'|’)?re (?:a )?human/i;
+const MAX_HTML_BYTES = 2 * 1024 * 1024;
+type BodyType = 'json' | 'html';
 
 /** 500 ms, 1 s, 2 s, ... before retry number `attempt + 1`. */
 export function backoffMs(attempt: number): number {
@@ -77,10 +78,30 @@ export async function getJson(
   env: HttpEnv,
   signal: AbortSignal,
 ): Promise<HttpOutcome> {
+  return get(url, policy, env, signal, 'json');
+}
+
+/** Like getJson, but for non-rendered HTML such as Reddit's search results. */
+export async function getHtml(
+  url: string,
+  policy: FetchPolicy,
+  env: HttpEnv,
+  signal: AbortSignal,
+): Promise<HttpOutcome> {
+  return get(url, policy, env, signal, 'html');
+}
+
+async function get(
+  url: string,
+  policy: FetchPolicy,
+  env: HttpEnv,
+  signal: AbortSignal,
+  bodyType: BodyType,
+): Promise<HttpOutcome> {
   const sleep = env.sleep ?? defaultSleep;
   for (let attempt = 0; ; attempt++) {
     // oxlint-disable-next-line no-await-in-loop -- retries are sequential by design
-    const outcome = await attemptOnce(url, policy, env, signal);
+    const outcome = await attemptOnce(url, policy, env, signal, bodyType);
     if (attempt >= policy.retries || !isTransient(outcome, policy)) return outcome;
     // oxlint-disable-next-line no-await-in-loop -- backoff between sequential attempts
     await sleep(backoffMs(attempt), signal);
@@ -110,6 +131,7 @@ async function attemptOnce(
   policy: FetchPolicy,
   env: HttpEnv,
   signal: AbortSignal,
+  bodyType: BodyType,
 ): Promise<HttpOutcome> {
   signal.throwIfAborted();
   const timeout = AbortSignal.timeout(policy.timeoutMs);
@@ -119,10 +141,10 @@ async function attemptOnce(
       credentials: policy.credentials,
       cache: 'no-store',
       redirect: 'follow',
-      headers: { Accept: 'application/json' },
+      headers: { Accept: bodyType === 'json' ? 'application/json' : 'text/html' },
       signal: AbortSignal.any([signal, timeout]),
     });
-    return await classifyResponse(res, env.now());
+    return await classifyResponse(res, env.now(), bodyType);
   } catch (error) {
     signal.throwIfAborted();
     if (timeout.aborted) return { kind: 'timeout' };
@@ -131,7 +153,11 @@ async function attemptOnce(
 }
 
 /** Maps a response to an outcome, reading the body only when it decides the outcome. */
-export async function classifyResponse(res: Response, now: number): Promise<HttpOutcome> {
+export async function classifyResponse(
+  res: Response,
+  now: number,
+  bodyType: BodyType = 'json',
+): Promise<HttpOutcome> {
   const contentType = res.headers.get('content-type') ?? '';
   const rate = rateInfo(res.headers, now);
   const meta: ResponseMeta = { status: res.status, contentType, ...(rate && { rate }) };
@@ -144,7 +170,7 @@ export async function classifyResponse(res: Response, now: number): Promise<Http
     discard(res);
     return { kind: 'rate-limited', retryAt: retryAt(res.headers, now, rate), meta };
   }
-  if (res.ok && /\bjson\b/i.test(contentType)) {
+  if (bodyType === 'json' && res.ok && /\bjson\b/i.test(contentType)) {
     try {
       return { kind: 'ok', data: await res.json(), meta };
     } catch (error) {
@@ -154,13 +180,45 @@ export async function classifyResponse(res: Response, now: number): Promise<Http
     }
   }
   if (/\bhtml\b/i.test(contentType)) {
-    const body = await res.text();
-    if (CHALLENGE_MARKERS.test(body)) return { kind: 'challenge', meta };
+    const body = await boundedHtml(res);
+    if (body !== null) {
+      // Successful search pages may quote challenge text in their results.
+      const challengeText =
+        bodyType === 'html' && res.ok
+          ? (/<title\b[^>]*>([\s\S]*?)<\/title\s*>/i.exec(body)?.[1] ?? '')
+          : body;
+      if (CHALLENGE_MARKERS.test(challengeText)) return { kind: 'challenge', meta };
+      if (bodyType === 'html' && res.ok) return { kind: 'ok', data: body, meta };
+    } else if (res.ok) {
+      return { kind: 'format', detail: 'HTML response too large', meta };
+    }
   } else {
     discard(res);
   }
   if (!res.ok) return { kind: 'http', meta };
   return { kind: 'format', detail: `unexpected content type "${contentType}"`, meta };
+}
+
+async function boundedHtml(res: Response): Promise<string | null> {
+  if (!res.body) return '';
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  const chunks: string[] = [];
+  let bytes = 0;
+  try {
+    for (;;) {
+      // oxlint-disable-next-line no-await-in-loop -- bounded streaming read
+      const { done, value } = await reader.read();
+      if (done) return chunks.join('') + decoder.decode();
+      bytes += value.byteLength;
+      if (bytes > MAX_HTML_BYTES) break;
+      chunks.push(decoder.decode(value, { stream: true }));
+    }
+    await reader.cancel();
+    return null;
+  } finally {
+    reader.releaseLock();
+  }
 }
 
 /**

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   fakeFetch,
   fixtureJson,
+  fixtureText,
+  html,
   json,
   oldRedditLoginWall,
   testEnv,
@@ -9,7 +11,14 @@ import {
 } from '../test-utils';
 import type { Depth, SourceState } from '../types';
 import { computeKeys, type UrlKeys } from '../url';
-import { commentSearchUrl, lookupReddit, lookupRedditMentions, mentionTerm } from './reddit';
+import {
+  checkSignedIn,
+  commentSearchUrl,
+  lookupReddit,
+  lookupRedditMentions,
+  mentionTerm,
+} from './reddit';
+import { parseSearchIds } from './reddit-search';
 
 const PAGE_URL = 'https://xkcd.com/927/';
 const PAGE: UrlKeys = computeKeys(PAGE_URL) ?? expect.unreachable();
@@ -21,13 +30,17 @@ const tooMany = () =>
     headers: { 'x-ratelimit-reset': '40', 'x-ratelimit-remaining': '0' },
   });
 const odd = () => json({ kind: 'Listing', data: { posts: [] } });
-const searchFixture = () => json(fixtureJson('reddit-search-xkcd-927.json'));
+const searchFixture = () => html(fixtureText('reddit-search-xkcd-927.html'));
+const hydratedFixture = () => json(fixtureJson('reddit-search-xkcd-927.json'));
+const infoFixture = () => json(fixtureJson('reddit-info-xkcd-927.json'));
+const blockPage = () => html(fixtureText('reddit-blocked-403.html'), 403);
 
-/** Answers old.reddit.com search and info; any other request fails as a network error. */
-function reddit(search: () => Response, info: () => Response): Route {
+/** Search HTML, ID hydration and exact-URL lookups, all on the same host. */
+function reddit(search: () => Response, info: () => Response, hydrate = hydratedFixture): Route {
   return (url) => {
-    if (url.hostname === 'old.reddit.com' && url.pathname === '/search.json') return search();
-    if (url.hostname === 'old.reddit.com' && url.pathname === '/api/info.json') return info();
+    if (url.hostname === 'old.reddit.com' && url.pathname === '/search') return search();
+    if (url.hostname === 'old.reddit.com' && url.pathname === '/api/info.json')
+      return url.searchParams.has('id') ? hydrate() : info();
     throw new Error(`unexpected request ${url.href}`);
   };
 }
@@ -57,7 +70,7 @@ function items(state: SourceState) {
 
 describe('lookupReddit', () => {
   it('keeps matching posts, hides deleted and removed ones, and drops other pages', async () => {
-    const { run } = setup(reddit(searchFixture, () => json(EMPTY)));
+    const { run, calls } = setup(reddit(searchFixture, () => json(EMPTY)));
     const found = items(await run('auto'));
     const byId = Object.fromEntries(found.map((d) => [d.id, d]));
     expect(Object.keys(byId).toSorted()).toEqual(
@@ -82,6 +95,10 @@ describe('lookupReddit', () => {
     });
     expect(byId['1wvy0pb']?.flags).toEqual(['nsfw']);
     expect(byId['zzxpost']?.crosspostOf).toBe('73b660');
+    expect(calls.every(({ init }) => init?.credentials === 'include')).toBe(true);
+    expect(
+      calls.find(({ url }) => url.searchParams.has('id'))?.url.searchParams.get('id'),
+    ).toContain('t3_iuhzn');
   });
 
   it('is ok, but incomplete, when one request fails and another answers', async () => {
@@ -91,7 +108,103 @@ describe('lookupReddit', () => {
     const state = await run('auto');
     expect(state).toMatchObject({ status: 'ok', complete: false });
     expect(items(state).length).toBeGreaterThan(0);
+    expect(endpoints()).toEqual(['old /search', 'old /api/info', 'old /api/info']);
+  });
+
+  it('accepts verified empty HTML without hydrating, but not an unrelated page', async () => {
+    const empty = setup(
+      reddit(
+        () => html('<div class="search-result-listing"></div>'),
+        () => json(EMPTY),
+      ),
+    );
+    expect(await empty.run('auto')).toEqual({ status: 'ok', items: [], complete: true });
+    expect(empty.calls).toHaveLength(2);
+    const unrelated = setup(
+      reddit(
+        () => html('<form action="/login"></form>'),
+        () => json(EMPTY),
+      ),
+    );
+    expect(await unrelated.run('auto')).toMatchObject({ status: 'ok', complete: false });
+  });
+
+  it('hydrates only discovered IDs, in search order, and omits missing posts', async () => {
+    const { run, calls } = setup(
+      reddit(
+        () =>
+          html(`<div class="search-result-listing">
+        <div class="search-result" data-fullname="t3_iuruu"></div>
+        <div class="search-result" data-fullname="t3_absent"></div>
+        <div class="search-result" data-fullname="t3_iuhzn"></div>
+      </div>`),
+        () => json(EMPTY),
+      ),
+    );
+    expect(items(await run('auto')).map(({ id }) => id)).toEqual(['iuruu', 'iuhzn']);
+    expect(calls.find(({ url }) => url.searchParams.has('id'))?.url.searchParams.get('id')).toBe(
+      't3_iuruu,t3_absent,t3_iuhzn',
+    );
+  });
+
+  it('preserves exact-URL results when ID hydration is blocked', async () => {
+    const { run } = setup(reddit(searchFixture, infoFixture, blockPage));
+    const state = await run('auto');
+    expect(state).toMatchObject({ status: 'ok', complete: false, limited: true });
+    expect(items(state).length).toBeGreaterThan(0);
+  });
+
+  it('reserves the extra hydration request in the automatic rate budget', async () => {
+    const { run, calls } = setup(reddit(searchFixture, () => json(EMPTY)));
+    expect((await run('auto')).status).toBe('ok');
+    expect((await run('auto')).status).toBe('ok');
+    expect(await run('auto')).toEqual({ status: 'deferred' });
+    expect(calls).toHaveLength(6);
+  });
+
+  it('does not hydrate after the parallel exact-URL request hits a rate limit', async () => {
+    const htmlResponse = Promise.withResolvers<Response>();
+    const { run, calls } = setup((url) =>
+      url.pathname === '/search' ? htmlResponse.promise : tooMany(),
+    );
+    const result = run('auto');
+    // Let the exact-URL response finish before releasing the HTML response.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    htmlResponse.resolve(searchFixture());
+    expect(await result).toMatchObject({ status: 'rate-limited' });
+    expect(await run('auto')).toMatchObject({ status: 'rate-limited' });
+    expect(calls).toHaveLength(2);
+  });
+
+  it('tries every exact spelling when Reddit blocks its search, then holds search back', async () => {
+    const { run, calls, endpoints } = setup((url, init) =>
+      url.pathname.startsWith('/duplicates/')
+        ? json([EMPTY, EMPTY])
+        : reddit(blockPage, infoFixture)(url, init),
+    );
+    const state = await run('full');
+    expect(state).toMatchObject({ status: 'ok', complete: false, limited: true });
+    expect(items(state).length).toBeGreaterThan(0);
+    expect(endpoints()).toEqual([
+      'old /search',
+      ...Array.from({ length: 5 }, () => 'old /api/info'),
+      'old /duplicates/1i0iq9e',
+    ]);
+
+    // Held back: an automatic lookup no longer asks, and still is not complete.
+    calls.length = 0;
+    expect(await run('auto')).toMatchObject({ complete: false, limited: true });
+    expect(endpoints()).toEqual(['old /api/info']);
+
+    // A forced lookup does ask.
+    calls.length = 0;
+    await run('auto', true);
     expect(endpoints()).toEqual(['old /search', 'old /api/info']);
+  });
+
+  it('fails like any other error when the exact-URL lookups are blocked too', async () => {
+    const { run } = setup(reddit(blockPage, blockPage));
+    expect(await run('full')).toMatchObject({ status: 'error', kind: 'format' });
   });
 
   it('is signed out when every request hits a sign-in wall, and pauses automatic lookups', async () => {
@@ -138,9 +251,13 @@ const termFor = (url: string) => mentionTerm(computeKeys(url) ?? expect.unreacha
 
 describe('lookupRedditMentions', () => {
   it('finds posts that link to the page in their text or title', async () => {
-    const { run, calls } = mentions(() => json(fixtureJson('reddit-mentions-xkcd-927.json')));
+    const { run, calls } = mentions((url) =>
+      url.pathname === '/search'
+        ? html(fixtureText('reddit-mentions-xkcd-927.html'))
+        : json(fixtureJson('reddit-mentions-xkcd-927.json')),
+    );
     const state = await run();
-    expect(calls).toHaveLength(1);
+    expect(calls).toHaveLength(2);
     const url = calls[0]?.url;
     expect(url?.hostname).toBe('old.reddit.com');
     expect(url?.searchParams.get('q')).toBe('"xkcd.com/927"');
@@ -170,8 +287,41 @@ describe('lookupRedditMentions', () => {
     });
   });
 
+  describe('parseSearchIds', () => {
+    it('ignores promoted entries, sidebar posts, invalid IDs and script content, and dedupes', () => {
+      expect(
+        parseSearchIds(`
+        <div class="thing" data-fullname="t3_sidebar"></div>
+        <script><div class="search-result-listing"><div class="search-result" data-fullname="t3_script"></div></div></script>
+        <div class="search-result-listing">
+          <div class="search-result" data-fullname="t3_a"></div>
+          <div class="search-result" data-fullname="t3_a"></div>
+          <div data-promoted="true"><div class="search-result" data-fullname="t3_ad"></div></div>
+          <div class="search-result" data-fullname="t5_subreddit"></div>
+          <div class="search-result" data-fullname="t3_invalid,other"></div>
+          <div class="search-result" data-fullname="t3_b"></div>
+        </div>
+      `),
+      ).toEqual(['t3_a', 't3_b']);
+      expect(
+        parseSearchIds('<div id="siteTable"><div class="thing" data-fullname="t3_a"></div></div>'),
+      ).toEqual(['t3_a']);
+      expect(parseSearchIds('<div id="noresults"></div>')).toEqual([]);
+      expect(
+        parseSearchIds('<form><div class="thing" data-fullname="t3_a"></div></form>'),
+      ).toBeNull();
+    });
+  });
+
   it('fails on a sign-in wall', async () => {
     expect(await mentions(oldRedditLoginWall).run()).toEqual({ status: 'failed' });
+  });
+
+  it('holds search back after a block page', async () => {
+    const { run, calls } = mentions(blockPage);
+    expect(await run()).toEqual({ status: 'failed', blocked: true });
+    expect(await run()).toEqual({ status: 'failed', blocked: true });
+    expect(calls).toHaveLength(1);
   });
 
   it('searches by content id where links come in several forms', () => {
@@ -183,5 +333,18 @@ describe('lookupRedditMentions', () => {
     );
     const long = computeKeys(`https://example.com/${'a'.repeat(600)}`) ?? expect.unreachable();
     expect(commentSearchUrl(long)).toBeNull();
+  });
+});
+
+function signedIn(route: Route) {
+  const env = testEnv(fakeFetch(route).fetch);
+  return checkSignedIn({ signal: new AbortController().signal, env, guard: env.guard });
+}
+
+describe('checkSignedIn', () => {
+  it('does not depend on search', async () => {
+    expect(await signedIn(reddit(blockPage, () => json(EMPTY)))).toBe(true);
+    expect(await signedIn(reddit(blockPage, oldRedditLoginWall))).toBe(false);
+    expect(await signedIn(reddit(blockPage, blockPage))).toBeNull();
   });
 });

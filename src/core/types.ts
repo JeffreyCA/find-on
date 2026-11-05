@@ -32,7 +32,8 @@ export type SourceState =
   /** Disabled in settings. */
   | { status: 'off' }
   | { status: 'loading' }
-  | { status: 'ok'; items: Discussion[]; complete: boolean }
+  /** `limited`: Reddit blocked its search, so only exact spellings of the page's URL were asked. */
+  | { status: 'ok'; items: Discussion[]; complete: boolean; limited?: true }
   /** Reddit auto lookup skipped by the rate guard. */
   | { status: 'deferred' }
   /** Reddit only. */
@@ -100,9 +101,9 @@ export type MentionState =
   /**
    * The search failed, or the Reddit rate guard held it back (`retryAt`: when Reddit can be asked
    * again, after a 429, a pause or the breaker). The next lookup that searches for mentions asks
-   * again.
+   * again. `blocked`: Reddit blocked its search; until the hold ends, only a forced lookup asks.
    */
-  | { status: 'failed'; retryAt?: number };
+  | { status: 'failed'; retryAt?: number; blocked?: true };
 
 export interface PageInfo {
   /** URL actually looked up (after discussion-page resolution). */

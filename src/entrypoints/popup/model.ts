@@ -357,12 +357,24 @@ function statusLine(
     text,
     ...(action && { action }),
   });
-  const note = (text: string): StatusLine => ({ source: id, tone: 'note', text });
+  const note = (text: string, action?: StatusAction): StatusLine => ({
+    source: id,
+    tone: 'note',
+    text,
+    ...(action && { action }),
+  });
   switch (state.status) {
     case 'off':
     case 'loading':
-    case 'ok':
       return null;
+    case 'ok':
+      return state.limited === true
+        ? note('search unavailable, exact links only', {
+            kind: 'retry',
+            label: 'Retry',
+            force: true,
+          })
+        : null;
     case 'deferred':
     case 'paused':
       // The popup's own lookup runs the source; this only shows if that lookup failed to start.
@@ -399,21 +411,24 @@ function statusLine(
 /**
  * A note when a source answered but its mention search did not: it failed, was held back by the
  * Reddit rate guard (counting down to when Reddit can be asked again), or never answered before the
- * lookup ended. A failed source has a band of its own instead.
+ * lookup ended. A failed source has a band of its own instead, and a source limited by a blocked
+ * search a note of its own.
  */
 function mentionLine(
   s: SourceView,
   state: MentionState | undefined,
   busy: boolean,
 ): StatusLine | null {
-  if (busy || s.state.status !== 'ok' || state === undefined || state.status === 'ok') return null;
-  const retryAt = state.status === 'failed' ? state.retryAt : undefined;
+  if (busy || s.state.status !== 'ok' || s.state.limited === true) return null;
+  if (state === undefined || state.status === 'ok') return null;
+  const failed = state.status === 'failed' ? state : undefined;
   return {
     source: s.id,
     tone: 'note',
     text: 'mentions not checked',
-    ...(retryAt !== undefined && { retryAt }),
-    action: { kind: 'retry', label: 'Retry', force: false },
+    ...(failed?.retryAt !== undefined && { retryAt: failed.retryAt }),
+    // A blocked search is asked again only by a forced lookup.
+    action: { kind: 'retry', label: 'Retry', force: failed?.blocked === true },
   };
 }
 

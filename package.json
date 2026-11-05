@@ -22,6 +22,7 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "htmlparser2": "12.0.0",
     "preact": "11.0.2"
   },
   "devDependencies": {
