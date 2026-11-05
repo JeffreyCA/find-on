@@ -10,11 +10,11 @@ const live: Route = (url) => {
     return json(recorded ? fixtureJson('hn-search-xkcd-927.json') : { hits: [], nbHits: 0 });
   }
   if (url.pathname === '/search') return html(fixtureText('reddit-search-xkcd-927.html'));
-  if (url.pathname === '/api/info.json' && url.searchParams.get('id') === 't3_1i0iq9e')
+  if (url.pathname === '/api/info.api' && url.searchParams.get('id') === 't3_1i0iq9e')
     return json(fixtureJson('reddit-by-id-1i0iq9e.json'));
-  if (url.pathname === '/api/info.json' && url.searchParams.has('id'))
+  if (url.pathname === '/api/info.api' && url.searchParams.has('id'))
     return json(fixtureJson('reddit-search-xkcd-927.json'));
-  if (url.pathname === '/api/info.json') return json(fixtureJson('reddit-info-xkcd-927.json'));
+  if (url.pathname === '/api/info.api') return json(fixtureJson('reddit-info-xkcd-927.json'));
   if (url.pathname.startsWith('/duplicates/'))
     return json(fixtureJson('reddit-duplicates-1i0iq9e.json'));
   throw new Error(`unexpected request ${url.href}`);

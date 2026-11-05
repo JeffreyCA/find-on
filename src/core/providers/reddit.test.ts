@@ -39,7 +39,7 @@ const blockPage = () => html(fixtureText('reddit-blocked-403.html'), 403);
 function reddit(search: () => Response, info: () => Response, hydrate = hydratedFixture): Route {
   return (url) => {
     if (url.hostname === 'old.reddit.com' && url.pathname === '/search') return search();
-    if (url.hostname === 'old.reddit.com' && url.pathname === '/api/info.json')
+    if (url.hostname === 'old.reddit.com' && url.pathname === '/api/info.api')
       return url.searchParams.has('id') ? hydrate() : info();
     throw new Error(`unexpected request ${url.href}`);
   };
@@ -59,7 +59,9 @@ function setup(route: Route) {
       })
     ).state;
   const endpoints = () =>
-    calls.map(({ url }) => `${url.hostname.split('.')[0]} ${url.pathname.replace(/\.json$/, '')}`);
+    calls.map(
+      ({ url }) => `${url.hostname.split('.')[0]} ${url.pathname.replace(/\.(?:json|api)$/, '')}`,
+    );
   return { calls, env, run, endpoints };
 }
 

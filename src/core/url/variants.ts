@@ -1,4 +1,4 @@
-// Spellings of a page URL for Reddit's exact-URL index (/api/info.json?url=). Pure, no browser APIs.
+// Spellings of a page URL for Reddit's exact-URL index (/api/info.api?url=). Pure, no browser APIs.
 
 import { registrableLabels } from './common';
 import { computeKeys, splitIdentity } from './keys';
