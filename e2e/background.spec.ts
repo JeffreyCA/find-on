@@ -66,7 +66,7 @@ async function mockNetwork(
     );
   await answer('https://hn.algolia.com', null, 'hn-search-xkcd-927.json');
   await answer('https://hn.algolia.com', '/api/v1/search_by_date', 'hn-mentions-xkcd-927.json');
-  await answer('https://old.reddit.com', '/api/info.json', 'reddit-info-xkcd-927.json');
+  await answer('https://old.reddit.com', '/api/info.api', 'reddit-info-xkcd-927.json');
   await context.route(
     (url) => url.origin === 'https://old.reddit.com' && url.pathname === '/search',
     (route) => {
@@ -81,7 +81,7 @@ async function mockNetwork(
   await context.route(
     (url) =>
       url.origin === 'https://old.reddit.com' &&
-      url.pathname === '/api/info.json' &&
+      url.pathname === '/api/info.api' &&
       url.searchParams.has('id'),
     (route) => {
       requests.push(route.request().url());
@@ -151,9 +151,9 @@ test('shows the number of discussions on the badge', async ({ context, serviceWo
   expect(sent.toSorted()).toEqual([
     'hn.algolia.com/api/v1/search',
     'hn.algolia.com/api/v1/search_by_date',
-    'old.reddit.com/api/info.json',
-    'old.reddit.com/api/info.json',
-    'old.reddit.com/api/info.json',
+    'old.reddit.com/api/info.api',
+    'old.reddit.com/api/info.api',
+    'old.reddit.com/api/info.api',
     'old.reddit.com/search',
     'old.reddit.com/search',
   ]);

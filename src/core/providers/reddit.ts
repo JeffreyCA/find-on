@@ -1,9 +1,9 @@
 // Reddit through the user's signed-in reddit.com session. Pure TS.
 //
 // The browser attaches the user's reddit.com cookies to these requests (`credentials: 'include'`).
-// Every request goes to old.reddit.com. Search JSON is blocked even for signed-in users, so search
-// reads post IDs from HTML and hydrates them through /api/info.json. Exact-URL lookups still work
-// without search. Signed out, old.reddit.com redirects to its login page.
+// Every request goes to old.reddit.com. Search JSON and /api/info.json are blocked even for
+// signed-in users, so search reads post IDs from HTML and hydrates them through /api/info.api.
+// Exact-URL lookups use the same API. Signed out, old.reddit.com redirects to its login page.
 // Search results are candidates only: every post is classified locally on
 // `url_overridden_by_dest ?? url`, and posts in no tier are dropped. Mentions (posts that link to the
 // page in their text or title) are verified the same way, on the links in that text.
@@ -36,10 +36,11 @@ import { closerLink, linkingItems, linksInHtml, urlsInText } from './text-links'
 import { parseSearchIds } from './reddit-search';
 
 export const OLD_REDDIT = redditOrigin('old');
+const INFO_API = `${OLD_REDDIT}/api/info.api`;
 
 /** Reddit search rejects longer queries; such pages rely on the exact-URL lookups instead. */
 const MAX_SEARCH_QUERY = 512;
-/** Variants of the page URL tried against /api/info.json (#1 always, #2 and #3 for `full`). */
+/** Variants of the page URL tried against the info API (#1 always, #2 and #3 for `full`). */
 const INFO_VARIANTS = 3;
 /** The same for a `full` lookup without search, when they are all that can find a post. */
 const INFO_VARIANTS_WITHOUT_SEARCH = 5;
@@ -62,7 +63,7 @@ export const isRedditFrontPage = (keys: UrlKeys): boolean => keys.similar === 'r
 
 /** E: Reddit's exact-URL index. */
 export function infoUrl(variant: string): string {
-  return `${OLD_REDDIT}/api/info.json?url=${encodeURIComponent(variant)}&limit=100&raw_json=1`;
+  return `${INFO_API}?url=${encodeURIComponent(variant)}&limit=100&raw_json=1`;
 }
 
 /** S: fuzzy `url:` search. */
@@ -77,7 +78,7 @@ export function duplicatesUrl(id: string): string {
 
 /** T: one post by id (resolves a thread page to the URL it links to). */
 export function postUrl(id: string): string {
-  return `${OLD_REDDIT}/api/info.json?id=t3_${id}&raw_json=1`;
+  return `${INFO_API}?id=t3_${id}&raw_json=1`;
 }
 
 /**
@@ -286,7 +287,7 @@ async function searchPosts(
   if (stopped()) return undefined;
   const selected = ids.slice(0, limit);
   const response = await requestPosts(
-    `${OLD_REDDIT}/api/info.json?id=${encodeURIComponent(selected.join(','))}&limit=100&raw_json=1`,
+    `${INFO_API}?id=${encodeURIComponent(selected.join(','))}&limit=100&raw_json=1`,
     ctx,
   );
   if (response.posts === null) return response;

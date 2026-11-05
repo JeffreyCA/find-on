@@ -66,14 +66,14 @@ async function mockNetwork(
           body: fixture(`reddit-${mentions ? 'mentions' : 'search'}-xkcd-927.html`),
         });
       }
-      if (pathname === '/api/info.json' && searchParams.has('id')) {
+      if (pathname === '/api/info.api' && searchParams.has('id')) {
         const mentions = searchParams.get('id')?.includes('t3_zzm1');
         return fulfillJson(
           route,
           fixture(`reddit-${mentions ? 'mentions' : 'search'}-xkcd-927.json`),
         );
       }
-      if (pathname === '/api/info.json')
+      if (pathname === '/api/info.api')
         return fulfillJson(route, fixture('reddit-info-xkcd-927.json'));
       // Other submissions of the best match: none beyond what search found.
       return fulfillJson(route, JSON.stringify([EMPTY_LISTING, EMPTY_LISTING]));

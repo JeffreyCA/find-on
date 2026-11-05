@@ -104,9 +104,9 @@ async function mockNetwork({ slug, hnSearch, hnItem, redditSearch, redditInfo })
             : fs.readFileSync(path.join(FIXTURES, 'reddit-search-xkcd-927.html'), 'utf8'),
         });
       }
-      if (pathname === '/api/info.json' && searchParams.has('id'))
+      if (pathname === '/api/info.api' && searchParams.has('id'))
         return json(route, redditSearch ?? EMPTY_LISTING);
-      if (pathname === '/api/info.json') return json(route, redditInfo ?? EMPTY_LISTING);
+      if (pathname === '/api/info.api') return json(route, redditInfo ?? EMPTY_LISTING);
       return json(route, [EMPTY_LISTING, EMPTY_LISTING]);
     },
   );
