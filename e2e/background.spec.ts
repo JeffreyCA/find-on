@@ -66,17 +66,27 @@ async function mockNetwork(
     );
   await answer('https://hn.algolia.com', null, 'hn-search-xkcd-927.json');
   await answer('https://hn.algolia.com', '/api/v1/search_by_date', 'hn-mentions-xkcd-927.json');
-  await answer('https://old.reddit.com', '/search.json', 'reddit-search-xkcd-927.json');
   await answer('https://old.reddit.com', '/api/info.json', 'reddit-info-xkcd-927.json');
-  // Reddit's mention search: the page's address in quotes.
+  await context.route(
+    (url) => url.origin === 'https://old.reddit.com' && url.pathname === '/search',
+    (route) => {
+      requests.push(route.request().url());
+      const mentions = new URL(route.request().url()).searchParams.get('q')?.startsWith('"');
+      return route.fulfill({
+        contentType: 'text/html; charset=UTF-8',
+        body: fixture(`reddit-${mentions ? 'mentions' : 'search'}-xkcd-927.html`),
+      });
+    },
+  );
   await context.route(
     (url) =>
       url.origin === 'https://old.reddit.com' &&
-      url.pathname === '/search.json' &&
-      url.searchParams.get('q')?.startsWith('"') === true,
+      url.pathname === '/api/info.json' &&
+      url.searchParams.has('id'),
     (route) => {
       requests.push(route.request().url());
-      return fulfillJson(route, 'reddit-mentions-xkcd-927.json');
+      const mentions = new URL(route.request().url()).searchParams.get('id')?.includes('t3_zzm1');
+      return fulfillJson(route, `reddit-${mentions ? 'mentions' : 'search'}-xkcd-927.json`);
     },
   );
   return { requests, unexpected };
@@ -136,15 +146,16 @@ test('shows the number of discussions on the badge', async ({ context, serviceWo
   await openArticle(context);
 
   await expect.poll(() => badgeOf(serviceWorker, ARTICLE)).toBe(BADGE);
-  // An automatic check sends HN one search, and Reddit one search plus one exact-URL lookup, then
-  // each one search for text posts.
+  // Each Reddit search discovers IDs through HTML and hydrates them, alongside the exact lookup.
   const sent = network.requests.map((u) => new URL(u)).map((u) => u.host + u.pathname);
   expect(sent.toSorted()).toEqual([
     'hn.algolia.com/api/v1/search',
     'hn.algolia.com/api/v1/search_by_date',
     'old.reddit.com/api/info.json',
-    'old.reddit.com/search.json',
-    'old.reddit.com/search.json',
+    'old.reddit.com/api/info.json',
+    'old.reddit.com/api/info.json',
+    'old.reddit.com/search',
+    'old.reddit.com/search',
   ]);
   expect(network.unexpected).toEqual([]);
 });

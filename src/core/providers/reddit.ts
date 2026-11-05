@@ -1,14 +1,16 @@
 // Reddit through the user's signed-in reddit.com session. Pure TS.
 //
 // The browser attaches the user's reddit.com cookies to these requests (`credentials: 'include'`).
-// Every request goes to old.reddit.com: www.reddit.com answers JSON requests with a 403 "blocked by
-// network security" page even for signed-in users. Signed out, old.reddit.com redirects to its login
-// page. Search results are candidates only: every post is classified locally on
+// Every request goes to old.reddit.com. Search JSON is blocked even for signed-in users, so search
+// reads post IDs from HTML and hydrates them through /api/info.json. Exact-URL lookups still work
+// without search. Signed out, old.reddit.com redirects to its login page.
+// Search results are candidates only: every post is classified locally on
 // `url_overridden_by_dest ?? url`, and posts in no tier are dropped. Mentions (posts that link to the
 // page in their text or title) are verified the same way, on the links in that text.
 
 import {
   failureState,
+  getHtml,
   getJson,
   REQUEST_TIMEOUT_MS,
   type Failure,
@@ -31,6 +33,7 @@ import {
 import { classifyHits, computeKeys, redditVariants, splitIdentity, type UrlKeys } from '../url';
 import { hasStrongMatch, numberOr0, stringOr, type OkState } from './common';
 import { closerLink, linkingItems, linksInHtml, urlsInText } from './text-links';
+import { parseSearchIds } from './reddit-search';
 
 export const OLD_REDDIT = redditOrigin('old');
 
@@ -38,6 +41,8 @@ export const OLD_REDDIT = redditOrigin('old');
 const MAX_SEARCH_QUERY = 512;
 /** Variants of the page URL tried against /api/info.json (#1 always, #2 and #3 for `full`). */
 const INFO_VARIANTS = 3;
+/** The same for a `full` lookup without search, when they are all that can find a post. */
+const INFO_VARIANTS_WITHOUT_SEARCH = 5;
 
 /** Network errors, timeouts and 5xx are retried once for `full` and never for `auto`. */
 export function redditPolicy(depth: Depth): FetchPolicy {
@@ -61,8 +66,8 @@ export function infoUrl(variant: string): string {
 }
 
 /** S: fuzzy `url:` search. */
-export function searchUrl(query: string, limit = 100): string {
-  return `${OLD_REDDIT}/search.json?q=${encodeURIComponent(`url:${query}`)}&sort=top&t=all&type=link&limit=${limit}&raw_json=1`;
+export function searchUrl(query: string): string {
+  return `${OLD_REDDIT}/search?q=${encodeURIComponent(`url:${query}`)}&sort=top&t=all&type=link&limit=100`;
 }
 
 /** D: the post, then the other submissions of the same link. */
@@ -72,8 +77,15 @@ export function duplicatesUrl(id: string): string {
 
 /** T: one post by id (resolves a thread page to the URL it links to). */
 export function postUrl(id: string): string {
-  return `${OLD_REDDIT}/by_id/t3_${id}.json?raw_json=1`;
+  return `${OLD_REDDIT}/api/info.json?id=t3_${id}&raw_json=1`;
 }
+
+/**
+ * Reddit's "blocked by network security" page: a 403 that is not a human-verification page. It is
+ * about the path asked for, not the account, whose other requests still answer.
+ */
+const isBlockPage = (outcome: HttpOutcome): outcome is Extract<HttpOutcome, { kind: 'http' }> =>
+  outcome.kind === 'http' && outcome.meta.status === 403;
 
 /**
  * The `url:` search term for a page: the SIMILAR key (no scheme), except for sites whose
@@ -233,17 +245,63 @@ function uniqueVisible(posts: readonly RedditPost[]): RedditPost[] {
   });
 }
 
-/**
- * One admitted request, with the rate guard's bookkeeping: its outcome and, when it answered with a
- * listing, the posts in it.
- */
-async function fetchPosts(
+interface PostResponse {
+  outcome: HttpOutcome;
+  posts: RedditPost[] | null;
+}
+
+type PostContext = Pick<RedditContext, 'depth' | 'signal' | 'env' | 'guard'>;
+
+async function requestPosts(url: string, ctx: PostContext): Promise<PostResponse> {
+  const outcome = await ctx.guard.track(() =>
+    getJson(url, redditPolicy(ctx.depth), ctx.env, ctx.signal),
+  );
+  return { outcome, posts: outcome.kind === 'ok' ? parseListings(outcome.data) : null };
+}
+
+/** HTML supplies candidates only; all post fields still come from Reddit's JSON API. */
+async function searchPosts(
   url: string,
-  ctx: Pick<RedditContext, 'depth' | 'signal' | 'env' | 'guard'>,
-): Promise<{ outcome: HttpOutcome; posts: RedditPost[] | null }> {
-  const outcome = await getJson(url, redditPolicy(ctx.depth), ctx.env, ctx.signal);
-  await ctx.guard.observe(outcome);
-  const posts = outcome.kind === 'ok' ? parseListings(outcome.data) : null;
+  limit: number,
+  ctx: PostContext,
+  stopped: () => boolean = () => false,
+): Promise<PostResponse | undefined> {
+  const outcome = await ctx.guard.track(() =>
+    getHtml(url, redditPolicy(ctx.depth), ctx.env, ctx.signal),
+  );
+  if (outcome.kind !== 'ok') return { outcome, posts: null };
+  const ids = typeof outcome.data === 'string' ? parseSearchIds(outcome.data) : null;
+  if (ids === null) {
+    return {
+      outcome: {
+        kind: 'format',
+        detail: 'response without Reddit search listing',
+        meta: outcome.meta,
+      },
+      posts: null,
+    };
+  }
+  if (ids.length === 0) return { outcome, posts: [] };
+  // The parallel exact-URL request may have hit an account wall while HTML was loading.
+  if (stopped()) return undefined;
+  const selected = ids.slice(0, limit);
+  const response = await requestPosts(
+    `${OLD_REDDIT}/api/info.json?id=${encodeURIComponent(selected.join(','))}&limit=100&raw_json=1`,
+    ctx,
+  );
+  if (response.posts === null) return response;
+  const byId = new Map(response.posts.map((post) => [`t3_${post.id.toLowerCase()}`, post]));
+  return {
+    outcome: response.outcome,
+    posts: selected.flatMap((id) => {
+      const post = byId.get(id);
+      return post ? [post] : [];
+    }),
+  };
+}
+
+async function fetchPosts(url: string, ctx: PostContext): Promise<PostResponse> {
+  const { outcome, posts } = await requestPosts(url, ctx);
   await ctx.guard.conclude({
     anyOk: posts !== null,
     signedOut: outcome.kind === 'login',
@@ -284,7 +342,8 @@ export interface RedditLookup {
   held?: true;
   /**
    * A request failed and ended the plan (a sign-in wall, a challenge, a 429, an error), though an
-   * earlier one answered: nothing more should be sent to Reddit in this lookup.
+   * earlier one answered, or Reddit blocked its search: no mention search should be sent in this
+   * lookup.
    */
   stopped?: true;
 }
@@ -300,6 +359,9 @@ export interface RedditLookup {
  * A failed request (after its retry) stops the lookup: every request goes to the same host, and a
  * challenge, a 429 or a sign-in wall concerns the account. If any request succeeded the source is
  * `ok` with what was found, otherwise it takes the most specific failure.
+ *
+ * The exception is a block page on S. S is then held back for a while and the source is `limited`:
+ * `full` lookups try every spelling of E, since only they can find the posts submitted under them.
  */
 export async function lookupReddit(
   page: UrlKeys,
@@ -307,22 +369,35 @@ export async function lookupReddit(
   opts: RedditLookupOptions,
 ): Promise<RedditLookup> {
   const { depth, force, guard, previous } = opts;
-  const policy = redditPolicy(depth);
-  const variants = redditVariants(pageUrl, INFO_VARIANTS);
+  const variants = redditVariants(pageUrl, INFO_VARIANTS_WITHOUT_SEARCH);
   const query = searchQuery(page);
-  const search = `url:${query}`.length <= MAX_SEARCH_QUERY ? searchUrl(query) : undefined;
+  // An earlier result that has S's answer needs no new one, so it isn't limited.
+  let searchBlocked = !force && previous?.complete !== true && (await guard.searchHeld());
+  const search =
+    !searchBlocked && `url:${query}`.length <= MAX_SEARCH_QUERY ? searchUrl(query) : undefined;
 
   const attempts: Attempt[] = [];
   const posts: RedditPost[] = [...(opts.seed ?? [])];
   let stopped = false;
+  let hydrationStopped = false;
 
   const run = async (url: string): Promise<void> => {
     if (stopped) return;
-    const outcome = await getJson(url, policy, opts.env, opts.signal);
-    await guard.observe(outcome);
+    const response =
+      url === search
+        ? await searchPosts(url, 100, opts, () => hydrationStopped)
+        : await requestPosts(url, opts);
+    if (!response) return;
+    const { outcome, posts: parsed } = response;
+    if (url === search && isBlockPage(outcome)) {
+      await guard.observeSearch(true);
+      searchBlocked = true;
+      attempts.push(outcome);
+      return;
+    }
     if (outcome.kind === 'ok') {
-      const parsed = parseListings(outcome.data);
       if (parsed) {
+        if (url === search) await guard.observeSearch(false);
         posts.push(...parsed);
         attempts.push({ kind: 'ok' });
         return;
@@ -336,6 +411,11 @@ export async function lookupReddit(
       return;
     }
     attempts.push(outcome);
+    hydrationStopped ||=
+      outcome.kind === 'login' ||
+      outcome.kind === 'challenge' ||
+      outcome.kind === 'rate-limited' ||
+      isBlockPage(outcome);
     stopped = true;
   };
 
@@ -345,14 +425,19 @@ export async function lookupReddit(
     if (search) first.push(search);
     if (variants[0]) first.push(infoUrl(variants[0]));
   }
-  const admission = await guard.admit({ depth, force, cost: first.length });
+  // Search reserves one request for HTML and one for hydration.
+  const admission = await guard.admit({
+    depth,
+    force,
+    cost: first.length + (search !== undefined && first.includes(search) ? 1 : 0),
+  });
   if (!admission.ok) return previous ? { state: previous, held: true } : { state: admission.state };
   await Promise.all(first.map((url) => run(url)));
 
   let items = mergeItems(previous?.items ?? [], matchPosts(posts, page));
   if (depth === 'full') {
-    for (const variant of variants.slice(1)) {
-      if (hasStrongMatch(items) || stopped) break;
+    for (const variant of variants.slice(1, searchBlocked ? undefined : INFO_VARIANTS)) {
+      if (stopped || (!searchBlocked && hasStrongMatch(items))) break;
       // oxlint-disable-next-line no-await-in-loop -- each variant is only tried if the last missed
       await run(infoUrl(variant));
       items = mergeItems(previous?.items ?? [], matchPosts(posts, page));
@@ -376,8 +461,13 @@ export async function lookupReddit(
     // With nothing sent (no usable query or variant), the result is only what was seeded.
     const base = attempts.length > 0 || previous?.complete === true;
     return {
-      state: { status: 'ok', items, complete: base && failures.length === 0 },
-      ...(failures.length > 0 && { stopped: true }),
+      state: {
+        status: 'ok',
+        items,
+        complete: base && failures.length === 0 && !searchBlocked,
+        ...(searchBlocked && { limited: true }),
+      },
+      ...((failures.length > 0 || searchBlocked) && { stopped: true }),
     };
   }
   return { state: mostSpecific(failures) };
@@ -447,11 +537,11 @@ export async function resolveRedditThread(id: string, ctx: RedditContext): Promi
   return { kind: 'link', url: post.url, post, ...(thread && { thread }) };
 }
 
-/** One search request for a known URL: true when Reddit answers, false when it asks to sign in. */
+/** One exact-URL request for a known URL: true when Reddit answers, false when it asks to sign in. */
 export async function checkSignedIn(
   ctx: Omit<RedditContext, 'depth' | 'force'>,
 ): Promise<boolean | null> {
-  const { outcome, posts } = await fetchPosts(searchUrl('xkcd.com/927', 1), {
+  const { outcome, posts } = await fetchPosts(infoUrl('https://xkcd.com/927'), {
     ...ctx,
     depth: 'auto',
   });
@@ -487,7 +577,7 @@ const MENTION_LIMIT = 50;
 
 /** M: newest posts with the phrase in their text or title. */
 export function mentionSearchUrl(term: string): string {
-  return `${OLD_REDDIT}/search.json?q=${encodeURIComponent(quoted(term))}&sort=new&t=all&type=link&limit=${MENTION_LIMIT}&raw_json=1`;
+  return `${OLD_REDDIT}/search?q=${encodeURIComponent(quoted(term))}&sort=new&t=all&type=link&limit=${MENTION_LIMIT}`;
 }
 
 /**
@@ -546,8 +636,9 @@ export function matchMentionPosts(posts: readonly RedditPost[], page: UrlKeys): 
 /**
  * Finds Reddit posts that link to the page in their text or title, with one search (M). Its
  * failures never touch the source's state: the discussion requests report account problems. With
- * `stopped` (a request in this lookup's discussion plan failed) nothing is sent, but the rate guard
- * still says when Reddit can be asked again.
+ * `stopped` (a request in this lookup's discussion plan failed, or Reddit blocked its search) or
+ * while a block page holds back searches, nothing is sent, but the rate guard still says when Reddit
+ * can be asked again.
  */
 export async function lookupRedditMentions(
   page: UrlKeys,
@@ -557,11 +648,12 @@ export async function lookupRedditMentions(
   const term = mentionTerm(page);
   if (!fitsSearch(term)) return { status: 'ok', items: [] };
   const { guard } = ctx;
+  const held = !ctx.force && (await guard.searchHeld());
   // Optional: a challenged account, or one low on requests, is not asked even for the popup.
   const admission = await guard.admit({
     depth: ctx.depth,
     force: ctx.force,
-    cost: stopped ? 0 : 1,
+    cost: stopped || held ? 0 : 2,
     optional: true,
   });
   if (!admission.ok) {
@@ -570,9 +662,22 @@ export async function lookupRedditMentions(
       ? { status: 'failed' }
       : { status: 'failed', retryAt: state.retryAt };
   }
+  if (held) return { status: 'failed', blocked: true };
   if (stopped) return { status: 'failed' };
-  const { outcome, posts } = await fetchPosts(mentionSearchUrl(term), ctx);
+  const response = await searchPosts(mentionSearchUrl(term), MENTION_LIMIT, ctx);
+  if (!response) return { status: 'failed' };
+  const { outcome, posts } = response;
+  await guard.conclude({
+    anyOk: posts !== null,
+    signedOut: outcome.kind === 'login',
+    challenged: outcome.kind === 'challenge',
+  });
   if (outcome.kind === 'rate-limited') return { status: 'failed', retryAt: outcome.retryAt };
+  if (isBlockPage(outcome)) {
+    await guard.observeSearch(true);
+    return { status: 'failed', blocked: true };
+  }
   if (!posts) return { status: 'failed' };
+  await guard.observeSearch(false);
   return { status: 'ok', items: matchMentionPosts(posts, page) };
 }

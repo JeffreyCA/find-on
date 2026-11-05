@@ -4,6 +4,13 @@ All notable changes to Find On are documented here. The format is based on [Keep
 
 Versions up to 1.6.1 were released as Find on Reddit by Adeel Hassan ([AdeelH/find-on-reddit](https://github.com/AdeelH/find-on-reddit)). Dates before 2.0.0 are when each version appeared in the repository.
 
+## [2.1.2] - 2026-11-04
+
+### Fixed
+
+- Restore Reddit search, mentions, thread lookups and sign-in checks.
+- Ignore additional tracking parameters on X links.
+
 ## [2.1.1] - 2026-10-31
 
 ### Fixed

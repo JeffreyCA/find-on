@@ -10,7 +10,7 @@ Find On is a Chrome and Edge (Manifest V3) extension that looks up the current p
 ## Rules
 
 - Send a page URL anywhere only after `checkEligibility` (src/core/url) accepts it. Keep the existing guards: nothing goes to Reddit from a private window, and automatic lookups respect the site filter.
-- Reddit only answers signed-in sessions. Send every Reddit request to old.reddit.com with `credentials: 'include'`, never without; www.reddit.com blocks JSON requests even for signed-in users.
+- Reddit only answers signed-in sessions. Send every Reddit request to old.reddit.com with `credentials: 'include'`, never without; www.reddit.com blocks JSON requests even for signed-in users. old.reddit.com answers some paths, such as `search.json`, with the same 403 block page, so keep lookups working from `/api/info.json` alone when search is blocked.
 - Keep UI copy short and functional: no taglines, filler or decorative text.
 - Never use the em dash character in code, UI copy or docs; use "-".
 - Keep tests lean. Test logic that is easy to break, such as URL matching and provider response handling. Add no tests for UI, styling or copy changes.

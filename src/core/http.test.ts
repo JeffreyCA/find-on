@@ -9,6 +9,29 @@ function kind(o: HttpOutcome) {
 }
 
 describe('classifyResponse', () => {
+  it('accepts HTML only when requested, without accepting login, block or challenge pages', async () => {
+    const results = '<div class="search-result-listing">Prove your humanity</div>';
+    expect(await classifyResponse(html(results), NOW, 'html')).toMatchObject({
+      kind: 'ok',
+      data: results,
+    });
+    expect(kind(await classifyResponse(oldRedditLoginWall(), NOW, 'html'))).toBe('login');
+    expect(kind(await classifyResponse(wwwRedditBlocked(), NOW, 'html'))).toBe('http');
+    expect(
+      kind(await classifyResponse(html(fixtureText('reddit-challenge.html')), NOW, 'html')),
+    ).toBe('challenge');
+    expect(kind(await classifyResponse(json({}), NOW, 'html'))).toBe('format');
+  });
+
+  it('bounds HTML response size', async () => {
+    expect(
+      await classifyResponse(html('x'.repeat(2 * 1024 * 1024 + 1)), NOW, 'html'),
+    ).toMatchObject({
+      kind: 'format',
+      detail: 'HTML response too large',
+    });
+  });
+
   it('parses OK JSON and reads the rate-limit headers', async () => {
     const res = json({ data: { children: [] } }, 200, {
       'x-ratelimit-remaining': '99.0',

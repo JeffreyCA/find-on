@@ -9,12 +9,14 @@ const live: Route = (url) => {
     const recorded = url.searchParams.get('query') === 'xkcd.com 927';
     return json(recorded ? fixtureJson('hn-search-xkcd-927.json') : { hits: [], nbHits: 0 });
   }
-  if (url.pathname === '/search.json') return json(fixtureJson('reddit-search-xkcd-927.json'));
+  if (url.pathname === '/search') return html(fixtureText('reddit-search-xkcd-927.html'));
+  if (url.pathname === '/api/info.json' && url.searchParams.get('id') === 't3_1i0iq9e')
+    return json(fixtureJson('reddit-by-id-1i0iq9e.json'));
+  if (url.pathname === '/api/info.json' && url.searchParams.has('id'))
+    return json(fixtureJson('reddit-search-xkcd-927.json'));
   if (url.pathname === '/api/info.json') return json(fixtureJson('reddit-info-xkcd-927.json'));
   if (url.pathname.startsWith('/duplicates/'))
     return json(fixtureJson('reddit-duplicates-1i0iq9e.json'));
-  if (url.pathname === '/by_id/t3_1i0iq9e.json')
-    return json(fixtureJson('reddit-by-id-1i0iq9e.json'));
   throw new Error(`unexpected request ${url.href}`);
 };
 
@@ -40,7 +42,7 @@ function setup(route: Route = live, { textPosts = false } = {}) {
 /** Requests for mentions: HN's date-sorted search and Reddit's quoted search. */
 const isMentionSearch = (url: URL) =>
   url.pathname === '/api/v1/search_by_date' ||
-  (url.pathname === '/search.json' && url.searchParams.get('q')?.startsWith('"') === true);
+  (url.pathname === '/search' && url.searchParams.get('q')?.startsWith('"') === true);
 
 function ok(r: LookupResult, source: 'hn' | 'reddit'): Discussion[] {
   const state = r.sources[source];
@@ -49,6 +51,22 @@ function ok(r: LookupResult, source: 'hn' | 'reddit'): Discussion[] {
 }
 
 describe('lookup', () => {
+  it('sends nothing to Reddit from private windows or for ineligible URLs', async () => {
+    const { fetch, calls } = fakeFetch(live);
+    const opts = {
+      depth: 'full',
+      sources: { hn: false, reddit: true },
+      incognito: true,
+      signal: new AbortController().signal,
+    } as const;
+    const result = await lookup('https://xkcd.com/927/', opts, testEnv(fetch));
+    expect(result.sources.reddit).toEqual({ status: 'skipped', reason: 'incognito' });
+    await expect(
+      lookup('http://localhost/private', { ...opts, incognito: false }, testEnv(fetch)),
+    ).rejects.toThrow('Not a checkable URL');
+    expect(calls).toEqual([]);
+  });
+
   it('keeps sources independent: one failing never blocks the other', async () => {
     const { run } = setup((url, init) =>
       url.hostname === 'hn.algolia.com'
@@ -92,6 +110,21 @@ describe('lookup', () => {
     expect(result.sources.reddit).toMatchObject({ status: 'ok', complete: false });
     // The challenge opened the breaker: the note counts down to when Reddit can be asked again.
     expect(result.mentions?.reddit).toEqual({ status: 'failed', retryAt: expect.any(Number) });
+    expect(
+      calls.filter((c) => c.url.hostname === 'old.reddit.com' && isMentionSearch(c.url)),
+    ).toEqual([]);
+  });
+
+  it('sends Reddit no mention search when its search is blocked', async () => {
+    const { run, calls } = setup((url, init) =>
+      url.hostname === 'old.reddit.com' && url.pathname === '/search'
+        ? html(fixtureText('reddit-blocked-403.html'), 403)
+        : live(url, init),
+    );
+    const result = await run('https://xkcd.com/927/');
+    expect(result.sources.reddit).toMatchObject({ status: 'ok', limited: true });
+    expect(ok(result, 'reddit').length).toBeGreaterThan(0);
+    expect(result.mentions?.reddit).toEqual({ status: 'failed', blocked: true });
     expect(
       calls.filter((c) => c.url.hostname === 'old.reddit.com' && isMentionSearch(c.url)),
     ).toEqual([]);
@@ -173,7 +206,7 @@ describe('lookup', () => {
     const result = await run('https://www.reddit.com/r/bestof/comments/zzbest/slug/');
     expect(result.page.noLink).toEqual({ source: 'reddit', id: 'zzbest', linkPost: true });
     // Nothing else is looked up.
-    expect(calls.map((c) => c.url.pathname)).toEqual(['/by_id/t3_zzbest.json']);
+    expect(calls.map((c) => c.url.searchParams.get('id'))).toEqual(['t3_zzbest']);
   });
 
   it('does not send a blocked page a thread links to (automatic lookups)', async () => {
@@ -192,6 +225,6 @@ describe('lookup', () => {
     const skipped = { status: 'skipped', reason: 'filtered' };
     expect(result.sources).toEqual({ hn: skipped, reddit: skipped });
     // Only the thread itself was fetched.
-    expect(calls.map((c) => c.url.pathname)).toEqual(['/by_id/t3_1i0iq9e.json']);
+    expect(calls.map((c) => c.url.searchParams.get('id'))).toEqual(['t3_1i0iq9e']);
   });
 });

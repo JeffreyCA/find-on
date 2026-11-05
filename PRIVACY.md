@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated:** 2026-10-28 · **Applies to:** Find On for Google Chrome and Microsoft Edge
+**Last updated:** 2026-11-04 · **Applies to:** Find On for Google Chrome and Microsoft Edge
 
 ## Summary
 
@@ -8,7 +8,7 @@ Find On shows Hacker News and Reddit discussions of the page you're on. To find 
 
 ## What Find On reads
 
-Find On reads the address and title of your browser tabs. It does not read page content, and it never reads or stores your cookies. The title is used only to prefill a submit link when you click one.
+Find On reads the address and title of your browser tabs. It does not read the content of those pages, and it never reads or stores your cookies. The title is used only to prefill a submit link when you click one.
 
 ## Cleaned addresses
 
@@ -21,7 +21,7 @@ Find On never looks up addresses that are not public web pages: anything other t
 | Recipient                                                       | What it receives                                                                                                  | When                                                                         |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | Hacker News search (`hn.algolia.com`, run by Algolia)           | Search terms built from the cleaned page address, such as its host name, words from its path and IDs. No cookies. | Each lookup, while the Hacker News source is enabled                         |
-| Reddit (`old.reddit.com`)                                       | The cleaned page address, search terms built from it and IDs of matching posts, with your reddit.com cookies      | Each lookup, while the Reddit source is enabled. Never from private windows. |
+| Reddit (`old.reddit.com`)                                       | The cleaned page address, search terms built from it and IDs of candidate posts, with your reddit.com cookies     | Each lookup, while the Reddit source is enabled. Never from private windows. |
 | The Hacker News or Reddit submit page                           | The cleaned page address and the page title                                                                       | Only when you choose to submit the page                                      |
 | Reddit's comment search (`www.reddit.com`), opened in a new tab | A search term built from the cleaned page address                                                                 | Only when you click the link to search Reddit comments                       |
 
@@ -31,7 +31,7 @@ Reddit only answers signed-in users, so Reddit requests carry your reddit.com co
 
 Like any website you visit, both services also see your IP address and browser details. See [Algolia's privacy policy](https://www.algolia.com/policies/privacy) and [Reddit's privacy policy](https://www.reddit.com/policies/privacy-policy).
 
-While the Reddit source is enabled, the welcome and settings pages can check whether you are signed in to Reddit. Each check is a Reddit search for a fixed address (`xkcd.com/927`), never one of your pages, and is never made from a private window.
+While the Reddit source is enabled, the welcome and settings pages can check whether you are signed in to Reddit. Each check is a Reddit lookup for a fixed address (`xkcd.com/927`), never one of your pages, and is never made from a private window.
 
 ## When lookups happen
 

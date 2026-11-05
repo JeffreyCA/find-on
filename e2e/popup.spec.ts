@@ -59,11 +59,20 @@ async function mockNetwork(
         });
       }
       const { pathname, searchParams } = new URL(route.request().url());
-      // Mentions: a quoted search for the page in post text and titles.
-      if (pathname === '/search.json' && searchParams.get('q')?.startsWith('"') === true)
-        return fulfillJson(route, fixture('reddit-mentions-xkcd-927.json'));
-      if (pathname === '/search.json')
-        return fulfillJson(route, fixture('reddit-search-xkcd-927.json'));
+      if (pathname === '/search') {
+        const mentions = searchParams.get('q')?.startsWith('"');
+        return route.fulfill({
+          contentType: 'text/html; charset=UTF-8',
+          body: fixture(`reddit-${mentions ? 'mentions' : 'search'}-xkcd-927.html`),
+        });
+      }
+      if (pathname === '/api/info.json' && searchParams.has('id')) {
+        const mentions = searchParams.get('id')?.includes('t3_zzm1');
+        return fulfillJson(
+          route,
+          fixture(`reddit-${mentions ? 'mentions' : 'search'}-xkcd-927.json`),
+        );
+      }
       if (pathname === '/api/info.json')
         return fulfillJson(route, fixture('reddit-info-xkcd-927.json'));
       // Other submissions of the best match: none beyond what search found.

@@ -95,10 +95,17 @@ async function mockNetwork({ slug, hnSearch, hnItem, redditSearch, redditInfo })
     (url) => url.origin === 'https://old.reddit.com',
     (route) => {
       const { pathname, searchParams } = new URL(route.request().url());
-      if (pathname === '/search.json' && searchParams.get('q')?.startsWith('"') === true) {
-        return json(route, EMPTY_LISTING);
+      if (pathname === '/search') {
+        const empty = !redditSearch || searchParams.get('q')?.startsWith('"') === true;
+        return route.fulfill({
+          contentType: 'text/html; charset=UTF-8',
+          body: empty
+            ? '<div class="search-result-listing"></div>'
+            : fs.readFileSync(path.join(FIXTURES, 'reddit-search-xkcd-927.html'), 'utf8'),
+        });
       }
-      if (pathname === '/search.json') return json(route, redditSearch ?? EMPTY_LISTING);
+      if (pathname === '/api/info.json' && searchParams.has('id'))
+        return json(route, redditSearch ?? EMPTY_LISTING);
       if (pathname === '/api/info.json') return json(route, redditInfo ?? EMPTY_LISTING);
       return json(route, [EMPTY_LISTING, EMPTY_LISTING]);
     },

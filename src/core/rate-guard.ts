@@ -1,6 +1,6 @@
 // Reddit rate guard: a token bucket for automatic lookups, a pause when Reddit's own
-// rate-limit headers run low, and a circuit breaker after sign-in or human-verification failures.
-// Pure logic over an injected KV store and clock; in the extension the KV is storage.session, so the
+// rate-limit headers run low, a circuit breaker after sign-in or human-verification failures, and a
+// hold on search while Reddit answers it with its block page. Pure logic over an injected KV store and clock; in the extension the KV is storage.session, so the
 // state survives service worker restarts. Use one guard per store: it serializes its own reads and
 // writes.
 
@@ -19,6 +19,8 @@ const REFILL_PER_MS = 8 / 60_000;
 /** Below this many requests left in Reddit's window, automatic lookups wait for the reset. */
 export const LOW_REMAINING = 10;
 export const BREAKER_MS = 5 * 60_000;
+/** How long a block page on Reddit's search holds back further searches, unless forced. */
+export const SEARCH_HOLD_MS = 60 * 60_000;
 
 const STATE_KEY = 'reddit-guard';
 
@@ -32,6 +34,8 @@ export interface GuardState {
   limitedUntil: number;
   /** Signed out or challenged: automatic requests stop until then. */
   breakerUntil: number;
+  /** Reddit answered a search with its block page: searches stop until then, unless forced. */
+  searchHeldUntil: number;
 }
 
 export type Admission =
@@ -56,6 +60,7 @@ export class RedditGuard {
   readonly #now: () => number;
   /** Two lookups running at once must not both spend the same tokens. */
   #chain: Promise<unknown> = Promise.resolve();
+  #limitGeneration = 0;
 
   constructor(kv: KV, now: () => number) {
     this.#kv = kv;
@@ -84,14 +89,23 @@ export class RedditGuard {
     });
   }
 
+  /** A request already in flight when a 429 arrives must not clear its pause. */
+  async track(request: () => Promise<HttpOutcome>): Promise<HttpOutcome> {
+    const generation = this.#limitGeneration;
+    const outcome = await request();
+    await this.observe(outcome, generation);
+    return outcome;
+  }
+
   /** Records what one response says about Reddit's limits. */
-  observe(outcome: HttpOutcome): Promise<void> {
+  observe(outcome: HttpOutcome, generation = this.#limitGeneration): Promise<void> {
     if (outcome.kind === 'network' || outcome.kind === 'timeout') return Promise.resolve();
     const { rate } = outcome.meta;
     return this.#update((s) => {
       if (outcome.kind === 'rate-limited') {
+        this.#limitGeneration++;
         s.limitedUntil = Math.max(s.limitedUntil, outcome.retryAt);
-      } else if (outcome.kind === 'ok') {
+      } else if (outcome.kind === 'ok' && generation === this.#limitGeneration) {
         s.limitedUntil = 0;
       }
       if (rate && rate.remaining < LOW_REMAINING) {
@@ -111,6 +125,18 @@ export class RedditGuard {
       } else if (result.anyOk) {
         s.breakerUntil = 0;
       }
+    });
+  }
+
+  /** Whether a block page on Reddit's search is still holding back further searches. */
+  searchHeld(): Promise<boolean> {
+    return this.#update((s, now) => s.searchHeldUntil > now);
+  }
+
+  /** Records how a search answered: a block page starts the hold, a real answer lifts it. */
+  observeSearch(blocked: boolean): Promise<void> {
+    return this.#update((s, now) => {
+      s.searchHeldUntil = blocked ? now + SEARCH_HOLD_MS : 0;
     });
   }
 
@@ -149,6 +175,7 @@ function initialState(now: number): GuardState {
     pausedUntil: 0,
     limitedUntil: 0,
     breakerUntil: 0,
+    searchHeldUntil: 0,
   };
 }
 
@@ -159,7 +186,14 @@ function parseState(value: unknown, now: number): GuardState {
 function isGuardState(value: unknown): value is GuardState {
   if (!isRecord(value)) return false;
   const v = value;
-  return (['tokens', 'refilledAt', 'pausedUntil', 'limitedUntil', 'breakerUntil'] as const).every(
-    (k) => typeof v[k] === 'number' && Number.isFinite(v[k]),
-  );
+  return (
+    [
+      'tokens',
+      'refilledAt',
+      'pausedUntil',
+      'limitedUntil',
+      'breakerUntil',
+      'searchHeldUntil',
+    ] as const
+  ).every((k) => typeof v[k] === 'number' && Number.isFinite(v[k]));
 }
